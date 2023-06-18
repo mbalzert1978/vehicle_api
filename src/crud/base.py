@@ -22,10 +22,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         session: Session,
         *,
-        skip: int = 0,
+        offset: int = 0,
         limit: int = 100,
     ) -> list[ModelType]:
-        return session.query(self.model).offset(skip).limit(limit).all()
+        return session.query(self.model).offset(offset).limit(limit).all()
 
     def create(
         self,
@@ -42,10 +42,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: Session,
         *,
         to_update: ModelType,
-        to_create: UpdateSchemaType | dict,
+        update_with: UpdateSchemaType | dict,
     ) -> ModelType:
         serialized_data = jsonable_encoder(to_update)
-        update_data = extract_data(to_create)
+        update_data = extract_data(update_with)
         update_fields(to_update, serialized_data, update_data)
         return write_to_database(session, to_update)
 
@@ -61,11 +61,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
 
-def extract_data(to_create: UpdateSchemaType | dict) -> dict:
+def extract_data(update_with: UpdateSchemaType | dict) -> dict:
     return (
-        to_create
-        if isinstance(to_create, dict)
-        else to_create.dict(exclude_unset=True)
+        update_with
+        if isinstance(update_with, dict)
+        else update_with.dict(exclude_unset=True)
     )
 
 
