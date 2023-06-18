@@ -1,18 +1,39 @@
-import datetime
+import json
 
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
-from src.model.orm import (
-    Address,
-    Base,
-    Brand,
-    Color,
-    Owner,
-    TransportationMode,
-    TransportMode,
-    Vehicle,
+from src.crud.base import CRUDBase
+from src.model.base import Base
+from src.model.vehicle import Vehicle
+from src.schemas.vehicle import VehicleCreate
+
+I30 = VehicleCreate(
+    name="I30",
+    year_of_manufacture=2017,
+    body=json.dumps(
+        {
+            "color": "black",
+            "mileage": 10000,
+            "price": 15000,
+            "type": "limusine",
+        },
+    ),
+    ready_to_drive=True,
+)
+Q7 = VehicleCreate(
+    name="Q7",
+    year_of_manufacture=2020,
+    body=json.dumps(
+        {
+            "color": "red",
+            "kilometer": 100,
+            "price": 75000,
+            "type": "suv",
+        },
+    ),
+    ready_to_drive=True,
 )
 
 
@@ -25,46 +46,19 @@ def db_engine():
 
 
 @pytest.fixture(scope="session")
-def db_session(db_engine):
+def session(db_engine):
     Session = sessionmaker(bind=db_engine)
     session = Session()
     yield session
     session.close()
 
 
-def setup_database(session):
-    brand = Brand(brand_id=1, name="Toyota")
-    color = Color(color_id=1, name="Red")
-    trans_mode = TransportationMode(name=TransportMode.LAND)
-    address = Address(
-        address_id=1,
-        street="123 Main St",
-        city="City",
-        state="State",
-        zip_code="12345",
-    )
-    owner = Owner(owner_id=1, name="John Doe", phone="1234567890")
-    owner.address.append(address)
-    vehicle = Vehicle(
-        vehicle_id=1,
-        model="Camry",
-        year=datetime.datetime(2022, 1, 1),
-        brand_id=brand.brand_id,
-        color_id=color.color_id,
-        owner_id=owner.owner_id,
-    )
-    vehicle.transportation_modes.append(trans_mode)
-
-    session.add(brand)
-    session.add(color)
-    session.add(trans_mode)
-    session.add(address)
-    session.add(owner)
-    session.add(vehicle)
-    session.commit()
+def setup_database(session: Session) -> None:
+    CRUDBase(Vehicle).create(session, to_create=I30)
+    CRUDBase(Vehicle).create(session, to_create=Q7)
 
 
 @pytest.fixture(scope="module")
-def session(db_session):
-    setup_database(db_session)
-    yield db_session
+def db(session: Session):
+    setup_database(session)
+    yield session

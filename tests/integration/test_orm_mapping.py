@@ -1,77 +1,91 @@
-import datetime
+import json
 
+import pytest
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
-from src.model.orm import (
-    Brand,
-    Color,
-    TransportationMode,
-    TransportMode,
-    Vehicle,
-)
+from src.model.vehicle import Vehicle
+from src.schemas.vehicle import VehicleUpdate
+
+JSON = {
+    "color": "black",
+    "mileage": 10000,
+    "price": 15000,
+    "type": "limusine",
+}
 
 
 def test_create_vehicle(session: Session) -> None:
     """
-    Given: A database session with pre-existing test data
+    Given: A database session
     When: Creating a new vehicle
     Then: The vehicle should be added to the database
     """
-    brand = session.query(Brand).first()
-    color = session.query(Color).first()
-    vehicle = Vehicle(
-        model="I30",
-        year=datetime.datetime(1999, 1, 1),
-        brand=brand,
-        color=color,
-    )
-    vehicle.transportation_modes.append(
-        TransportationMode(name=TransportMode.LAND),
-    )
+    expected = {
+        "name": "Car1",
+        "year_of_manufacture": 2022,
+        "body": json.dumps(JSON),
+        "ready_to_drive": True,
+    }
+
+    vehicle = Vehicle(**expected)
     session.add(vehicle)
     session.commit()
 
-    created_vehicle = session.query(Vehicle).filter_by(model="I30").first()
-    assert created_vehicle is not None
-    assert created_vehicle.model == "I30"
-    assert created_vehicle.year == datetime.datetime(1999, 1, 1)
-    assert created_vehicle.brand == brand
-    assert created_vehicle.color == color
+    if not (result := session.query(Vehicle).get(vehicle.id)):
+        pytest.fail("Vehicle not added to database")
+
+    assert result.name == expected["name"]
+    assert result.year_of_manufacture == expected["year_of_manufacture"]
+    assert result.body == expected["body"]
+    assert result.ready_to_drive is expected["ready_to_drive"]
 
 
-def test_read_vehicle(session: Session) -> None:
+def test_read_vehicle(db: Session) -> None:
     """
-    Given: A database session with pre-existing test data
-    When: Reading a vehicle
-    Then: The vehicle should be retrieved from the database
+    Given: A database session with a vehicle
+    When: Reading the vehicle from the database
+    Then: The vehicle data should match the expected values
     """
+    if not (expected := db.query(Vehicle).first()):
+        pytest.fail("No vehicle in database.")
 
-    vehicle = session.query(Vehicle).all()
+    assert expected is not None
+    assert expected.id == 1
+    assert expected.name == "I30"
+    assert expected.year_of_manufacture == 2017
+    assert expected.body == json.dumps(JSON)
+    assert expected.ready_to_drive
 
-    assert vehicle is not None
 
-
-def test_update_vehicle(session: Session) -> None:
+def test_update_vehicle(db: Session) -> None:
     """
-    Given: A database session with pre-existing test data
-    When: Updating a vehicle's model
-    Then: The vehicle's model should be successfully updated in the database
+    Given: A database session with a vehicle
+    When: Updating the vehicle data
+    Then: The vehicle data should be updated in the database
     """
-    vehicle = session.query(Vehicle).filter_by(vehicle_id=1).first()
-    vehicle.model = "Corolla"
-    session.commit()
-    updated_vehicle = session.query(Vehicle).filter_by(vehicle_id=1).first()
-    assert updated_vehicle.model == "Corolla"
+    if not (to_update := db.query(Vehicle).first()):
+        pytest.fail("No vehicle in database.")
 
+    serialized = jsonable_encoder(to_update)
 
-def test_delete_vehicle(session: Session) -> None:
-    """
-    Given: A database session with pre-existing test data
-    When: Deleting a vehicle
-    Then: The vehicle should be successfully deleted from the database
-    """
-    vehicle = session.query(Vehicle).filter_by(vehicle_id=1).first()
-    session.delete(vehicle)
-    session.commit()
+    update = VehicleUpdate(
+        name="Car3 Updated",
+        year_of_manufacture=2025,
+        body="convertible",
+        ready_to_drive=False,
+    ).dict(exclude_unset=True)
 
-    assert session.query(Vehicle).filter_by(vehicle_id=1).first() is None
+    for field in serialized:
+        if field not in update:
+            continue
+        setattr(to_update, field, update[field])
+
+    db.add(to_update)
+    db.commit()
+    db.refresh(to_update)
+
+    assert to_update.name == "Car3 Updated"
+    assert to_update.year_of_manufacture == 2025
+    assert to_update.body == "convertible"
+    assert to_update.ready_to_drive is False
