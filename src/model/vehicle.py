@@ -1,6 +1,11 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import Any
 
-from .base import Base
+from sqlalchemy import JSON
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+
+class Base(DeclarativeBase):
+    type_annotation_map = {dict[str, Any]: JSON}
 
 
 class Vehicle(Base):
@@ -11,5 +16,5 @@ class Vehicle(Base):
     )
     name: Mapped[str] = mapped_column()
     year_of_manufacture: Mapped[int] = mapped_column()
-    body: Mapped[str] = mapped_column()
+    body: Mapped[dict[str, Any]] = mapped_column()
     ready_to_drive: Mapped[bool] = mapped_column()
