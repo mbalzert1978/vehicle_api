@@ -5,13 +5,13 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from src.model.vehicle import Vehicle
-from src.schemas.vehicle import VehicleUpdate
+from src.schemas.vehicle import VehicleData, VehicleUpdate
 
-JSON = {
+DATA = {
     "color": "black",
-    "mileage": 10000,
+    "kilometer": 10000,
     "price": 15000,
-    "type": "limusine",
+    "vehicle_type": "limusine",
 }
 
 
@@ -24,7 +24,7 @@ def test_create_vehicle(session: Session) -> None:
     expected = {
         "name": "Car1",
         "year_of_manufacture": 2022,
-        "body": json.dumps(JSON),
+        "body": json.dumps(DATA),
         "ready_to_drive": True,
     }
 
@@ -54,7 +54,7 @@ def test_read_vehicle(db: Session) -> None:
     assert expected.id == 1
     assert expected.name == "I30"
     assert expected.year_of_manufacture == 2017
-    assert expected.body == json.dumps(JSON)
+    assert expected.body == DATA
     assert expected.ready_to_drive
 
 
@@ -72,7 +72,12 @@ def test_update_vehicle(db: Session) -> None:
     update = VehicleUpdate(
         name="Car3 Updated",
         year_of_manufacture=2025,
-        body="convertible",
+        body=VehicleData(
+            color="white",
+            kilometer=125_000,
+            price=20_000,
+            vehicle_type="convertible",
+        ),
         ready_to_drive=False,
     ).dict(exclude_unset=True)
 
@@ -87,5 +92,10 @@ def test_update_vehicle(db: Session) -> None:
 
     assert to_update.name == "Car3 Updated"
     assert to_update.year_of_manufacture == 2025
-    assert to_update.body == "convertible"
+    assert to_update.body == VehicleData(
+        color="white",
+        kilometer=125_000,
+        price=20_000,
+        vehicle_type="convertible",
+    )
     assert to_update.ready_to_drive is False

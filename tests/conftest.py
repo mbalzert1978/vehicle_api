@@ -1,5 +1,3 @@
-import json
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -8,31 +6,27 @@ from sqlalchemy.orm import Session, sessionmaker
 from src.crud.base import CRUDBase
 from src.main import app
 from src.model.vehicle import Base, Vehicle
-from src.schemas.vehicle import VehicleCreate
+from src.schemas.vehicle import VehicleCreate, VehicleData
 
 I30 = VehicleCreate(
     name="I30",
     year_of_manufacture=2017,
-    body=json.dumps(
-        {
-            "color": "black",
-            "mileage": 10000,
-            "price": 15000,
-            "type": "limusine",
-        },
+    body=VehicleData(
+        color="black",
+        kilometer=10000,
+        price=15000,
+        vehicle_type="limusine",
     ),
     ready_to_drive=True,
 )
 Q7 = VehicleCreate(
     name="Q7",
     year_of_manufacture=2020,
-    body=json.dumps(
-        {
-            "color": "red",
-            "kilometer": 100,
-            "price": 75000,
-            "type": "suv",
-        },
+    body=VehicleData(
+        color="red",
+        kilometer=100_000,
+        price=75_000,
+        vehicle_type="suv",
     ),
     ready_to_drive=True,
 )
