@@ -11,7 +11,10 @@ fileConfig(config.config_file_name)  # type: ignore[arg-type]
 target_metadata = Base.metadata
 
 
-def get_url():
+def get_url() -> str:
+    if not settings.SQLALCHEMY_DATABASE_URI:
+        err = "SQLALCHEMY_DATABASE_URI is not set, check .env file."
+        raise ValueError(err)
     return settings.SQLALCHEMY_DATABASE_URI
 
 
