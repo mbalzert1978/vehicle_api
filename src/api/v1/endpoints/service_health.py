@@ -1,14 +1,23 @@
 # mypy: disable-error-code="arg-type"
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from src.api.dependencies import get_session
 
-router = APIRouter(prefix="/service", tags=["service"])
+service = APIRouter(prefix="/service", tags=["service"])
 
 
-@router.get("/")
+@service.get("/")
 def database_status(
     session: Session = Depends(get_session),  # noqa: B008
-):
-    return {"status": "ok"}
+) -> dict[str, str]:
+    try:
+        session.execute(text("SELECT VERSION();"))
+    except OperationalError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        ) from e
+    else:
+        return {"status": "ok"}
