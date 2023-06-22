@@ -1,12 +1,13 @@
 import json
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from src.crud.base import CRUDBase
-from src.model.base import Base
-from src.model.vehicle import Vehicle
+from src.main import app
+from src.model.vehicle import Base, Vehicle
 from src.schemas.vehicle import VehicleCreate
 
 I30 = VehicleCreate(
@@ -62,3 +63,9 @@ def setup_database(session: Session) -> None:
 def db(session: Session):
     setup_database(session)
     yield session
+
+
+@pytest.fixture(scope="module")
+def client():
+    with TestClient(app) as c:
+        yield c
