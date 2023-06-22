@@ -21,12 +21,12 @@ def list_vehicle(
     offset: int = 0,
     limit: int = 100,
 ) -> list[Vehicle]:
-    vehicle = CRUDBase(models.Vehicle).get_all(
+    vehicles = CRUDBase(models.Vehicle).get_all(
         session=session,
         offset=offset,
         limit=limit,
     )
-    return [Vehicle.from_orm(v) for v in vehicle]
+    return [Vehicle.from_orm(vehicle) for vehicle in vehicles]
 
 
 @router.post("/", response_model=Vehicle)
@@ -69,7 +69,7 @@ def update_vehicle(
 
 
 @router.get("/{id}", response_model=Vehicle)
-def read_vehicle(
+def get_vehicle(
     *,
     session: Session = Depends(get_session),  # noqa: B008
     id: int,  # noqa: A002

@@ -55,7 +55,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         id: int,  # noqa: A002
     ) -> ModelType | None:
-        obj = session.query(self.model).get(id)
+        if not (obj := session.query(self.model).get(id)):
+            return None
         session.delete(obj)
         session.commit()
         return obj
