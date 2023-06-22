@@ -9,6 +9,11 @@ readme = "README.md"
 python = "^3.11"
 fastapi = "^0.97.0"
 sqlalchemy = "^2.0.16"
+pydantic = {extras = ["dotenv"], version = "^1.10.9"}
+httpx = "^0.24.1"
+psycopg2 = "^2.9.6"
+uvicorn = "^0.22.0"
+alembic = "^1.11.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.262"
