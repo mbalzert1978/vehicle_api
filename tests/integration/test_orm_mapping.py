@@ -1,5 +1,3 @@
-import json
-
 import pytest
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
@@ -24,7 +22,7 @@ def test_create_vehicle(session: Session) -> None:
     expected = {
         "name": "Car1",
         "year_of_manufacture": 2022,
-        "body": json.dumps(DATA),
+        "body": DATA,
         "ready_to_drive": True,
     }
 
