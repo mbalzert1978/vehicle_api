@@ -1,24 +1,31 @@
 from pydantic import BaseModel
 
 
+class VehicleData(BaseModel):
+    color: str | None = None
+    kilometer: int | None = None
+    price: int | None = None
+    vehicle_type: str | None = None
+
+
 class VehicleBase(BaseModel):
     name: str | None = None
     year_of_manufacture: int | None = None
-    body: str | None = None
+    body: VehicleData | None = None
     ready_to_drive: bool = False
 
 
 class VehicleCreate(VehicleBase):
     name: str
     year_of_manufacture: int
-    body: str
+    body: VehicleData
     ready_to_drive: bool = False
 
 
 class VehicleUpdate(VehicleBase):
     name: str | None = None
     year_of_manufacture: int | None = None
-    body: str | None = None
+    body: VehicleData | None = None
     ready_to_drive: bool = False
 
 
@@ -26,7 +33,7 @@ class VehicleInDBBase(VehicleBase):
     id: int | None = None  # noqa: A003
     name: str | None = None
     year_of_manufacture: int | None = None
-    body: str | None = None
+    body: VehicleData | None = None
     ready_to_drive: bool = False
 
     class Config:
