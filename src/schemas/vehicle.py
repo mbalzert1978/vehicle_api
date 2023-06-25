@@ -1,11 +1,14 @@
-from pydantic import BaseModel
+import json
+from typing import NotRequired, TypedDict
+
+from pydantic import BaseModel, validator
 
 
-class VehicleData(BaseModel):
-    color: str | None = None
-    kilometer: int | None = None
-    price: int | None = None
-    vehicle_type: str | None = None
+class VehicleData(TypedDict):
+    color: NotRequired[str]
+    kilometer: NotRequired[int]
+    price: NotRequired[int]
+    vehicle_type: NotRequired[str]
 
 
 class VehicleBase(BaseModel):
@@ -38,6 +41,20 @@ class VehicleInDBBase(VehicleBase):
 
     class Config:
         orm_mode = True
+
+    @validator("body", pre=True)
+    @classmethod
+    def parse_body(cls, v: str | dict | None) -> VehicleData | None:
+        match v:
+            case None:
+                return None
+            case str():
+                return VehicleData(**json.loads(v))  # type:ignore[misc]
+            case dict():
+                return VehicleData(**v)  # type:ignore[misc]
+            case _:
+                err = f"Invalid body type: {v}"
+                raise ValueError(err)
 
 
 class Vehicle(VehicleInDBBase):
