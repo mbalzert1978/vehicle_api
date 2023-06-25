@@ -1,4 +1,16 @@
 # vehicle_api
+### Postgres Schema
+``` sql
+CREATE TABLE vehicle (
+	id INTEGER NOT NULL,
+	name VARCHAR NOT NULL,
+	year_of_manufacture INTEGER,
+	body JSON,
+	ready_to_drive BOOLEAN,
+	PRIMARY KEY (id)
+)
+```
+
 ## Webanwendung:
 - Quellcode in einem zugänglichen Git-Repo (entweder öffentlich zugänglich oder mit spezieller Einladung)
 - vorzugsweise nicht nur ein einziger Commit, sondern mit etwas Historie, um eine Vorstellung davon zu bekommen, wie Sie diese Herausforderung angegangen sind
