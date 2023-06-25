@@ -1,5 +1,4 @@
 import json
-from typing import Any
 
 from pydantic import BaseModel, validator
 
@@ -7,21 +6,21 @@ from pydantic import BaseModel, validator
 class VehicleBase(BaseModel):
     name: str | None = None
     year_of_manufacture: int | None = None
-    body: dict[str, Any] | None = None
+    body: dict | None = None
     ready_to_drive: bool = False
 
 
 class VehicleCreate(VehicleBase):
     name: str
     year_of_manufacture: int
-    body: dict[str, Any]
+    body: dict
     ready_to_drive: bool = False
 
 
 class VehicleUpdate(VehicleBase):
     name: str | None = None
     year_of_manufacture: int | None = None
-    body: dict[str, Any] | None = None
+    body: dict | None = None
     ready_to_drive: bool = False
 
 
@@ -29,7 +28,7 @@ class VehicleInDBBase(VehicleBase):
     id: int | None = None  # noqa: A003
     name: str | None = None
     year_of_manufacture: int | None = None
-    body: dict[str, Any] | None = None
+    body: dict | None = None
     ready_to_drive: bool = False
 
     class Config:
@@ -39,8 +38,8 @@ class VehicleInDBBase(VehicleBase):
     @classmethod
     def parse_body(
         cls,
-        v: str | dict[str, Any] | None,
-    ) -> dict[str, Any] | None:
+        v: str | dict | None,
+    ) -> dict | None:
         return json.loads(v) if isinstance(v, str) else v
 
 
