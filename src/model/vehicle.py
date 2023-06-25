@@ -15,6 +15,6 @@ class Vehicle(Base):
         autoincrement=True,
     )
     name: Mapped[str] = mapped_column()
-    year_of_manufacture: Mapped[int | None] = mapped_column()
+    year_of_manufacture: Mapped[int] = mapped_column()
     body: Mapped[dict[str, Any] | None] = mapped_column()
-    ready_to_drive: Mapped[bool | None] = mapped_column()
+    ready_to_drive: Mapped[bool] = mapped_column(default=False)
