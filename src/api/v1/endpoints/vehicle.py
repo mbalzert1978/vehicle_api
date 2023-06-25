@@ -57,15 +57,15 @@ def update_vehicle(
     id: int,  # noqa: A002
     update_with: VehicleUpdate,
 ) -> Vehicle:
-    if not (vehicle := CRUDBase(models.Vehicle).get(session=session, id=id)):
+    if not (to_update := CRUDBase(models.Vehicle).get(session=session, id=id)):
         raise HTTPException(status_code=404, detail="Vehicle not found.")
 
-    vehicle = CRUDBase(models.Vehicle).update(
+    to_update = CRUDBase(models.Vehicle).update(
         session=session,
-        to_update=vehicle,
+        to_update=to_update,
         update_with=update_with,
     )
-    return Vehicle.from_orm(vehicle)
+    return Vehicle.from_orm(to_update)
 
 
 @router.get("/{id}", response_model=Vehicle)
