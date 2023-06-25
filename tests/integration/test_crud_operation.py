@@ -11,12 +11,12 @@ from src.crud.base import CRUDBase
 TEST_VEHICLE = schemas.VehicleCreate(
     name="test_car",
     year_of_manufacture=2020,
-    body=schemas.VehicleData(
-        color="test_color",
-        kilometer=10,
-        price=10_000,
-        vehicle_type="test_type",
-    ),
+    body={
+        "color": "test_color",
+        "kilometer": 10,
+        "price": 10_000,
+        "vehicle_type": "test_type",
+    },
     ready_to_drive=False,
 )
 

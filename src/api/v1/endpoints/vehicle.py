@@ -1,16 +1,13 @@
 # mypy: disable-error-code="arg-type"
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.api.dependencies import get_session
 from src.crud.base import CRUDBase
 from src.model import vehicle as models
-from src.schemas.vehicle import (
-    Vehicle,
-    VehicleCreate,
-    VehicleData,
-    VehicleUpdate,
-)
+from src.schemas.vehicle import Vehicle, VehicleCreate, VehicleUpdate
 
 router = APIRouter(prefix="/vehicle", tags=["vehicle"])
 
@@ -35,7 +32,7 @@ def create_vehicle(
     session: Session = Depends(get_session),  # noqa: B008,
     name: str,
     year_of_manufacture: int,
-    body: VehicleData | None = None,
+    body: dict[str, Any] | None = None,
     ready_to_drive: bool = False,
 ) -> Vehicle:
     vehicle = CRUDBase(models.Vehicle).create(
@@ -43,7 +40,7 @@ def create_vehicle(
         to_create=VehicleCreate(
             name=name,
             year_of_manufacture=year_of_manufacture,
-            body=body or VehicleData(),
+            body=body,
             ready_to_drive=ready_to_drive,
         ),
     )

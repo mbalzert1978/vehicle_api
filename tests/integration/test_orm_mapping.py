@@ -4,13 +4,19 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.model.vehicle import Vehicle
-from src.schemas.vehicle import VehicleData, VehicleUpdate
+from src.schemas.vehicle import VehicleUpdate
 
 DATA = {
     "color": "black",
     "kilometer": 10000,
     "price": 15000,
     "vehicle_type": "limusine",
+}
+UPDATE_DATA = {
+    "color": "white",
+    "kilometer": 125_000,
+    "price": 20_000,
+    "vehicle_type": "convertible",
 }
 
 
@@ -72,12 +78,7 @@ def test_update_vehicle(session: Session) -> None:
     update = VehicleUpdate(
         name="Car3 Updated",
         year_of_manufacture=2025,
-        body=VehicleData(
-            color="white",
-            kilometer=125_000,
-            price=20_000,
-            vehicle_type="convertible",
-        ),
+        body=UPDATE_DATA,
         ready_to_drive=False,
     ).dict(exclude_unset=True)
 
@@ -92,10 +93,5 @@ def test_update_vehicle(session: Session) -> None:
 
     assert to_update.name == "Car3 Updated"
     assert to_update.year_of_manufacture == 2025
-    assert to_update.body == VehicleData(
-        color="white",
-        kilometer=125_000,
-        price=20_000,
-        vehicle_type="convertible",
-    )
+    assert to_update.body == UPDATE_DATA
     assert to_update.ready_to_drive is False

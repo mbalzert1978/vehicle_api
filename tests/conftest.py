@@ -10,28 +10,28 @@ from src.api.dependencies import get_session
 from src.crud.base import CRUDBase
 from src.main import app
 from src.model.vehicle import Base, Vehicle
-from src.schemas.vehicle import VehicleCreate, VehicleData
+from src.schemas.vehicle import VehicleCreate
 
 I30 = VehicleCreate(
     name="I30",
     year_of_manufacture=2017,
-    body=VehicleData(
-        color="black",
-        kilometer=10000,
-        price=15000,
-        vehicle_type="limusine",
-    ),
+    body={
+        "color": "black",
+        "kilometer": 10000,
+        "price": 15000,
+        "vehicle_type": "limusine",
+    },
     ready_to_drive=True,
 )
 Q7 = VehicleCreate(
     name="Q7",
     year_of_manufacture=2020,
-    body=VehicleData(
-        color="red",
-        kilometer=100_000,
-        price=75_000,
-        vehicle_type="suv",
-    ),
+    body={
+        "color": "red",
+        "kilometer": 100_000,
+        "price": 75_000,
+        "vehicle_type": "suv",
+    },
     ready_to_drive=True,
 )
 
