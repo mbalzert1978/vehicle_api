@@ -1,5 +1,7 @@
 # mypy: disable-error-code="arg-type"
 
+from enum import Enum
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -9,6 +11,14 @@ from src.model import vehicle as models
 from src.schemas.vehicle import Vehicle, VehicleCreate, VehicleUpdate
 
 router = APIRouter(prefix="/vehicle", tags=["vehicle"])
+
+UNPROCESSABLE = "unprocessable value, not a"
+
+
+class FilterBy(str, Enum):
+    NAME = "name"
+    YEAR_OF_MANUFACTURE = "year_of_manufacture"
+    READY_TO_DRIVE = "ready_to_drive"
 
 
 @router.get("/", response_model=list[Vehicle])
@@ -22,6 +32,46 @@ def list_vehicle(
         offset=offset,
         limit=limit,
     )
+    return [Vehicle.from_orm(vehicle) for vehicle in vehicles]
+
+
+@router.get("/{filter_by}/{value}", response_model=list[Vehicle])
+def filter_vehicle(
+    filter_by: FilterBy,
+    value: str | int | bool,
+    session: Session = Depends(get_session),  # noqa: B008
+) -> list[Vehicle]:
+    match filter_by:
+        case FilterBy.NAME:
+            if not isinstance(value, str):
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"{UNPROCESSABLE} string.",
+                )
+            vehicles = CRUDBase(models.Vehicle).filter_by(
+                session=session,
+                filter_by={"name": value},
+            )
+        case FilterBy.YEAR_OF_MANUFACTURE:
+            if not isinstance(value, int):
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"{UNPROCESSABLE} integer.",
+                )
+            vehicles = CRUDBase(models.Vehicle).filter_by(
+                session=session,
+                filter_by={"year_of_manufacture": value},
+            )
+        case FilterBy.READY_TO_DRIVE:
+            if not isinstance(value, bool):
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"{UNPROCESSABLE} boolean.",
+                )
+            vehicles = CRUDBase(models.Vehicle).filter_by(
+                session=session,
+                filter_by={"ready_to_drive": value},
+            )
     return [Vehicle.from_orm(vehicle) for vehicle in vehicles]
 
 

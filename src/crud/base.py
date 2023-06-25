@@ -20,6 +20,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def get(self, session: Session, id: int) -> ModelType | None:  # noqa: A002
         return session.get(self.model, id)
 
+    def filter_by(
+        self,
+        session: Session,
+        filter_by: dict[str, str | int | bool],
+    ) -> Sequence[ModelType]:
+        stmt = select(self.model).filter_by(**filter_by)
+        return session.execute(stmt).scalars().all()
+
     def get_all(
         self,
         session: Session,
