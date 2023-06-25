@@ -3,37 +3,14 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import Engine, create_engine
+from sqlalchemy import Engine, StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from src.api.dependencies import get_session
 from src.crud.base import CRUDBase
 from src.main import app
 from src.model.vehicle import Base, Vehicle
-from src.schemas.vehicle import VehicleCreate
-
-I30 = VehicleCreate(
-    name="I30",
-    year_of_manufacture=2017,
-    body={
-        "color": "black",
-        "kilometer": 10000,
-        "price": 15000,
-        "vehicle_type": "limusine",
-    },
-    ready_to_drive=True,
-)
-Q7 = VehicleCreate(
-    name="Q7",
-    year_of_manufacture=2020,
-    body={
-        "color": "red",
-        "kilometer": 100_000,
-        "price": 75_000,
-        "vehicle_type": "suv",
-    },
-    ready_to_drive=True,
-)
+from tests.data import I30, Q7
 
 
 @pytest.fixture()
@@ -48,6 +25,7 @@ def db_engine() -> Generator[Engine, Any, None]:
         "sqlite:///:memory:",
         echo=True,
         connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
     )
     Base.metadata.create_all(bind=engine)
     yield engine

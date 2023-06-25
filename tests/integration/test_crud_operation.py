@@ -7,18 +7,7 @@ from sqlalchemy.orm import Session
 import src.model.vehicle as model
 import src.schemas.vehicle as schemas
 from src.crud.base import CRUDBase
-
-TEST_VEHICLE = schemas.VehicleCreate(
-    name="test_car",
-    year_of_manufacture=2020,
-    body={
-        "color": "test_color",
-        "kilometer": 10,
-        "price": 10_000,
-        "vehicle_type": "test_type",
-    },
-    ready_to_drive=False,
-)
+from tests.data import I30, TEST_VEHICLE
 
 
 def test_create(session: Session):
@@ -51,15 +40,10 @@ def test_get(session: Session):
     result = CRUDBase(model.Vehicle).get(session, id=1)
 
     assert result.id is not None
-    assert result.name == "I30"
-    assert result.year_of_manufacture == 2017
-    assert result.body == {
-        "color": "black",
-        "kilometer": 10000,
-        "price": 15000,
-        "vehicle_type": "limusine",
-    }
-    assert result.ready_to_drive
+    assert result.name == I30.name
+    assert result.year_of_manufacture == I30.year_of_manufacture
+    assert result.body == I30.body
+    assert result.ready_to_drive == I30.ready_to_drive
 
 
 @pytest.mark.usefixtures("example_data")
@@ -71,7 +55,7 @@ def test_get_all(session: Session):
     """
     result = CRUDBase(model.Vehicle).get_all(session)
 
-    assert result
+    assert len(result) == 2
     assert isinstance(result, list)
 
 
@@ -82,23 +66,22 @@ def test_update(session: Session):
     When: Updating a vehicle by its ID using the Repository
     Then: The corresponding vehicle should be updated
     """
-    if not (to_update := CRUDBase(model.Vehicle).get(session=session, id=1)):
-        pytest.fail("vehicle not in database")
+    to_update = CRUDBase(model.Vehicle).get(session=session, id=1)
 
-    result = CRUDBase(model.Vehicle).update(
+    CRUDBase(model.Vehicle).update(
         session,
         to_update=to_update,
-        update_with={"name": "new_test_car"},
+        update_with=schemas.VehicleUpdate(**TEST_VEHICLE.dict()),
     )
-    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
 
+    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
     result = schemas.VehicleInDB.from_orm(session.execute(sql).one())
 
     assert result.id is not None
-    assert result.name == "new_test_car"
-    assert result.year_of_manufacture == to_update.year_of_manufacture
-    assert result.body == to_update.body
-    assert result.ready_to_drive == to_update.ready_to_drive
+    assert result.name == TEST_VEHICLE.name
+    assert result.year_of_manufacture == TEST_VEHICLE.year_of_manufacture
+    assert result.body == TEST_VEHICLE.body
+    assert result.ready_to_drive == TEST_VEHICLE.ready_to_drive
 
 
 @pytest.mark.usefixtures("example_data")
@@ -108,8 +91,7 @@ def test_delete(session: Session):
     When: Deleting a vehicle by its ID using the Repository
     Then: The corresponding vehicle should be deleted
     """
-    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
-    expected = schemas.VehicleInDB.from_orm(session.execute(sql).one())
+    expected = CRUDBase(model.Vehicle).get(session=session, id=1)
 
     CRUDBase(model.Vehicle).remove(session, id=expected.id)
 
