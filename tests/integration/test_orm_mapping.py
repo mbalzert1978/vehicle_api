@@ -1,5 +1,6 @@
 import pytest
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.model.vehicle import Vehicle
@@ -20,7 +21,7 @@ def test_create_vehicle(session: Session) -> None:
     Then: The vehicle should be added to the database
     """
     expected = {
-        "name": "Car1",
+        "name": "expected",
         "year_of_manufacture": 2022,
         "body": DATA,
         "ready_to_drive": True,
@@ -30,8 +31,9 @@ def test_create_vehicle(session: Session) -> None:
     session.add(vehicle)
     session.commit()
 
-    if not (result := session.query(Vehicle).get(vehicle.id)):
-        pytest.fail("Vehicle not added to database")
+    result = session.execute(
+        select(Vehicle).filter_by(name="expected"),
+    ).scalar_one()
 
     assert result.name == expected["name"]
     assert result.year_of_manufacture == expected["year_of_manufacture"]
@@ -39,31 +41,31 @@ def test_create_vehicle(session: Session) -> None:
     assert result.ready_to_drive is expected["ready_to_drive"]
 
 
-def test_read_vehicle(db: Session) -> None:
+@pytest.mark.usefixtures("example_data")
+def test_read_vehicle(session: Session) -> None:
     """
     Given: A database session with a vehicle
     When: Reading the vehicle from the database
     Then: The vehicle data should match the expected values
     """
-    if not (expected := db.query(Vehicle).first()):
-        pytest.fail("No vehicle in database.")
+    expected = session.execute(select(Vehicle)).scalars().first()
 
     assert expected is not None
-    assert expected.id == 1
+    assert expected.id
     assert expected.name == "I30"
     assert expected.year_of_manufacture == 2017
     assert expected.body == DATA
     assert expected.ready_to_drive
 
 
-def test_update_vehicle(db: Session) -> None:
+@pytest.mark.usefixtures("example_data")
+def test_update_vehicle(session: Session) -> None:
     """
     Given: A database session with a vehicle
     When: Updating the vehicle data
     Then: The vehicle data should be updated in the database
     """
-    if not (to_update := db.query(Vehicle).first()):
-        pytest.fail("No vehicle in database.")
+    to_update = session.execute(select(Vehicle)).scalars().first()
 
     serialized = jsonable_encoder(to_update)
 
@@ -84,9 +86,9 @@ def test_update_vehicle(db: Session) -> None:
             continue
         setattr(to_update, field, update[field])
 
-    db.add(to_update)
-    db.commit()
-    db.refresh(to_update)
+    session.add(to_update)
+    session.commit()
+    session.refresh(to_update)
 
     assert to_update.name == "Car3 Updated"
     assert to_update.year_of_manufacture == 2025

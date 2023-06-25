@@ -36,7 +36,13 @@ Q7 = VehicleCreate(
 )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
+def example_data(session: Session) -> None:
+    CRUDBase(Vehicle).create(session, to_create=I30)  # type: ignore[arg-type]
+    CRUDBase(Vehicle).create(session, to_create=Q7)  # type: ignore[arg-type]
+
+
+@pytest.fixture()
 def db_engine() -> Generator[Engine, Any, None]:
     engine = create_engine(
         "sqlite:///:memory:",
@@ -48,7 +54,7 @@ def db_engine() -> Generator[Engine, Any, None]:
     engine.dispose()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def session(db_engine) -> Generator[Session, Any, None]:
     Session = sessionmaker(bind=db_engine)  # noqa: N806
     session = Session()
@@ -56,20 +62,8 @@ def session(db_engine) -> Generator[Session, Any, None]:
     session.close()
 
 
-def setup_database(session: Session) -> None:
-    CRUDBase(Vehicle).create(session, to_create=I30)  # type: ignore[arg-type]
-    CRUDBase(Vehicle).create(session, to_create=Q7)  # type: ignore[arg-type]
-
-
-@pytest.fixture(scope="module")
-def db(session: Session) -> Generator[Session, Any, None]:
-    setup_database(session)
-    yield session
-    session.close()
-
-
-@pytest.fixture(scope="module")
-def client(db) -> Generator[TestClient, Any, None]:
-    app.dependency_overrides[get_session] = lambda: db
+@pytest.fixture()
+def client(session) -> Generator[TestClient, Any, None]:
+    app.dependency_overrides[get_session] = lambda: session
     with TestClient(app) as c:
         yield c
