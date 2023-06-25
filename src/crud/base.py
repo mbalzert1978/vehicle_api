@@ -1,7 +1,9 @@
+from collections.abc import Sequence
 from typing import Generic, TypeVar
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.model.vehicle import Base
@@ -16,7 +18,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     def get(self, session: Session, id: int) -> ModelType | None:  # noqa: A002
-        return session.query(self.model).get(id)
+        return session.get(self.model, id)
 
     def get_all(
         self,
@@ -24,8 +26,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         offset: int = 0,
         limit: int = 100,
-    ) -> list[ModelType]:
-        return session.query(self.model).offset(offset).limit(limit).all()
+    ) -> Sequence[ModelType]:
+        stmt = select(self.model).offset(offset).limit(limit)
+        return session.execute(stmt).scalars().all()
 
     def create(
         self,
@@ -55,7 +58,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         id: int,  # noqa: A002
     ) -> ModelType | None:
-        if not (obj := session.query(self.model).get(id)):
+        if not (obj := session.get(self.model, id)):
             return None
         session.delete(obj)
         session.commit()
