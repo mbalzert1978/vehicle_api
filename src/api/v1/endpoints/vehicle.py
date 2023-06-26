@@ -212,11 +212,11 @@ def delete_vehicle(  # noqa: D417
     id: int,  # noqa: A002
 ) -> None:
     """
-    Delete an item by ID.
+    Delete an vehicle by ID.
 
     Args:
     ----
-    id: The ID of the item to delete.
+    id: The ID of the vehicle to delete.
 
     Raises:
     ------
