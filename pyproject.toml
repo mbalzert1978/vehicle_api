@@ -35,7 +35,7 @@ target-version = ['py311']
 select = [
     "A",
     "B",
-    # "D",
+    "D",
     "E",
     "F",
     "G",
@@ -76,4 +76,4 @@ select = [
     "UP",
     "YTT",
 ]
-ignore = ["ANN001", "ANN101", "ANN102", "D211", "D212"]
+ignore = ["ANN001", "ANN101", "ANN102", "D211", "D212", "D107"]

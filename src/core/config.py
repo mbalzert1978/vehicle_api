@@ -1,7 +1,11 @@
+"""Configuration file for the project."""
 from pydantic import BaseSettings, PostgresDsn, validator
 
 
 class Settings(BaseSettings):
+
+    """Project settings."""
+
     API_VERSION: str = "v1"
     PROJECT_NAME: str
     POSTGRES_SERVER: str
@@ -13,6 +17,19 @@ class Settings(BaseSettings):
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     @classmethod
     def assemble_db_connection(cls, v: str, values: dict) -> str:
+        """
+        Assemble the database connection URI.
+
+        Args:
+        ----
+        v: The input value of the SQLALCHEMY_DATABASE_URI field.
+        values: A dictionary with the remaining configuration field values.
+
+        Returns:
+        -------
+        The assembled database connection URI as a string.
+
+        """
         if isinstance(v, str):
             return v
         return PostgresDsn.build(
@@ -24,6 +41,9 @@ class Settings(BaseSettings):
         )
 
     class Config:
+
+        """Pydantic configuration."""
+
         env_file = ".env"
         env_file_encoding = "utf-8"
 

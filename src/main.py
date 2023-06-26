@@ -1,3 +1,4 @@
+"""Vehicle api main module."""
 from fastapi import FastAPI
 
 from src.api.v1.endpoints.service_health import service

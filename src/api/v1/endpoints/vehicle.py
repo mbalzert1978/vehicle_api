@@ -1,3 +1,4 @@
+"""FastAPI vehicles module."""
 # mypy: disable-error-code="arg-type"
 
 import logging
@@ -26,21 +27,22 @@ def list_vehicle(  # noqa: D417
     offset: int = OFFSET,
     limit: int = LIMIT,
 ) -> list[schemas.Vehicle]:
+    r"""
+    List all vehicles.
 
-@router.get("/", response_model=list[Vehicle])
-def list_vehicle(
-    session: Session = Depends(get_session),  # noqa: B008
-    offset: int = 0,
-    limit: int = 100,
-) -> list[Vehicle]:
-    vehicles = CRUDBase(models.Vehicle).get_all(
-        session=session,
-        offset=offset,
-        limit=limit,
-    )
-    return [Vehicle.from_orm(vehicle) for vehicle in vehicles]
+    Args:
+    ----
+    offset: The offset of the data. Defaults to 0.\
+    limit: The limit of the displayed data. Defaults to 100.
 
+    Raises:
+    ------
+    HTTPException: If an HTTP error occurs during the listing process.
 
+    Returns:
+    -------
+    A list of `schemas.Vehicle` objects representing all the vehicles.
+    """
     try:
         with session as db:
             return services.list_all(db, offset, limit)
@@ -60,8 +62,22 @@ def filter_vehicle(  # noqa: D417
     value: str | int | bool,
     session: Session = Depends(session_factory),  # noqa: B008
 ) -> list[schemas.Vehicle]:
+    r"""
+    Filter vehicles based on a given criterion.
 
+    Args:
+    ----
+    filter_by: An instance of services.FilterBy for vehicle filtering criterion.\
+    value: The value used for filtering. It can be a string, integer, or boolean.\
 
+    Raises:
+    ------
+    HTTPException: If an HTTP error occurs during the filtering process.
+
+    Returns:
+    -------
+    A list of `schemas.Vehicle` objects matching the filtering criterion.
+    """
     try:
         with session as db:
             return services.filter_by(db, filter_by, value)
@@ -83,8 +99,26 @@ def create_vehicle(  # noqa: D417
     body: dict | None = None,
     ready_to_drive: bool = False,
 ) -> schemas.Vehicle:
+    r"""
+    Create a new vehicle.
 
+    Args:
+    ----
+    name: The name of the vehicle.\
+    year_of_manufacture: The year of manufacture for the vehicle.\
+    body: Additional information about the vehicle in the form of a dictionary.
+    Defaults to None.\
+    ready_to_drive: A boolean flag indicating whether the vehicle is ready to drive.
+    Defaults to False.
 
+    Raises:
+    ------
+    HTTPException: If an HTTP error occurs during the creation process.
+
+    Returns:
+    -------
+    The created `schemas.Vehicle` object.
+    """
     try:
         with session as db:
             return services.create(
@@ -110,7 +144,22 @@ def update_vehicle(  # noqa: D417
     id: int,  # noqa: A002
     update_with: schemas.VehicleUpdate,
 ) -> schemas.Vehicle:
+    r"""
+    Update a vehicle.
 
+    Args:
+    ----
+    id: The ID of the vehicle to update.\
+    update_with: An instance of `schemas.VehicleUpdate` with updated information.
+
+    Raises:
+    ------
+    HTTPException: If an HTTP error occurs during the update process.
+
+    Returns:
+    -------
+    The updated `schemas.Vehicle` object.
+    """
     try:
         with session as db:
             return services.update(db, id, update_with)
@@ -129,6 +178,21 @@ def get_vehicle(  # noqa: D417
     session: Session = Depends(session_factory),  # noqa: B008
     id: int,  # noqa: A002
 ) -> schemas.Vehicle:
+    """
+    Get a vehicle by ID.
+
+    Args:
+    ----
+    id: The ID of the vehicle to retrieve.
+
+    Raises:
+    ------
+    HTTPException: If an HTTP error occurs during the retrieval process.
+
+    Returns:
+    -------
+    The `schemas.Vehicle` object with the specified ID.
+    """
     try:
         with session as db:
             return services.get(db, id)
@@ -147,6 +211,17 @@ def delete_item(  # noqa: D417
     session: Session = Depends(session_factory),  # noqa: B008
     id: int,  # noqa: A002
 ) -> None:
+    """
+    Delete an item by ID.
+
+    Args:
+    ----
+    id: The ID of the item to delete.
+
+    Raises:
+    ------
+    HTTPException: If an HTTP error occurs during the deletion process.
+    """
     try:
         with session as db:
             services.delete(db, id)
