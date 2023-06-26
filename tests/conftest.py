@@ -6,8 +6,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine, StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from src.api.dependencies import get_session
-from src.crud.base import CRUDBase
+from src.api.dependencies import session_factory
+from src.crud.repository import CRUDRepository
 from src.main import app
 from src.model.vehicle import Base, Vehicle
 from tests.data import I30, Q7
@@ -15,8 +15,8 @@ from tests.data import I30, Q7
 
 @pytest.fixture()
 def example_data(session: Session) -> None:
-    CRUDBase(Vehicle).create(session, to_create=I30)  # type: ignore[arg-type]
-    CRUDBase(Vehicle).create(session, to_create=Q7)  # type: ignore[arg-type]
+    CRUDRepository(Vehicle).create(session, to_create=I30)  # type: ignore[arg-type]
+    CRUDRepository(Vehicle).create(session, to_create=Q7)  # type: ignore[arg-type]
 
 
 @pytest.fixture()
@@ -42,6 +42,6 @@ def session(db_engine) -> Generator[Session, Any, None]:
 
 @pytest.fixture()
 def client(session) -> Generator[TestClient, Any, None]:
-    app.dependency_overrides[get_session] = lambda: session
+    app.dependency_overrides[session_factory] = lambda: session
     with TestClient(app) as c:
         yield c

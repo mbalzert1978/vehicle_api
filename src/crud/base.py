@@ -1,20 +1,26 @@
 from collections.abc import Sequence
-from typing import Generic, TypeVar
+from typing import Protocol, TypeVar
 
-from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.model.vehicle import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+CreateSchemaType = TypeVar(
+    "CreateSchemaType",
+    contravariant=True,
+    bound=BaseModel,
+)
+UpdateSchemaType = TypeVar(
+    "UpdateSchemaType",
+    contravariant=True,
+    bound=BaseModel,
+)
 
 
-class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(self, model: type[ModelType]) -> None:
+class CRUD(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]):
+
         self.model = model
 
     def get(self, session: Session, id: int) -> ModelType | None:  # noqa: A002
