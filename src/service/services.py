@@ -111,7 +111,7 @@ def list_all(
 def filter_by(
     session: Session,
     filter_by: FilterBy,
-    value: str | int | bool,
+    value: str,
 ) -> list[schemas.Vehicle]:
     """
     Filter vehicles based on a specified criterion.
@@ -135,36 +135,35 @@ def filter_by(
     """
     match filter_by:
         case FilterBy.NAME:
-            if not isinstance(value, str):
-                raise HTTPError(
-                    status_code=422,
-                    detail=f"{UNPROCESSABLE} string.",
-                )
             vehicles = repository.factory(models.Vehicle).filter_by(
                 session=session,
                 filter_by={"name": value},
             )
         case FilterBy.YEAR_OF_MANUFACTURE:
-            if not isinstance(value, int):
+            try:
+                parsed = int(value)
+            except ValueError as e:
                 raise HTTPError(
                     status_code=422,
                     detail=f"{UNPROCESSABLE} integer.",
+                ) from e
+            else:
+                vehicles = repository.factory(models.Vehicle).filter_by(
+                    session=session,
+                    filter_by={"year_of_manufacture": parsed},
                 )
-            vehicles = repository.factory(models.Vehicle).filter_by(
-                session=session,
-                filter_by={"year_of_manufacture": value},
-            )
         case FilterBy.READY_TO_DRIVE:
-            if not isinstance(value, bool):
-                raise HTTPError(
-                    status_code=422,
-                    detail=f"{UNPROCESSABLE} boolean.",
-                )
+            parsed = _str2bool(value)
             vehicles = repository.factory(models.Vehicle).filter_by(
                 session=session,
-                filter_by={"ready_to_drive": value},
+                filter_by={"ready_to_drive": parsed},
             )
     return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
+
+
+def _str2bool(value: str) -> bool:
+    """Convert a string to a boolean."""
+    return value.lower() in {"yes", "true", "t", "1"}
 
 
 def update(

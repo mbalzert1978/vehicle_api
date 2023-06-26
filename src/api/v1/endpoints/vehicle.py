@@ -59,7 +59,7 @@ def list_vehicle(  # noqa: D417
 def filter_vehicle(  # noqa: D417
     *,
     filter_by: services.FilterBy,
-    value: str | int | bool,
+    value: str,
     session: Session = Depends(session_factory),  # noqa: B008
 ) -> list[schemas.Vehicle]:
     r"""
@@ -206,7 +206,7 @@ def get_vehicle(  # noqa: D417
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_item(  # noqa: D417
+def delete_vehicle(  # noqa: D417
     *,
     session: Session = Depends(session_factory),  # noqa: B008
     id: int,  # noqa: A002
