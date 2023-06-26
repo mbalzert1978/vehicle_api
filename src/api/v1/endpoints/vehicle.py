@@ -68,7 +68,7 @@ def filter_vehicle(  # noqa: D417
     Args:
     ----
     filter_by: An instance of services.FilterBy for vehicle filtering criterion.\
-    value: The value used for filtering. It can be a string, integer, or boolean.\
+    value: The value used for filtering. It can be a string, integer, or boolean.
 
     Raises:
     ------
