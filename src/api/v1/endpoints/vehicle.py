@@ -41,7 +41,7 @@ def list_vehicle(  # noqa: D417
 
     Returns:
     -------
-    A list of `schemas.Vehicle` objects representing all the vehicles.
+    A list of `Vehicle` objects representing all the vehicles.
     """
     try:
         with session as db:
@@ -76,7 +76,7 @@ def filter_vehicle(  # noqa: D417
 
     Returns:
     -------
-    A list of `schemas.Vehicle` objects matching the filtering criterion.
+    A list of `Vehicle` objects matching the filtering criterion.
     """
     try:
         with session as db:
@@ -117,7 +117,7 @@ def create_vehicle(  # noqa: D417
 
     Returns:
     -------
-    The created `schemas.Vehicle` object.
+    The created `Vehicle` object.
     """
     try:
         with session as db:
@@ -158,7 +158,7 @@ def update_vehicle(  # noqa: D417
 
     Returns:
     -------
-    The updated `schemas.Vehicle` object.
+    The updated `Vehicle` object.
     """
     try:
         with session as db:
@@ -191,7 +191,7 @@ def get_vehicle(  # noqa: D417
 
     Returns:
     -------
-    The `schemas.Vehicle` object with the specified ID.
+    The `Vehicle` object with the specified ID.
     """
     try:
         with session as db:

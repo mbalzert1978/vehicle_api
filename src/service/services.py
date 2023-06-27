@@ -42,7 +42,7 @@ def create(
 
     Returns:
     -------
-    A `schemas.Vehicle` object representing the created vehicle.
+    A `Vehicle` object representing the created vehicle.
     """
     vehicle = repository.factory(models.Vehicle).create(
         session=session,
@@ -67,7 +67,7 @@ def get(session: Session, id: int) -> schemas.Vehicle:  # noqa: A002
 
     Returns:
     -------
-    A `schemas.Vehicle` object representing the retrieved vehicle.
+    A `Vehicle` object representing the retrieved vehicle.
 
     Raises:
     ------
@@ -97,7 +97,7 @@ def list_all(
 
     Returns:
     -------
-    A list of `schemas.Vehicle` objects representing the vehicles.
+    A list of `Vehicle` objects representing the vehicles.
 
     """
     vehicles = repository.factory(models.Vehicle).get_all(
@@ -126,7 +126,7 @@ def filter_by(
 
     Returns:
     -------
-    A list of `schemas.Vehicle` objects representing the filtered vehicles.
+    A list of `Vehicle` objects representing the filtered vehicles.
 
     Raises:
     ------
@@ -183,7 +183,7 @@ def update(
 
     Returns:
     -------
-    A `schemas.Vehicle` object representing the updated vehicle.
+    A `Vehicle` object representing the updated vehicle.
 
     Raises:
     ------
