@@ -24,7 +24,11 @@ def fetch_db_uri() -> str:
     return settings.SQLALCHEMY_DATABASE_URI
 
 
-engine = create_engine(fetch_db_uri(), pool_pre_ping=True, echo=True)
+engine = create_engine(
+    fetch_db_uri(),
+    pool_pre_ping=True,
+    echo=settings.SQL_ALCHEMY_ECHO,
+)
 
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
