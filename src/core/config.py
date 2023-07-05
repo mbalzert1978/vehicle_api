@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DATABASE: str
-    POSTGRES_PORT: str
+    POSTGRES_PORT: str | None = None
     SQL_ALCHEMY_ECHO: bool = False
     SQLALCHEMY_DATABASE_URI: PostgresDsn | None = None
 
