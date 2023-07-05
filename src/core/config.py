@@ -40,7 +40,7 @@ class Settings(BaseSettings):
             password=values.get("POSTGRES_PASSWORD"),
             host=values.get("POSTGRES_SERVER"),
             path=f"/{values.get('POSTGRES_DATABASE') or ''}",
-            port=values.get("POSTGRES_PORT") or '5432',
+            port=values.get("POSTGRES_PORT") or "5432",
         )
 
     class Config:
