@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from src.api.dependencies import session_factory
 from src.crud.repository import CRUDRepository
+from src.domain.models import Base, Vehicle
 from src.main import app
-from src.model.vehicle import Base, Vehicle
 from tests.data import I30, Q7
 
 

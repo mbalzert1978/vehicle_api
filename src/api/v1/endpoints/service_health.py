@@ -31,9 +31,12 @@ def database_status(
     A dictionary with the status indicating that the database is functioning properly.
     """
     try:
+        log.info("Checking database status")
         with session as db:
+            log.info("session created.")
             db.execute(text("SELECT VERSION();"))
     except OperationalError as e:
+        log.exception("OperationalError", exc_info=e)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         ) from e

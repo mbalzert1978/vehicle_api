@@ -1,25 +1,20 @@
 """Repository for CRUD operations on a model."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING, Generic
 
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
 from sqlalchemy import select
 
-from src.model.vehicle import Base
+from src.domain import types
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from sqlalchemy.orm import Session
 
-ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
-
-def factory(model: type[ModelType]) -> CRUDRepository:
+def factory(model: type[types.ModelType]) -> CRUDRepository:
     """
     Create a CRUDRepository instance for a given model type.
 
@@ -35,14 +30,20 @@ def factory(model: type[ModelType]) -> CRUDRepository:
     return CRUDRepository(model)
 
 
-class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class CRUDRepository(
+    Generic[types.ModelType, types.CreateSchemaType, types.UpdateSchemaType],
+):
 
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
-    def __init__(self, model: type[ModelType]) -> None:
+    def __init__(self, model: type[types.ModelType]) -> None:
         self.model = model
 
-    def get(self, session: Session, id: int) -> ModelType | None:  # noqa: A002
+    def get(
+        self,
+        session: Session,
+        id: int,  # noqa: A002
+    ) -> types.ModelType | None:
         """
         Retrieve a model instance by its ID.
 
@@ -61,8 +62,8 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def filter_by(
         self,
         session: Session,
-        filter_by: dict[str, str | int | bool],
-    ) -> Sequence[ModelType]:
+        filter_by: dict,
+    ) -> Sequence[types.ModelType]:
         """
         Filter model instances based on the provided criteria.
 
@@ -86,7 +87,7 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         offset: int = 0,
         limit: int = 100,
-    ) -> Sequence[ModelType]:
+    ) -> Sequence[types.ModelType]:
         """
         Retrieve multiple model instances with optional offset and limit.
 
@@ -108,8 +109,8 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         session: Session,
         *,
-        to_create: CreateSchemaType,
-    ) -> ModelType:
+        to_create: types.CreateSchemaType,
+    ) -> types.ModelType:
         """
         Create a new model instance.
 
@@ -131,9 +132,9 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         session: Session,
         *,
-        to_update: ModelType,
-        update_with: UpdateSchemaType | dict,
-    ) -> ModelType:
+        to_update: types.ModelType,
+        update_with: types.UpdateSchemaType | dict,
+    ) -> types.ModelType:
         """
         Update a model instance with new data.
 
@@ -158,7 +159,7 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: Session,
         *,
         id: int,  # noqa: A002
-    ) -> ModelType | None:
+    ) -> types.ModelType | None:
         """
         Remove a model instance by its ID.
 
@@ -179,7 +180,7 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
 
-def extract_data(update_with: UpdateSchemaType | dict) -> dict:
+def extract_data(update_with: types.UpdateSchemaType | dict) -> dict:
     """
     Extract the update data from the given object.
 
@@ -200,7 +201,7 @@ def extract_data(update_with: UpdateSchemaType | dict) -> dict:
 
 
 def update_fields(
-    to_update: ModelType,
+    to_update: types.ModelType,
     serialized_data: dict,
     update_data: dict,
 ) -> None:
@@ -224,7 +225,10 @@ def update_fields(
         setattr(to_update, field, update_data[field])
 
 
-def write_to_database(session: Session, to_create: ModelType) -> ModelType:
+def write_to_database(
+    session: Session,
+    to_create: types.ModelType,
+) -> types.ModelType:
     """
     Write a model instance to the database.
 

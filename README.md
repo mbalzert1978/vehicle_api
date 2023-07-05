@@ -11,6 +11,8 @@ CREATE TABLE vehicle (
 )
 ```
 
+docker run --name postgres_db -e POSTGRES_PASSWORD=admin123 -e POSTGRES_DB=db -p 5432:5432 -d postgres
+
 ## Webanwendung:
 - Quellcode in einem zugänglichen Git-Repo (entweder öffentlich zugänglich oder mit spezieller Einladung)
 - vorzugsweise nicht nur ein einziger Commit, sondern mit etwas Historie, um eine Vorstellung davon zu bekommen, wie Sie diese Herausforderung angegangen sind

@@ -3,8 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-import src.model.vehicle as model
-import src.schemas.vehicle as schemas
+from src.domain import models, schemas
 from tests.data import I30, TEST_VEHICLE
 
 
@@ -14,7 +13,7 @@ def test_create_vehicle(session: Session) -> None:
     When: Creating a new vehicle
     Then: The vehicle should be added to the database
     """
-    expected = model.Vehicle(**I30.dict())
+    expected = models.Vehicle(**I30.dict())
 
     session.add(expected)
     session.commit()
@@ -35,7 +34,7 @@ def test_read_vehicle(session: Session) -> None:
     When: Reading the vehicle from the database
     Then: The vehicle data should match the expected values
     """
-    expected = session.execute(select(model.Vehicle)).scalars().first()
+    expected = session.execute(select(models.Vehicle)).scalars().first()
 
     assert expected is not None
     assert expected.name == I30.name
@@ -51,7 +50,7 @@ def test_update_vehicle(session: Session) -> None:
     When: Updating the vehicle data
     Then: The vehicle data should be updated in the database
     """
-    result = session.execute(select(model.Vehicle)).scalars().first()
+    result = session.execute(select(models.Vehicle)).scalars().first()
     serialized = jsonable_encoder(result)
 
     expected = TEST_VEHICLE.dict(exclude_unset=True)

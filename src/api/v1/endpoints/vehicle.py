@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from src.api.dependencies import session_factory
 from src.core.error import HTTPError
-from src.schemas import vehicle as schemas
+from src.domain import models, schemas, types
 from src.service import services
 
 router = APIRouter(prefix="/vehicle", tags=["vehicle"])
@@ -26,7 +26,7 @@ def list_vehicle(  # noqa: D417
     session: Session = Depends(session_factory),  # noqa: B008
     offset: int = OFFSET,
     limit: int = LIMIT,
-) -> list[schemas.Vehicle]:
+) -> list[types.BaseModel]:
     r"""
     List all vehicles.
 
@@ -45,7 +45,7 @@ def list_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.list_all(db, offset, limit)
+            return services.list_all(db, offset, limit, models.Vehicle)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
@@ -55,13 +55,12 @@ def list_vehicle(  # noqa: D417
         ) from e
 
 
-@router.get("/{filter_by}/{value}", response_model=list[schemas.Vehicle])
+@router.post("/filter", response_model=list[schemas.Vehicle])
 def filter_vehicle(  # noqa: D417
     *,
-    filter_by: services.FilterBy,
-    value: str,
+    filter_by: dict[str, str],
     session: Session = Depends(session_factory),  # noqa: B008
-) -> list[schemas.Vehicle]:
+) -> list[types.BaseModel]:
     r"""
     Filter vehicles based on a given criterion.
 
@@ -80,7 +79,7 @@ def filter_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.filter_by(db, filter_by, value)
+            return services.filter_by(db, filter_by, models.Vehicle)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
@@ -98,7 +97,7 @@ def create_vehicle(  # noqa: D417
     year_of_manufacture: int,
     body: dict | None = None,
     ready_to_drive: bool = False,
-) -> schemas.Vehicle:
+) -> types.BaseModel:
     r"""
     Create a new vehicle.
 
@@ -123,10 +122,13 @@ def create_vehicle(  # noqa: D417
         with session as db:
             return services.create(
                 db,
-                name,
-                year_of_manufacture,
-                body,
-                ready_to_drive=ready_to_drive,
+                {
+                    "name": name,
+                    "year_of_manufacture": year_of_manufacture,
+                    "body": body or {},
+                    "ready_to_drive": ready_to_drive,
+                },
+                model=models.Vehicle,
             )
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
@@ -143,7 +145,7 @@ def update_vehicle(  # noqa: D417
     session: Session = Depends(session_factory),  # noqa: B008
     id: int,  # noqa: A002
     update_with: schemas.VehicleUpdate,
-) -> schemas.Vehicle:
+) -> types.BaseModel:
     r"""
     Update a vehicle.
 
@@ -162,7 +164,7 @@ def update_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.update(db, id, update_with)
+            return services.update(db, id, models.Vehicle, update_with)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
@@ -177,7 +179,7 @@ def get_vehicle(  # noqa: D417
     *,
     session: Session = Depends(session_factory),  # noqa: B008
     id: int,  # noqa: A002
-) -> schemas.Vehicle:
+) -> types.BaseModel:
     """
     Get a vehicle by ID.
 
@@ -195,7 +197,7 @@ def get_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.get(db, id)
+            return services.get(db, id, models.Vehicle)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
@@ -224,7 +226,7 @@ def delete_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            services.delete(db, id)
+            services.delete(db, id, models.Vehicle)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
