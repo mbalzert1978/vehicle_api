@@ -36,10 +36,6 @@ def list_vehicle(  # noqa: D417
     offset: The offset of the data. Defaults to 0.\
     limit: The limit of the displayed data. Defaults to 100.
 
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the listing process.
-
     Returns:
     -------
     A list of `Vehicle` objects representing all the vehicles.
@@ -67,12 +63,7 @@ def filter_vehicle(  # noqa: D417
 
     Args:
     ----
-    filter_by: An instance of services.FilterBy for vehicle filtering criterion.\
-    value: The value used for filtering. It can be a string, integer, or boolean.
-
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the filtering process.
+    filter_by: A dictionary containing the filtering criterion.
 
     Returns:
     -------
@@ -116,10 +107,6 @@ def create_vehicle(  # noqa: D417
     ready_to_drive: A boolean flag indicating whether the vehicle is ready to drive.
     Defaults to False.
 
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the creation process.
-
     Returns:
     -------
     The created `Vehicle` object.
@@ -160,10 +147,6 @@ def update_vehicle(  # noqa: D417
     id: The ID of the vehicle to update.\
     update_with: An instance of `schemas.VehicleUpdate` with updated information.
 
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the update process.
-
     Returns:
     -------
     The updated `Vehicle` object.
@@ -192,10 +175,6 @@ def get_vehicle(  # noqa: D417
     Args:
     ----
     id: The ID of the vehicle to retrieve.
-
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the retrieval process.
 
     Returns:
     -------
@@ -226,9 +205,6 @@ def delete_vehicle(  # noqa: D417
     ----
     id: The ID of the vehicle to delete.
 
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the deletion process.
     """
     try:
         with session as db:
