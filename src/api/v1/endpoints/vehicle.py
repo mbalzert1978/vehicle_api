@@ -4,6 +4,7 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm import Session
 
 from src.api.dependencies import session_factory
@@ -82,6 +83,11 @@ def filter_vehicle(  # noqa: D417
             return services.filter_by(db, filter_by, models.Vehicle)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
+    except InvalidRequestError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e.args),
+        ) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
