@@ -2,13 +2,13 @@
 ### Postgres Schema
 ``` sql
 CREATE TABLE vehicle (
-	id INTEGER NOT NULL,
-	name VARCHAR NOT NULL,
+	id INTEGER NOT NULL AUTO_INCREMENT,
+	name VARCHAR(255) NOT NULL,
 	year_of_manufacture INTEGER NOT NULL,
 	body JSON NOT NULL,
 	ready_to_drive BOOLEAN NOT NULL,
 	PRIMARY KEY (id)
-)
+);
 ```
 
 ## Webanwendung:
