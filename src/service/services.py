@@ -137,7 +137,7 @@ def filter_by(
         case FilterBy.NAME:
             vehicles = repository.factory(models.Vehicle).filter_by(
                 session=session,
-                filter_by={"name": value},
+                filter_by={FilterBy.NAME: value},
             )
         case FilterBy.YEAR_OF_MANUFACTURE:
             try:
@@ -150,13 +150,13 @@ def filter_by(
             else:
                 vehicles = repository.factory(models.Vehicle).filter_by(
                     session=session,
-                    filter_by={"year_of_manufacture": parsed},
+                    filter_by={FilterBy.YEAR_OF_MANUFACTURE: parsed},
                 )
         case FilterBy.READY_TO_DRIVE:
             parsed = _str2bool(value)
             vehicles = repository.factory(models.Vehicle).filter_by(
                 session=session,
-                filter_by={"ready_to_drive": parsed},
+                filter_by={FilterBy.READY_TO_DRIVE: parsed},
             )
     return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
 
