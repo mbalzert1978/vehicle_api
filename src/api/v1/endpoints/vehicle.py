@@ -4,10 +4,10 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
 from src.api.dependencies import session_factory
 from src.core.error import HTTPError
+from src.core.session import Session
 from src.schemas import vehicle as schemas
 from src.service import services
 

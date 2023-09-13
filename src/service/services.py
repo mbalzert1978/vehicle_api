@@ -1,9 +1,8 @@
 """Services module."""
 from enum import Enum
 
-from sqlalchemy.orm import Session
-
 from src.core.error import HTTPError
+from src.core.session import Session
 from src.crud import repository
 from src.model import vehicle as models
 from src.schemas import vehicle as schemas

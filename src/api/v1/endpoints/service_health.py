@@ -3,11 +3,10 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm import Session
 
 from src.api.dependencies import session_factory
+from src.core.session import Session
 
 service = APIRouter(prefix="/service", tags=["service"])
 
@@ -32,7 +31,7 @@ def database_status(
     """
     try:
         with session as db:
-            db.execute(text("SELECT VERSION();"))
+            db.execute("SELECT VERSION();")
     except OperationalError as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
