@@ -8,7 +8,7 @@ from sqlalchemy.exc import OperationalError
 
 from src.api.dependencies import session_factory
 from src.core.session import Session
-from src.crud import REPOSITORY_FACTORY, AbstractRepository
+from src.crud import REPOSITORY_GETTER, AbstractRepository
 
 service = APIRouter(prefix="/service", tags=["service"])
 
@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 def database_status(
     *,
     session: Session = Depends(session_factory),
-    repository: AbstractRepository = Depends(REPOSITORY_FACTORY),
+    repository: AbstractRepository = Depends(REPOSITORY_GETTER),
 ) -> dict[str, str]:
     """Checks the database status."""
     try:

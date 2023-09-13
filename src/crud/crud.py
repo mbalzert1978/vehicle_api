@@ -14,7 +14,7 @@ CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 T = TypeVar("T")
 
-REPOSITORY_FACTORY = fetch_sqlalchemy_repo
+REPOSITORY_GETTER = fetch_sqlalchemy_repo
 
 
 class AbstractRepository(Protocol[ModelType, CreateSchemaType,

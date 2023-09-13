@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.api.dependencies import session_factory
 from src.core.error import HTTPError
 from src.core.session import Session
-from src.crud import REPOSITORY_FACTORY, AbstractRepository
+from src.crud import REPOSITORY_GETTER, AbstractRepository
 from src.schemas import vehicle as schemas
 from src.service import services
 
@@ -23,7 +23,7 @@ UNCAUGHT = "Uncaught exception"
 def list_vehicle(
     *,
     session: Session = Depends(session_factory),
-    repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
+    repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
 ) -> list[schemas.Vehicle]:
     """List all vehicles."""
     try:
@@ -43,7 +43,7 @@ def filter_vehicle(
     filter_by: services.FilterBy,
     value: str,
     session: Session = Depends(session_factory),
-    repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
+    repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
 ) -> list[schemas.Vehicle]:
     """Filter vehicles based on a given criterion."""
     try:
@@ -61,7 +61,7 @@ def filter_vehicle(
 def create_vehicle(  # noqa: D417
     *,
     session: Session = Depends(session_factory),
-    repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
+    repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
     name: str,
     year_of_manufacture: int,
     body: dict | None = None,
@@ -101,7 +101,7 @@ def create_vehicle(  # noqa: D417
 def update_vehicle(  # noqa: D417
     *,
     session: Session = Depends(session_factory),
-    repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
+    repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
     id: int,  # noqa: A002
     update_with: schemas.VehicleUpdate,
 ) -> schemas.Vehicle:
@@ -128,7 +128,7 @@ def update_vehicle(  # noqa: D417
 def get_vehicle(  # noqa: D417
         *,
         session: Session = Depends(session_factory),
-        repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
+        repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
         id: int,  # noqa: A002
 ) -> schemas.Vehicle:
     """
@@ -153,7 +153,7 @@ def get_vehicle(  # noqa: D417
 def delete_vehicle(  # noqa: D417
         *,
         session: Session = Depends(session_factory),
-        repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
+        repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
         id: int,  # noqa: A002
 ) -> None:
     """
