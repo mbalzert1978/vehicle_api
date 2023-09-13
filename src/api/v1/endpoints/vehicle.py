@@ -1,6 +1,6 @@
 """FastAPI vehicles module."""
 # mypy: disable-error-code="arg-type"
-
+# ruff: noqa: B008
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.api.dependencies import session_factory
 from src.core.error import HTTPError
 from src.core.session import Session
+from src.crud import REPOSITORY_FACTORY, AbstractRepository
 from src.schemas import vehicle as schemas
 from src.service import services
 
@@ -21,9 +22,10 @@ LIMIT = 100
 
 
 @router.get("/", response_model=list[schemas.Vehicle])
-def list_vehicle(  # noqa: D417
+def list_vehicle(
     *,
-    session: Session = Depends(session_factory),  # noqa: B008
+    session: Session = Depends(session_factory),
+    repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
 ) -> list[schemas.Vehicle]:
     r"""
     List all vehicles.
@@ -43,14 +45,13 @@ def list_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.list_all(db)
+            return services.list_all(db, repository)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
 
 
 @router.get("/{filter_by}/{value}", response_model=list[schemas.Vehicle])
@@ -58,7 +59,8 @@ def filter_vehicle(  # noqa: D417
     *,
     filter_by: services.FilterBy,
     value: str,
-    session: Session = Depends(session_factory),  # noqa: B008
+    session: Session = Depends(session_factory),
+    repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
 ) -> list[schemas.Vehicle]:
     r"""
     Filter vehicles based on a given criterion.
@@ -78,20 +80,20 @@ def filter_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.filter_by(db, filter_by, value)
+            return services.filter_by(db, repository, filter_by, value)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
 
 
 @router.post("/", response_model=schemas.Vehicle)
 def create_vehicle(  # noqa: D417
     *,
-    session: Session = Depends(session_factory),  # noqa: B008,
+    session: Session = Depends(session_factory),
+    repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
     name: str,
     year_of_manufacture: int,
     body: dict | None = None,
@@ -121,6 +123,7 @@ def create_vehicle(  # noqa: D417
         with session as db:
             return services.create(
                 db,
+                repository,
                 name,
                 year_of_manufacture,
                 body,
@@ -131,14 +134,14 @@ def create_vehicle(  # noqa: D417
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
 
 
 @router.put("/{id}", response_model=schemas.Vehicle)
 def update_vehicle(  # noqa: D417
     *,
-    session: Session = Depends(session_factory),  # noqa: B008
+    session: Session = Depends(session_factory),
+    repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
     id: int,  # noqa: A002
     update_with: schemas.VehicleUpdate,
 ) -> schemas.Vehicle:
@@ -160,21 +163,21 @@ def update_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.update(db, id, update_with)
+            return services.update(db, repository, id, update_with)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
 def get_vehicle(  # noqa: D417
-    *,
-    session: Session = Depends(session_factory),  # noqa: B008
-    id: int,  # noqa: A002
+        *,
+        session: Session = Depends(session_factory),
+        repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
+        id: int,  # noqa: A002
 ) -> schemas.Vehicle:
     """
     Get a vehicle by ID.
@@ -193,21 +196,21 @@ def get_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.get(db, id)
+            return services.get(db, repository, id)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_vehicle(  # noqa: D417
-    *,
-    session: Session = Depends(session_factory),  # noqa: B008
-    id: int,  # noqa: A002
+        *,
+        session: Session = Depends(session_factory),
+        repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
+        id: int,  # noqa: A002
 ) -> None:
     """
     Delete an vehicle by ID.
@@ -222,11 +225,10 @@ def delete_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            services.delete(db, id)
+            services.delete(db, repository, id)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e

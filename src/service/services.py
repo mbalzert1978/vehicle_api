@@ -3,7 +3,7 @@ from enum import Enum
 
 from src.core.error import HTTPError
 from src.core.session import Session
-from src.crud import repository
+from src.crud import AbstractRepository
 from src.model import vehicle as models
 from src.schemas import vehicle as schemas
 
@@ -20,6 +20,7 @@ class FilterBy(str, Enum):
 
 def create(
     session: Session,
+    repository: type[AbstractRepository],
     name: str,
     year_of_manufacture: int,
     body: dict | None,
@@ -42,7 +43,7 @@ def create(
     -------
     A `Vehicle` object representing the created vehicle.
     """
-    vehicle = repository.factory(models.Vehicle).create(
+    vehicle = repository(models.Vehicle).create(
         session=session,
         to_create=schemas.VehicleCreate(
             name=name,
@@ -54,7 +55,8 @@ def create(
     return schemas.Vehicle.from_orm(vehicle)
 
 
-def get(session: Session, id: int) -> schemas.Vehicle:  # noqa: A002
+def get(session: Session, repository: type[AbstractRepository],
+        id: int) -> schemas.Vehicle:  # noqa: A002
     """
         Get a vehicle by ID.
 
@@ -71,7 +73,7 @@ def get(session: Session, id: int) -> schemas.Vehicle:  # noqa: A002
     ------
     HTTPError: If the vehicle with the specified ID is not found.
     """
-    if vehicle := repository.factory(models.Vehicle).get(
+    if vehicle := repository(models.Vehicle).get(
             session=session,
             id=id,
     ):
@@ -79,7 +81,8 @@ def get(session: Session, id: int) -> schemas.Vehicle:  # noqa: A002
     raise HTTPError(status_code=404, detail="Vehicle not found.")
 
 
-def list_all(session: Session) -> list[schemas.Vehicle]:
+def list_all(session: Session,
+             repository: type[AbstractRepository]) -> list[schemas.Vehicle]:
     """
     List all vehicles.
 
@@ -94,12 +97,13 @@ def list_all(session: Session) -> list[schemas.Vehicle]:
     A list of `Vehicle` objects representing the vehicles.
 
     """
-    vehicles = repository.factory(models.Vehicle).list(session=session)
+    vehicles = repository(models.Vehicle).list(session)
     return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
 
 
 def filter_by(
     session: Session,
+    repository: type[AbstractRepository],
     filter_by: FilterBy,
     value: str,
 ) -> list[schemas.Vehicle]:
@@ -125,7 +129,7 @@ def filter_by(
     """
     match filter_by:
         case FilterBy.NAME:
-            vehicles = repository.factory(models.Vehicle).list(
+            vehicles = repository(models.Vehicle).list(
                 session=session,
                 filter_by={FilterBy.NAME: value},
             )
@@ -138,13 +142,13 @@ def filter_by(
                     detail=f"{UNPROCESSABLE} integer.",
                 ) from e
             else:
-                vehicles = repository.factory(models.Vehicle).list(
+                vehicles = repository(models.Vehicle).list(
                     session=session,
                     filter_by={FilterBy.YEAR_OF_MANUFACTURE: parsed},
                 )
         case FilterBy.READY_TO_DRIVE:
             parsed = _str2bool(value)
-            vehicles = repository.factory(models.Vehicle).list(
+            vehicles = repository(models.Vehicle).list(
                 session=session,
                 filter_by={FilterBy.READY_TO_DRIVE: parsed},
             )
@@ -158,6 +162,7 @@ def _str2bool(value: str) -> bool:
 
 def update(
     session: Session,
+    repository: type[AbstractRepository],
     id: int,  # noqa: A002
     update_with: schemas.VehicleUpdate,
 ) -> schemas.Vehicle:
@@ -180,13 +185,13 @@ def update(
     HTTPError: If the vehicle with the specified ID is not found.
 
     """
-    if not (to_update := repository.factory(models.Vehicle).get(
+    if not (to_update := repository(models.Vehicle).get(
             session=session,
             id=id,
     )):
         raise HTTPError(status_code=404, detail="Vehicle not found.")
 
-    to_update = repository.factory(models.Vehicle).update(
+    to_update = repository(models.Vehicle).update(
         session=session,
         to_update=to_update,
         data=update_with,
@@ -194,7 +199,8 @@ def update(
     return schemas.Vehicle.from_orm(to_update)
 
 
-def delete(session: Session, id: int) -> None:  # noqa: A002
+def delete(session: Session, repository: type[AbstractRepository],
+           id: int) -> None:  # noqa: A002
     """
     Delete a vehicle by ID.
 
@@ -212,6 +218,6 @@ def delete(session: Session, id: int) -> None:  # noqa: A002
     HTTPError: If the vehicle with the specified ID is not found.
 
     """
-    if repository.factory(models.Vehicle).delete(session=session, id=id):
+    if repository(models.Vehicle).delete(session=session, id=id):
         return
     raise HTTPError(status_code=404, detail="Vehicle not found.")

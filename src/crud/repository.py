@@ -21,29 +21,18 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 T = TypeVar("T")
 
 
-def factory(model: type[ModelType]) -> CRUDRepository:
-    """
-    Create a CRUDRepository instance for a given model type.
-
-    Args:
-    ----
-    model: The model type for which the CRUDRepository instance is created.
-
-    Returns:
-    -------
-    A CRUDRepository instance.
-
-    """
-    return CRUDRepository(model)
+def fetch_sqlalchemy_repo() -> type[SQLAlchemyRepository]:
+    return SQLAlchemyRepository
 
 
-class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
     def __init__(self, model: type[ModelType]) -> None:
         self.model = model
 
-    def execute(self, session: Session, *, stmnt: str) -> None:
+    @staticmethod
+    def execute(session: Session, *, stmnt: str) -> None:
         session.execute(text(stmnt))
 
     def get(self,
@@ -66,7 +55,7 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         return result if (result := session.get(self.model, id)) else default
 
-    def list( # noqa: A003
+    def list(  # noqa: A003
             self,
             session: Session,
             *,

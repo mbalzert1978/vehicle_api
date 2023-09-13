@@ -5,6 +5,7 @@ from typing import Protocol, TypeVar
 from pydantic import BaseModel
 
 from src.core.session import Session
+from src.crud.repository import fetch_sqlalchemy_repo
 from src.model.valueobject import ValueObject
 from src.model.vehicle import Base
 
@@ -13,9 +14,12 @@ CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 T = TypeVar("T")
 
+REPOSITORY_FACTORY = fetch_sqlalchemy_repo
+
 
 class AbstractRepository(Protocol[ModelType, CreateSchemaType,
                                   UpdateSchemaType]):
+    model: ModelType
     """The abstract repository protocol."""
 
     def execute(self, session: Session, *, stmnt: str) -> None:

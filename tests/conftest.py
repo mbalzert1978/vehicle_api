@@ -7,7 +7,7 @@ from sqlalchemy import Engine, StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from src.api.dependencies import session_factory
-from src.crud.repository import CRUDRepository
+from src.crud.repository import SQLAlchemyRepository
 from src.main import app
 from src.model.sql_alchemy import mapper_registry
 from src.model.vehicle import Vehicle
@@ -16,8 +16,8 @@ from tests.data import I30, Q7
 
 @pytest.fixture()
 def example_data(session: Session) -> None:
-    CRUDRepository(Vehicle).create(session, to_create=I30)  # type: ignore[arg-type]
-    CRUDRepository(Vehicle).create(session, to_create=Q7)  # type: ignore[arg-type]
+    SQLAlchemyRepository(Vehicle).create(session, to_create=I30)  # type: ignore[arg-type]
+    SQLAlchemyRepository(Vehicle).create(session, to_create=Q7)  # type: ignore[arg-type]
 
 
 @pytest.fixture()
