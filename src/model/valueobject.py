@@ -22,11 +22,3 @@ class GUID(ValueObject):
     @property
     def value(self) -> T:
         return self.guid
-
-def main():
-    g = GUID()
-    print(g.value)
-
-
-if __name__ == '__main__':
-    main()
