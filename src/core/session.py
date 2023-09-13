@@ -3,7 +3,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.core.config import settings
-from src.model.sql_alchemy import mapper_registry
+from src.model.sql_alchemy import mapper_registry, vehicle_table
+from src.model.vehicle import Vehicle
 
 
 def fetch_db_uri() -> str:
@@ -30,8 +31,7 @@ engine = create_engine(
     pool_pre_ping=True,
     echo=settings.ECHO,
 )
-mapper_registry.metadata.create_all(bind=engine)
-
+mapper_registry.map_imperatively(Vehicle, vehicle_table)
 
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
