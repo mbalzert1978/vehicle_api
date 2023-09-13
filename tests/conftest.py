@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from src.api.dependencies import session_factory
 from src.crud.repository import CRUDRepository
 from src.main import app
-from src.model.vehicle import Base, Vehicle
+from src.model.sql_alchemy import mapper_registry
+from src.model.vehicle import Vehicle
 from tests.data import I30, Q7
 
 
@@ -27,7 +28,7 @@ def db_engine() -> Generator[Engine, Any, None]:
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    Base.metadata.create_all(bind=engine)
+    mapper_registry.metadata.create_all(bind=engine)
     yield engine
     engine.dispose()
 

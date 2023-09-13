@@ -13,10 +13,10 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DATABASE: str
     POSTGRES_PORT: str | None = None
-    SQL_ALCHEMY_ECHO: bool = False
-    SQLALCHEMY_DATABASE_URI: PostgresDsn | None = None
+    ECHO: bool = False
+    DATABASE_URI: PostgresDsn | None = None
 
-    @validator("SQLALCHEMY_DATABASE_URI", pre=True)
+    @validator("DATABASE_URI", pre=True)
     @classmethod
     def assemble_db_connection(cls, v: str, values: dict) -> str:
         """
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
         Args:
         ----
-        v: The input value of the SQLALCHEMY_DATABASE_URI field.
+        v: The input value of the DATABASE_URI field.
         values: A dictionary with the remaining configuration field values.
 
         Returns:
@@ -39,7 +39,7 @@ class Settings(BaseSettings):
             user=values.get("POSTGRES_USER"),
             password=values.get("POSTGRES_PASSWORD"),
             host=values.get("POSTGRES_SERVER"),
-            path=f"/{values.get('POSTGRES_DATABASE') or ''}",
+            path=f"/{values.get('POSTGRES_DATABASE') or 'test'}",
             port=values.get("POSTGRES_PORT") or "5432",
         )
 

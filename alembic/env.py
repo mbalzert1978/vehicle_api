@@ -4,18 +4,18 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from src.core.config import settings
-from src.model.vehicle import Base
+from src.model.sql_alchemy import mapper_registry
 
 config = context.config
 fileConfig(config.config_file_name)  # type: ignore[arg-type]
-target_metadata = Base.metadata
+target_metadata = mapper_registry.metadata
 
 
 def get_url() -> str:
-    if not settings.SQLALCHEMY_DATABASE_URI:
-        err = "SQLALCHEMY_DATABASE_URI is not set, check .env file."
+    if not settings.DATABASE_URI:
+        err = "DATABASE_URI is not set, check .env file."
         raise ValueError(err)
-    return settings.SQLALCHEMY_DATABASE_URI
+    return settings.DATABASE_URI
 
 
 def run_migrations_offline() -> None:

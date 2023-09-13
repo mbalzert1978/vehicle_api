@@ -15,19 +15,19 @@ def fetch_db_uri() -> str:
 
     Raises
     ------
-    ValueError: If the SQLALCHEMY_DATABASE_URI is not set in the .env file.
+    ValueError: If the DATABASE_URI is not set in the .env file.
 
     """
-    if not settings.SQLALCHEMY_DATABASE_URI:
-        msg = "SQLALCHEMY_DATABASE_URI is not set in .env file."
+    if not settings.DATABASE_URI:
+        msg = "DATABASE_URI is not set in .env file."
         raise ValueError(msg)
-    return settings.SQLALCHEMY_DATABASE_URI
+    return settings.DATABASE_URI
 
 
 engine = create_engine(
     fetch_db_uri(),
     pool_pre_ping=True,
-    echo=settings.SQL_ALCHEMY_ECHO,
+    echo=settings.ECHO,
 )
 
 

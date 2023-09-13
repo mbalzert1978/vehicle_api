@@ -1,25 +1,36 @@
-"""Sqlachemy Models."""
-from sqlalchemy import JSON
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+"""Model."""
+
+import abc
 
 
-class Base(DeclarativeBase):
-
+class Base(abc.ABC):
     """Base Model."""
 
-    type_annotation_map = {dict: JSON}
+    @abc.abstractmethod
+    def dump(self) -> dict:
+        """Dump Model."""
+
+    @abc.abstractmethod
+    def __repr__(self) -> str:
+        raise NotImplementedError
 
 
 class Vehicle(Base):
-
     """Vehicle Model."""
 
-    __tablename__ = "vehicle"
-    id: Mapped[int] = mapped_column(  # noqa: A003
-        primary_key=True,
-        autoincrement=True,
-    )
-    name: Mapped[str] = mapped_column()
-    year_of_manufacture: Mapped[int] = mapped_column()
-    body: Mapped[dict] = mapped_column()
-    ready_to_drive: Mapped[bool] = mapped_column(default=False)
+    def __init__(self, name: str, year_of_manufacture: int, body: dict, *,
+                 ready_to_drive: bool) -> None:
+        self.name = name
+        self.year_of_manufacture = year_of_manufacture
+        self.body = body
+        self.ready_to_drive = ready_to_drive
+
+    def dump(self) -> dict:
+        """Dump Vehicle Model."""
+        return self.__dict__
+
+    def __repr__(self) -> str:
+        return (f"Vehicle(name={self.name}, "
+                f"year_of_manufacture={self.year_of_manufacture}, "
+                f"body={self.body}, "
+                f"ready_to_drive={self.ready_to_drive})")
