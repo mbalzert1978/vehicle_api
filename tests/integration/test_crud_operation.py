@@ -18,7 +18,8 @@ def test_create(session: Session):
         vehicle should be returned with a valid id.
     """
     result = SQLAlchemyRepository(model.Vehicle).create(
-        session, to_create=TEST_VEHICLE,
+        session,
+        to_create=TEST_VEHICLE,
     )
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=result.id)

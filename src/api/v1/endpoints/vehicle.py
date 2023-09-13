@@ -17,8 +17,6 @@ router = APIRouter(prefix="/vehicle", tags=["vehicle"])
 log = logging.getLogger(__name__)
 
 UNCAUGHT = "Uncaught exception"
-OFFSET = 0
-LIMIT = 100
 
 
 @router.get("/", response_model=list[schemas.Vehicle])
@@ -27,22 +25,7 @@ def list_vehicle(
     session: Session = Depends(session_factory),
     repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
 ) -> list[schemas.Vehicle]:
-    r"""
-    List all vehicles.
-
-    Args:
-    ----
-    offset: The offset of the data. Defaults to 0.\
-    limit: The limit of the displayed data. Defaults to 100.
-
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the listing process.
-
-    Returns:
-    -------
-    A list of `Vehicle` objects representing all the vehicles.
-    """
+    """List all vehicles."""
     try:
         with session as db:
             return services.list_all(db, repository)
@@ -51,33 +34,18 @@ def list_vehicle(
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.get("/{filter_by}/{value}", response_model=list[schemas.Vehicle])
-def filter_vehicle(  # noqa: D417
+def filter_vehicle(
     *,
     filter_by: services.FilterBy,
     value: str,
     session: Session = Depends(session_factory),
     repository: type[AbstractRepository] = Depends(REPOSITORY_FACTORY),
 ) -> list[schemas.Vehicle]:
-    r"""
-    Filter vehicles based on a given criterion.
-
-    Args:
-    ----
-    filter_by: An instance of services.FilterBy for vehicle filtering criterion.\
-    value: The value used for filtering. It can be a string, integer, or boolean.
-
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the filtering process.
-
-    Returns:
-    -------
-    A list of `Vehicle` objects matching the filtering criterion.
-    """
+    """Filter vehicles based on a given criterion."""
     try:
         with session as db:
             return services.filter_by(db, repository, filter_by, value)
@@ -86,7 +54,7 @@ def filter_vehicle(  # noqa: D417
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.post("/", response_model=schemas.Vehicle)
@@ -110,14 +78,6 @@ def create_vehicle(  # noqa: D417
     Defaults to None.\
     ready_to_drive: A boolean flag indicating whether the vehicle is ready to drive.
     Defaults to False.
-
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the creation process.
-
-    Returns:
-    -------
-    The created `Vehicle` object.
     """
     try:
         with session as db:
@@ -134,7 +94,7 @@ def create_vehicle(  # noqa: D417
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.put("/{id}", response_model=schemas.Vehicle)
@@ -152,14 +112,6 @@ def update_vehicle(  # noqa: D417
     ----
     id: The ID of the vehicle to update.\
     update_with: An instance of `schemas.VehicleUpdate` with updated information.
-
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the update process.
-
-    Returns:
-    -------
-    The updated `Vehicle` object.
     """
     try:
         with session as db:
@@ -169,7 +121,7 @@ def update_vehicle(  # noqa: D417
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
@@ -185,14 +137,6 @@ def get_vehicle(  # noqa: D417
     Args:
     ----
     id: The ID of the vehicle to retrieve.
-
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the retrieval process.
-
-    Returns:
-    -------
-    The `Vehicle` object with the specified ID.
     """
     try:
         with session as db:
@@ -202,7 +146,7 @@ def get_vehicle(  # noqa: D417
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -218,10 +162,6 @@ def delete_vehicle(  # noqa: D417
     Args:
     ----
     id: The ID of the vehicle to delete.
-
-    Raises:
-    ------
-    HTTPException: If an HTTP error occurs during the deletion process.
     """
     try:
         with session as db:
@@ -231,4 +171,4 @@ def delete_vehicle(  # noqa: D417
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e

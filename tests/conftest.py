@@ -16,8 +16,10 @@ from tests.data import I30, Q7
 
 @pytest.fixture()
 def example_data(session: Session) -> None:
-    SQLAlchemyRepository(Vehicle).create(session, to_create=I30)  # type: ignore[arg-type]
-    SQLAlchemyRepository(Vehicle).create(session, to_create=Q7)  # type: ignore[arg-type]
+    SQLAlchemyRepository(Vehicle).create(
+        session, to_create=I30)  # type: ignore[arg-type]
+    SQLAlchemyRepository(Vehicle).create(
+        session, to_create=Q7)  # type: ignore[arg-type]
 
 
 @pytest.fixture()

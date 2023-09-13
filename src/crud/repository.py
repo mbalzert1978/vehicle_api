@@ -25,7 +25,8 @@ def fetch_sqlalchemy_repo() -> type[SQLAlchemyRepository]:
     return SQLAlchemyRepository
 
 
-class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType,
+                                   UpdateSchemaType]):
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
     def __init__(self, model: type[ModelType]) -> None:

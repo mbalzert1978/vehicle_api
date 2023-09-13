@@ -4,7 +4,6 @@ import abc
 
 
 class Base(abc.ABC):
-
     """Base Model."""
 
     @abc.abstractmethod
@@ -17,7 +16,6 @@ class Base(abc.ABC):
 
 
 class Vehicle(Base):
-
     """Vehicle Model."""
 
     def __init__(self, name: str, year_of_manufacture: int, body: dict, *,

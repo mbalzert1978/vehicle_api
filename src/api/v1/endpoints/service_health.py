@@ -27,10 +27,10 @@ def database_status(
             repository.execute(db, stmnt="SELECT VERSION();")
     except OperationalError as e:
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, ) from e
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE) from e
     except Exception as e:
         log.exception("Uncaught exception")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, ) from e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
         return {"status": "ok"}

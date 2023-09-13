@@ -12,5 +12,3 @@ vehicle_table = Table(
     Column("body", JSON),
     Column("ready_to_drive", Boolean),
 )
-
-
