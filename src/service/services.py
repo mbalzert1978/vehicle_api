@@ -11,7 +11,6 @@ UNPROCESSABLE = "unprocessable value, not a"
 
 
 class FilterBy(str, Enum):
-
     """Filter by Enum."""
 
     NAME = "name"
@@ -73,18 +72,14 @@ def get(session: Session, id: int) -> schemas.Vehicle:  # noqa: A002
     HTTPError: If the vehicle with the specified ID is not found.
     """
     if vehicle := repository.factory(models.Vehicle).get(
-        session=session,
-        id=id,
+            session=session,
+            id=id,
     ):
         return schemas.Vehicle.from_orm(vehicle)
     raise HTTPError(status_code=404, detail="Vehicle not found.")
 
 
-def list_all(
-    session: Session,
-    offset: int,
-    limit: int,
-) -> list[schemas.Vehicle]:
+def list_all(session: Session) -> list[schemas.Vehicle]:
     """
     List all vehicles.
 
@@ -99,11 +94,7 @@ def list_all(
     A list of `Vehicle` objects representing the vehicles.
 
     """
-    vehicles = repository.factory(models.Vehicle).get_all(
-        session=session,
-        offset=offset,
-        limit=limit,
-    )
+    vehicles = repository.factory(models.Vehicle).list(session=session)
     return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
 
 
@@ -134,7 +125,7 @@ def filter_by(
     """
     match filter_by:
         case FilterBy.NAME:
-            vehicles = repository.factory(models.Vehicle).filter_by(
+            vehicles = repository.factory(models.Vehicle).list(
                 session=session,
                 filter_by={FilterBy.NAME: value},
             )
@@ -147,13 +138,13 @@ def filter_by(
                     detail=f"{UNPROCESSABLE} integer.",
                 ) from e
             else:
-                vehicles = repository.factory(models.Vehicle).filter_by(
+                vehicles = repository.factory(models.Vehicle).list(
                     session=session,
                     filter_by={FilterBy.YEAR_OF_MANUFACTURE: parsed},
                 )
         case FilterBy.READY_TO_DRIVE:
             parsed = _str2bool(value)
-            vehicles = repository.factory(models.Vehicle).filter_by(
+            vehicles = repository.factory(models.Vehicle).list(
                 session=session,
                 filter_by={FilterBy.READY_TO_DRIVE: parsed},
             )
@@ -189,18 +180,16 @@ def update(
     HTTPError: If the vehicle with the specified ID is not found.
 
     """
-    if not (
-        to_update := repository.factory(models.Vehicle).get(
+    if not (to_update := repository.factory(models.Vehicle).get(
             session=session,
             id=id,
-        )
-    ):
+    )):
         raise HTTPError(status_code=404, detail="Vehicle not found.")
 
     to_update = repository.factory(models.Vehicle).update(
         session=session,
         to_update=to_update,
-        update_with=update_with,
+        data=update_with,
     )
     return schemas.Vehicle.from_orm(to_update)
 
@@ -223,6 +212,6 @@ def delete(session: Session, id: int) -> None:  # noqa: A002
     HTTPError: If the vehicle with the specified ID is not found.
 
     """
-    if repository.factory(models.Vehicle).remove(session=session, id=id):
+    if repository.factory(models.Vehicle).delete(session=session, id=id):
         return
     raise HTTPError(status_code=404, detail="Vehicle not found.")

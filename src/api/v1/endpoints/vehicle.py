@@ -24,8 +24,6 @@ LIMIT = 100
 def list_vehicle(  # noqa: D417
     *,
     session: Session = Depends(session_factory),  # noqa: B008
-    offset: int = OFFSET,
-    limit: int = LIMIT,
 ) -> list[schemas.Vehicle]:
     r"""
     List all vehicles.
@@ -45,7 +43,7 @@ def list_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.list_all(db, offset, limit)
+            return services.list_all(db)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:

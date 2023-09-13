@@ -1,4 +1,5 @@
-"""init vehicle
+"""
+init vehicle.
 
 Revision ID: e122c6fc87d4
 Revises:

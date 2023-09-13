@@ -16,10 +16,22 @@ T = TypeVar("T")
 
 class AbstractRepository(Protocol[ModelType, CreateSchemaType,
                                   UpdateSchemaType]):
-
     """The abstract repository protocol."""
 
-    def create(self, session: Session, model:CreateSchemaType) -> ModelType:
+    def execute(self, session: Session, *, stmnt: str) -> None:
+        """
+        Execute a statement in the database.
+
+        Parameters
+        ----------
+        session : Session
+            the database session object.
+        stmnt : str
+            the statement to execute.
+        """
+
+    def create(self, session: Session, *,
+               to_create: CreateSchemaType) -> ModelType:
         """
         Create a ModelType object in the database.
 
@@ -27,7 +39,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
         ----------
         session : Session
             the database session object.
-        model : CreateSchemaType
+        to_create : CreateSchemaType
             the CreateSchemaType object to create.
 
         Returns
@@ -38,6 +50,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
 
     def get(self,
             session: Session,
+            *,
             id: ValueObject,
             default: T | None = None) -> ModelType | T:
         """
@@ -61,7 +74,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
 
     def list(self,
              session: Session,
-             id: ValueObject,
+             *,
              filter_by: dict | None = None) -> Sequence[ModelType]:
         """
         Get a list of ModelType objects from the database.
@@ -70,8 +83,6 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
         ----------
         session : Session
             the database session object.
-        id : ValueObject
-            the id of the ModelType object.
         filter_by : dict | None, optional
             the filter by dictionary. The default value is None.
 
@@ -81,7 +92,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
             the list of ModelType objects.
         """
 
-    def update(self, session: Session, to_update: ModelType,
+    def update(self, session: Session, *, to_update: ModelType,
                data: UpdateSchemaType) -> ModelType:
         """
         Update a ModelType object in the database.
@@ -101,7 +112,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
             the updated ModelType object.
         """
 
-    def delete(self, session: Session, id: ValueObject) -> None:
+    def delete(self, session: Session, *, id: ValueObject) -> ModelType | None:
         """
         Delete a ModelType object from the database.
 

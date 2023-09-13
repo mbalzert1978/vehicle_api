@@ -15,10 +15,10 @@ def test_create(session: Session):
     Given: A empty database session
     When: Creating a new vehicle using the Repository
     Then: The vehicle should be added to the database and the
-        vehicle should be returned with a valid id
+        vehicle should be returned with a valid id.
     """
     result = CRUDRepository(model.Vehicle).create(
-        session, to_create=TEST_VEHICLE
+        session, to_create=TEST_VEHICLE,
     )
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=result.id)
@@ -37,7 +37,7 @@ def test_get(session: Session):
     """
     Given: A database session with data for multiple vehicles
     When: Retrieving a vehicle by its ID using the Repository
-    Then: The corresponding vehicle should be returned
+    Then: The corresponding vehicle should be returned.
     """
     result = CRUDRepository(model.Vehicle).get(session, id=1)
 
@@ -49,13 +49,13 @@ def test_get(session: Session):
 
 
 @pytest.mark.usefixtures("example_data")
-def test_get_all(session: Session):
+def test_list(session: Session):
     """
     Given: A database session with data for multiple vehicles
     When: Retrieving all vehicles using the Repository
-    Then: The corresponding vehicles should be returned in a list
+    Then: The corresponding vehicles should be returned in a list.
     """
-    result = CRUDRepository(model.Vehicle).get_all(session)
+    result = CRUDRepository(model.Vehicle).list(session)
 
     assert len(result) == 2
     assert isinstance(result, list)
@@ -66,14 +66,14 @@ def test_update(session: Session):
     """
     Given: A database session with data for multiple vehicles
     When: Updating a vehicle by its ID using the Repository
-    Then: The corresponding vehicle should be updated
+    Then: The corresponding vehicle should be updated.
     """
     to_update = CRUDRepository(model.Vehicle).get(session=session, id=1)
 
     CRUDRepository(model.Vehicle).update(
         session,
         to_update=to_update,
-        update_with=schemas.VehicleUpdate(**TEST_VEHICLE.dict()),
+        data=schemas.VehicleUpdate(**TEST_VEHICLE.dict()),
     )
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
@@ -91,11 +91,11 @@ def test_delete(session: Session):
     """
     Given: A database session with data for multiple vehicles
     When: Deleting a vehicle by its ID using the Repository
-    Then: The corresponding vehicle should be deleted
+    Then: The corresponding vehicle should be deleted.
     """
     expected = CRUDRepository(model.Vehicle).get(session=session, id=1)
 
-    CRUDRepository(model.Vehicle).remove(session, id=expected.id)
+    CRUDRepository(model.Vehicle).delete(session, id=expected.id)
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
 
