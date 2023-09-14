@@ -53,7 +53,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType,
         The model instance if found, or None if not found.
 
         """
-        return result if (result := session.get(self.model, id)) else default
+        return session.get(self.model, id) or default
 
     def list(  # noqa: A003
             self,
