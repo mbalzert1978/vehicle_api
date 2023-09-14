@@ -48,6 +48,7 @@ class AbstractSessionMaker(Protocol):
 class SQLAlchemySessionMaker(AbstractSessionMaker):
 
     def __init__(self,
+                 url: str | None = None,
                  autocommit: bool = False,
                  autoflush: bool = False,
                  echo: bool = settings.ECHO,
@@ -57,7 +58,7 @@ class SQLAlchemySessionMaker(AbstractSessionMaker):
         self.echo = echo
         self.callback = callback or create_engine
         self.engine = self.callback(
-            fetch_db_uri(),
+            url or fetch_db_uri(),
             pool_pre_ping=True,
             echo=self.echo,
         )

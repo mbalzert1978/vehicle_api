@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 import src.model.vehicle as model
 import src.schemas.vehicle as schemas
-from src.crud.repository import SQLAlchemyRepository
+from src.crud.sqlalchemy_repo import SQLAlchemyRepository
 from tests.data import I30, TEST_VEHICLE
 
 

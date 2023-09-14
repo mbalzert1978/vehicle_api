@@ -5,7 +5,7 @@ from typing import Protocol, TypeVar
 from pydantic import BaseModel
 
 from src.core.session import Session
-from src.crud.repository import fetch_sqlalchemy_repo
+from src.crud.sqlalchemy_repo import fetch_sqlalchemy_repo
 from src.model.vehicle import Base
 
 ModelType = TypeVar("ModelType", bound=Base)

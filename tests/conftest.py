@@ -7,7 +7,7 @@ from sqlalchemy import Engine, StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from src.api.dependencies import session_factory
-from src.crud.repository import SQLAlchemyRepository
+from src.crud.sqlalchemy_repo import SQLAlchemyRepository
 from src.main import app
 from src.model.sql_alchemy import mapper_registry
 from src.model.vehicle import Vehicle
