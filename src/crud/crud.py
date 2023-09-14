@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 from src.core.session import Session
 from src.crud.repository import fetch_sqlalchemy_repo
-from src.model.valueobject import ValueObject
 from src.model.vehicle import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -55,7 +54,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
     def get(self,
             session: Session,
             *,
-            id: ValueObject,
+            id: int,
             default: T | None = None) -> ModelType | T:
         """
         Get a ModelType object from the database.
@@ -64,7 +63,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
         ----------
         session : Session
             the database session object.
-        id : ValueObject
+        id : int
             the id of the ModelType object.
         default : T | None, optional
             the default value to return if the ModelType object is not found.
@@ -116,7 +115,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
             the updated ModelType object.
         """
 
-    def delete(self, session: Session, *, id: ValueObject) -> ModelType | None:
+    def delete(self, session: Session, *, id: int) -> ModelType | None:
         """
         Delete a ModelType object from the database.
 
@@ -124,6 +123,6 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
         ----------
         session : Session
             the database session object.
-        id : ValueObject
+        id : int
             the id of the ModelType object.
         """

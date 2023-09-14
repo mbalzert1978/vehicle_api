@@ -7,7 +7,6 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import select, text
 
-from src.model.valueobject import ValueObject
 from src.model.vehicle import Base
 
 if TYPE_CHECKING:
@@ -39,7 +38,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType,
     def get(self,
             session: Session,
             *,
-            id: ValueObject,
+            id: int,
             default: T | None = None) -> ModelType | T:
         """
         Retrieve a model instance by its ID.
@@ -118,7 +117,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType,
         update_fields(to_update, serialized_data, update_data)
         return write_to_database(session, to_update)
 
-    def delete(self, session: Session, *, id: ValueObject) -> ModelType | None:
+    def delete(self, session: Session, *, id: int) -> ModelType | None:
         """
         Remove a model instance by its ID.
 
