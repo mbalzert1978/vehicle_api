@@ -14,6 +14,7 @@ httpx = "^0.24.1"
 psycopg2 = "^2.9.6"
 uvicorn = "^0.22.0"
 alembic = "^1.11.1"
+result = "^0.13.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.262"
@@ -24,6 +25,7 @@ blacken-docs = "^1.13.0"
 pytest = "^7.3.2"
 pdoc3 = "^0.10.0"
 coverage = "^7.3.1"
+pytest-postgresql = "^5.0.0"
 
 [build-system]
 requires = ["poetry-core"]
