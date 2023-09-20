@@ -21,6 +21,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType,
     model: ModelType
     """The abstract repository protocol."""
 
+    @staticmethod
     def execute(self, session: Session, *, stmnt: str) -> None:
         """
         Execute a statement in the database.
