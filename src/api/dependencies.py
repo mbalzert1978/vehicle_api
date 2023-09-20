@@ -1,9 +1,7 @@
 """Dependencies module."""
 from collections.abc import Generator
 
-from sqlalchemy.orm import Session
-
-from src.core.session import SessionLocal
+from src.core.session import Session, SessionLocal
 
 
 def session_factory() -> Generator[Session, None, None]:

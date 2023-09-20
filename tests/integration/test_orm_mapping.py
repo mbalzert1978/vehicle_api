@@ -12,7 +12,7 @@ def test_create_vehicle(session: Session) -> None:
     """
     Given: A database session
     When: Creating a new vehicle
-    Then: The vehicle should be added to the database
+    Then: The vehicle should be added to the database.
     """
     expected = model.Vehicle(**I30.dict())
 
@@ -33,7 +33,7 @@ def test_read_vehicle(session: Session) -> None:
     """
     Given: A database session with a vehicle
     When: Reading the vehicle from the database
-    Then: The vehicle data should match the expected values
+    Then: The vehicle data should match the expected values.
     """
     expected = session.execute(select(model.Vehicle)).scalars().first()
 
@@ -49,7 +49,7 @@ def test_update_vehicle(session: Session) -> None:
     """
     Given: A database session with a vehicle
     When: Updating the vehicle data
-    Then: The vehicle data should be updated in the database
+    Then: The vehicle data should be updated in the database.
     """
     result = session.execute(select(model.Vehicle)).scalars().first()
     serialized = jsonable_encoder(result)

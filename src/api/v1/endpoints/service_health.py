@@ -1,13 +1,14 @@
 """FastAPI database status module."""
 # mypy: disable-error-code="arg-type"
+# ruff: noqa: B008
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm import Session
 
 from src.api.dependencies import session_factory
+from src.core.session import Session
+from src.crud import REPOSITORY_FETCHER, AbstractRepository
 
 service = APIRouter(prefix="/service", tags=["service"])
 
@@ -15,32 +16,17 @@ log = logging.getLogger(__name__)
 
 
 @service.get("/")
-def database_status(
-    *,
-    session: Session = Depends(session_factory),  # noqa: B008
-) -> dict[str, str]:
-    """
-    Check the status of the database.
-
-    Raises
-    ------
-    HTTPException: If the database is unavailable or an unexpected error occurs.
-
-    Returns
-    -------
-    A dictionary with the status indicating that the database is functioning properly.
-    """
+def database_status(*,
+                    session: Session = Depends(session_factory),
+                    repository: AbstractRepository = Depends(REPOSITORY_FETCHER())) -> str:
+    """Checks the database status."""
     try:
         with session as db:
-            db.execute(text("SELECT VERSION();"))
+            repository.execute(db, stmnt="SELECT 1=1;")
     except OperationalError as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-        ) from e
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE) from e
     except Exception as e:
         log.exception("Uncaught exception")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
-        return {"status": "ok"}
+        return status.HTTP_200_OK

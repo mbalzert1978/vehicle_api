@@ -10,6 +10,5 @@ app = FastAPI(
     openapi_url=f"/api/{settings.API_VERSION}/openapi.json",
 )
 
-
 app.include_router(router)
 app.include_router(service)

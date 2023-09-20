@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from src.model.vehicle import Base
 
@@ -17,32 +17,29 @@ if TYPE_CHECKING:
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+T = TypeVar("T")
 
 
-def factory(model: type[ModelType]) -> CRUDRepository:
-    """
-    Create a CRUDRepository instance for a given model type.
+class SQLAlchemyFetcher(Generic[ModelType]):
 
-    Args:
-    ----
-    model: The model type for which the CRUDRepository instance is created.
+    def __init__(self, model: type[ModelType] | None = None) -> None:
+        self.model = model
 
-    Returns:
-    -------
-    A CRUDRepository instance.
-
-    """
-    return CRUDRepository(model)
+    def __call__(self) -> SQLAlchemyRepository[ModelType] | type[SQLAlchemyRepository]:
+        return SQLAlchemyRepository(self.model) if self.model else SQLAlchemyRepository
 
 
-class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-
+class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
     def __init__(self, model: type[ModelType]) -> None:
         self.model = model
 
-    def get(self, session: Session, id: int) -> ModelType | None:  # noqa: A002
+    @staticmethod
+    def execute(session: Session, *, stmnt: str) -> None:
+        session.execute(text(stmnt))
+
+    def get(self, session: Session, *, id: int, default: T | None = None) -> ModelType | T:
         """
         Retrieve a model instance by its ID.
 
@@ -50,66 +47,35 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         ----
         session: An SQLAlchemy Session object.
         id: The ID of the model instance to retrieve.
+        default: The value to return if the model instance is not found.
 
         Returns:
         -------
-        The model instance if found, or None if not found.
+        The model instance with the specified ID.
 
         """
-        return session.get(self.model, id)
+        return session.get(self.model, id) or default
 
-    def filter_by(
-        self,
-        session: Session,
-        filter_by: dict[str, str | int | bool],
-    ) -> Sequence[ModelType]:
+    def list(self, session: Session, *, filter_by: dict | None = None) -> Sequence[ModelType]:  # noqa: A003
         """
-        Filter model instances based on the provided criteria.
+        Retrieve a list of model instances.
 
         Args:
         ----
         session: An SQLAlchemy Session object.
-        filter_by: A dictionary containing the filter criteria.
-        The keys represent the column names, and the values represent the filter values.
+        filter_by: A dictionary of key-value pairs to filter by.
 
         Returns:
         -------
-            A sequence of model instances that match the filter criteria.
+        A list of model instances.
 
         """
-        stmt = select(self.model).filter_by(**filter_by)
+        stmt = select(self.model)
+        if filter_by:
+            stmt = stmt.filter_by(**filter_by)
         return session.execute(stmt).scalars().all()
 
-    def get_all(
-        self,
-        session: Session,
-        *,
-        offset: int = 0,
-        limit: int = 100,
-    ) -> Sequence[ModelType]:
-        """
-        Retrieve multiple model instances with optional offset and limit.
-
-        Args:
-        ----
-        session: An SQLAlchemy Session object.
-        offset: The number of results to skip from the beginning.
-        limit: The maximum number of results to retrieve.
-
-        Returns:
-        -------
-        A sequence of model instances.
-
-        """
-        stmt = select(self.model).offset(offset).limit(limit)
-        return session.execute(stmt).scalars().all()
-
-    def create(
-        self,
-        session: Session,
-        *,
-        to_create: CreateSchemaType,
-    ) -> ModelType:
+    def create(self, session: Session, *, to_create: CreateSchemaType) -> ModelType:
         """
         Create a new model instance.
 
@@ -127,13 +93,7 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj = self.model(**serialized_data)
         return write_to_database(session, obj)
 
-    def update(
-        self,
-        session: Session,
-        *,
-        to_update: ModelType,
-        update_with: UpdateSchemaType | dict,
-    ) -> ModelType:
+    def update(self, session: Session, *, to_update: ModelType, data: UpdateSchemaType) -> ModelType:
         """
         Update a model instance with new data.
 
@@ -141,7 +101,7 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         ----
         session: An SQLAlchemy Session object.
         to_update: The model instance to update.
-        update_with: The data to update the model instance with.
+        data: The data to update the model instance with.
 
         Returns:
         -------
@@ -149,16 +109,11 @@ class CRUDRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         """
         serialized_data = jsonable_encoder(to_update)
-        update_data = extract_data(update_with)
+        update_data = extract_data(data)
         update_fields(to_update, serialized_data, update_data)
         return write_to_database(session, to_update)
 
-    def remove(
-        self,
-        session: Session,
-        *,
-        id: int,  # noqa: A002
-    ) -> ModelType | None:
+    def delete(self, session: Session, *, id: int) -> ModelType | None:
         """
         Remove a model instance by its ID.
 
@@ -192,11 +147,7 @@ def extract_data(update_with: UpdateSchemaType | dict) -> dict:
     The extracted update data as a dictionary.
 
     """
-    return (
-        update_with
-        if isinstance(update_with, dict)
-        else update_with.dict(exclude_unset=True)
-    )
+    return update_with if isinstance(update_with, dict) else update_with.dict(exclude_unset=True)
 
 
 def update_fields(

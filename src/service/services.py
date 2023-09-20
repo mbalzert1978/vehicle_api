@@ -1,11 +1,9 @@
 """Services module."""
 from enum import Enum
 
-from sqlalchemy.orm import Session
-
 from src.core.error import HTTPError
-from src.crud import repository
-from src.model import vehicle as models
+from src.core.session import Session
+from src.crud import AbstractRepository
 from src.schemas import vehicle as schemas
 
 UNPROCESSABLE = "unprocessable value, not a"
@@ -20,20 +18,15 @@ class FilterBy(str, Enum):
     READY_TO_DRIVE = "ready_to_drive"
 
 
-def create(
-    session: Session,
-    name: str,
-    year_of_manufacture: int,
-    body: dict | None,
-    *,
-    ready_to_drive: bool,
-) -> schemas.Vehicle:
+def create(session: Session, repository: AbstractRepository, name: str, year_of_manufacture: int, body: dict | None, *,
+           ready_to_drive: bool) -> schemas.Vehicle:
     """
     Create a new vehicle.
 
     Args:
     ----
-    session: An SQLAlchemy Session object.
+    session: An Session object.
+    repository: An AbstractRepository object.
     name: The name of the vehicle.
     year_of_manufacture: The year of manufacture of the vehicle.
     body: Additional details about the vehicle in the form of a dictionary.
@@ -44,25 +37,24 @@ def create(
     -------
     A `Vehicle` object representing the created vehicle.
     """
-    vehicle = repository.factory(models.Vehicle).create(
+    vehicle = repository.create(
         session=session,
-        to_create=schemas.VehicleCreate(
-            name=name,
-            year_of_manufacture=year_of_manufacture,
-            body=body or {},
-            ready_to_drive=ready_to_drive,
-        ),
+        to_create=schemas.VehicleCreate(name=name,
+                                        year_of_manufacture=year_of_manufacture,
+                                        body=body or {},
+                                        ready_to_drive=ready_to_drive),
     )
     return schemas.Vehicle.from_orm(vehicle)
 
 
-def get(session: Session, id: int) -> schemas.Vehicle:  # noqa: A002
+def get(session: Session, repository: AbstractRepository, id: int) -> schemas.Vehicle:  # noqa: A002
     """
         Get a vehicle by ID.
 
     Args:
     ----
-    session: An SQLAlchemy Session object.
+    session: An Session object.
+    repository: An AbstractRepository object.
     id: The ID of the vehicle to retrieve.
 
     Returns:
@@ -73,25 +65,19 @@ def get(session: Session, id: int) -> schemas.Vehicle:  # noqa: A002
     ------
     HTTPError: If the vehicle with the specified ID is not found.
     """
-    if vehicle := repository.factory(models.Vehicle).get(
-        session=session,
-        id=id,
-    ):
+    if vehicle := repository.get(session=session, id=id):
         return schemas.Vehicle.from_orm(vehicle)
     raise HTTPError(status_code=404, detail="Vehicle not found.")
 
 
-def list_all(
-    session: Session,
-    offset: int,
-    limit: int,
-) -> list[schemas.Vehicle]:
+def list_all(session: Session, repository: AbstractRepository) -> list[schemas.Vehicle]:
     """
     List all vehicles.
 
     Args:
     ----
-    session: An SQLAlchemy Session object.
+    session: An Session object.
+    repository: A AbstractRepository object.
     offset: The offset of the data.
     limit: The limit of the displayed data.
 
@@ -100,86 +86,69 @@ def list_all(
     A list of `Vehicle` objects representing the vehicles.
 
     """
-    vehicles = repository.factory(models.Vehicle).get_all(
-        session=session,
-        offset=offset,
-        limit=limit,
-    )
-    return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
+    return [schemas.Vehicle.from_orm(vehicle) for vehicle in repository.list(session)]
 
 
-def filter_by(
-    session: Session,
-    filter_by: FilterBy,
-    value: str,
-) -> list[schemas.Vehicle]:
+def filter_by(session: Session, repository: AbstractRepository, filter_by: FilterBy,
+              value: str) -> list[schemas.Vehicle]:
     """
-    Filter vehicles based on a specified criterion.
+    Filter vehicles by a given value.
 
     Args:
     ----
-    session: An SQLAlchemy Session object.
-    filter_by: The criterion to filter the vehicles by.
-    Should be one of the values in `FilterBy` enum.
-    value: The value to filter the vehicles by.
-    Should be a string, integer, or boolean depending on the criterion.
+    session: An Session object.
+    repository: An AbstractRepository object.
+    filter_by: The filter by to apply.
+    value: The value to filter by.
 
     Returns:
     -------
-    A list of `Vehicle` objects representing the filtered vehicles.
+    A list of `Vehicle` objects representing the vehicles.
 
     Raises:
     ------
-    HTTPError: If the value provided is of an invalid type for the specified criterion.
-
+    HTTPError: If the filter by is invalid.
     """
     match filter_by:
         case FilterBy.NAME:
-            vehicles = repository.factory(models.Vehicle).filter_by(
-                session=session,
-                filter_by={FilterBy.NAME: value},
-            )
+            vehicles = repository.list(session=session, filter_by={FilterBy.NAME: value})
         case FilterBy.YEAR_OF_MANUFACTURE:
-            try:
-                parsed = int(value)
-            except ValueError as e:
-                raise HTTPError(
-                    status_code=422,
-                    detail=f"{UNPROCESSABLE} integer.",
-                ) from e
-            else:
-                vehicles = repository.factory(models.Vehicle).filter_by(
-                    session=session,
-                    filter_by={FilterBy.YEAR_OF_MANUFACTURE: parsed},
-                )
+            parsed = _parse_int(value)
+            vehicles = repository.list(session=session, filter_by={FilterBy.YEAR_OF_MANUFACTURE: parsed})
         case FilterBy.READY_TO_DRIVE:
-            parsed = _str2bool(value)
-            vehicles = repository.factory(models.Vehicle).filter_by(
-                session=session,
-                filter_by={FilterBy.READY_TO_DRIVE: parsed},
-            )
+            parsed = _parse_bool(value)
+            vehicles = repository.list(session=session, filter_by={FilterBy.READY_TO_DRIVE: parsed})
     return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
 
+def _parse_int(value:str) -> int:
+    """Parse a string to an integer."""
+    try:
+        parsed = int(value)
+    except ValueError as e:
+        raise HTTPError(status_code=422, detail=f"{UNPROCESSABLE} integer.") from e
+    else:
+        return parsed
 
-def _str2bool(value: str) -> bool:
+
+def _parse_bool(value: str) -> bool:
     """Convert a string to a boolean."""
     return value.lower() in {"yes", "true", "t", "1"}
 
 
 def update(
-    session: Session,
-    id: int,  # noqa: A002
-    update_with: schemas.VehicleUpdate,
-) -> schemas.Vehicle:
+        session: Session,
+        repository: AbstractRepository,
+        id: int,  # noqa: A002
+        update_with: schemas.VehicleUpdate) -> schemas.Vehicle:
     """
-    Update a vehicle with new information.
+    Update a vehicle by ID.
 
     Args:
     ----
-    session: An SQLAlchemy Session object.
+    session: An Session object.
     id: The ID of the vehicle to update.
-    update_with: The updated information for the vehicle,
-    provided as a `schemas.VehicleUpdate` object.
+    repository: A AbstractRepository object.
+    update_with: The data to update the vehicle with.
 
     Returns:
     -------
@@ -188,42 +157,26 @@ def update(
     Raises:
     ------
     HTTPError: If the vehicle with the specified ID is not found.
-
     """
-    if not (
-        to_update := repository.factory(models.Vehicle).get(
-            session=session,
-            id=id,
-        )
-    ):
+    if not (to_update := repository.get(session=session, id=id)):
         raise HTTPError(status_code=404, detail="Vehicle not found.")
-
-    to_update = repository.factory(models.Vehicle).update(
-        session=session,
-        to_update=to_update,
-        update_with=update_with,
-    )
-    return schemas.Vehicle.from_orm(to_update)
+    return schemas.Vehicle.from_orm(repository.update(session=session, to_update=to_update, data=update_with))
 
 
-def delete(session: Session, id: int) -> None:  # noqa: A002
+def delete(session: Session, repository: AbstractRepository, id: int) -> None:  # noqa: A002
     """
     Delete a vehicle by ID.
 
-    Arguments:
-    ---------
-    session: An SQLAlchemy Session object.
+    Args:
+    ----
+    session: An Session object.
+    repository: A AbstractRepository object.
     id: The ID of the vehicle to delete.
-
-    Returns:
-    -------
-    None
 
     Raises:
     ------
     HTTPError: If the vehicle with the specified ID is not found.
-
     """
-    if repository.factory(models.Vehicle).remove(session=session, id=id):
+    if repository.delete(session=session, id=id):
         return
     raise HTTPError(status_code=404, detail="Vehicle not found.")
