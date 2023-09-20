@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine, StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from src.api.dependencies import session_factory
+from src.core.session import SESSION_LOCAL
 from src.crud.sqlalchemy_repo import SQLAlchemyRepository
 from src.main import app
 from src.model.sql_alchemy import mapper_registry
@@ -43,6 +43,6 @@ def session(db_engine) -> Generator[Session, Any, None]:
 
 @pytest.fixture()
 def client(session) -> Generator[TestClient, Any, None]:
-    app.dependency_overrides[session_factory] = lambda: session
+    app.dependency_overrides[SESSION_LOCAL] = lambda: session
     with TestClient(app) as c:
         yield c

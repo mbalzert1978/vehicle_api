@@ -5,10 +5,9 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from src.api.dependencies import session_factory
 from src.core.error import HTTPError
-from src.core.session import Session
-from src.crud import REPOSITORY_FETCHER, AbstractRepository
+from src.core.session import SESSION_LOCAL, AbstractSession
+from src.crud import REPOSITORY_LOCAL, AbstractRepository
 from src.model import vehicle as models
 from src.schemas import vehicle as schemas
 from src.service import services
@@ -18,51 +17,59 @@ router = APIRouter(prefix="/vehicle", tags=["vehicle"])
 log = logging.getLogger(__name__)
 
 UNCAUGHT = "Uncaught exception"
+MODEL_TYPE = models.Vehicle
 
 
 @router.get("/", response_model=list[schemas.Vehicle])
-def list_vehicle(*,
-                 session: Session = Depends(session_factory),
-                 repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle))
-                 ) -> list[schemas.Vehicle]:
+def list_vehicle(
+        *,
+        session: AbstractSession = Depends(SESSION_LOCAL),
+        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+) -> list[schemas.Vehicle]:
     """List all vehicles."""
     try:
         with session as db:
-            return services.list_all(db, repository)
+            vehicles = services.list_all(db, repository)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+    else:
+        return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
 
 
 @router.get("/{filter_by}/{value}", response_model=list[schemas.Vehicle])
-def filter_vehicle(*,
-                   filter_by: services.FilterBy,
-                   value: str,
-                   session: Session = Depends(session_factory),
-                   repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle))
-                   ) -> list[schemas.Vehicle]:
+def filter_vehicle(
+        *,
+        filter_by: services.FilterBy,
+        value: str,
+        session: AbstractSession = Depends(SESSION_LOCAL),
+        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+) -> list[schemas.Vehicle]:
     """Filter vehicles based on a given criterion."""
     try:
         with session as db:
-            return services.filter_by(db, repository, filter_by, value)
+            vehicles = services.filter_by(db, repository, filter_by, value)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+    else:
+        return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
 
 
 @router.post("/", response_model=schemas.Vehicle)
 def create_vehicle(  # noqa: D417
-        *,
-        session: Session = Depends(session_factory),
-        repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle)),
-        name: str,
-        year_of_manufacture: int,
-        body: dict | None = None,
-        ready_to_drive: bool = False) -> schemas.Vehicle:
+    *,
+    session: AbstractSession = Depends(SESSION_LOCAL),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+    name: str,
+    year_of_manufacture: int,
+    body: dict | None = None,
+    ready_to_drive: bool = False,
+) -> schemas.Vehicle:
     r"""
     Create a new vehicle.
 
@@ -77,21 +84,31 @@ def create_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.create(db, repository, name, year_of_manufacture, body, ready_to_drive=ready_to_drive)
+            vehicle = services.create(
+                db,
+                repository,
+                to_create=schemas.VehicleCreate(name=name,
+                                                year_of_manufacture=year_of_manufacture,
+                                                body=body,
+                                                ready_to_drive=ready_to_drive),
+            )
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+    else:
+        return schemas.Vehicle.from_orm(vehicle)
 
 
 @router.put("/{id}", response_model=schemas.Vehicle)
 def update_vehicle(  # noqa: D417
-        *,
-        session: Session = Depends(session_factory),
-        repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle)),
-        id: int,  # noqa: A002
-        update_with: schemas.VehicleUpdate) -> schemas.Vehicle:
+    *,
+    session: AbstractSession = Depends(SESSION_LOCAL),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+    id: int,  # noqa: A002
+    update_with: schemas.VehicleUpdate,
+) -> schemas.Vehicle:
     r"""
     Update a vehicle.
 
@@ -102,20 +119,23 @@ def update_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.update(db, repository, id, update_with)
+            vehicle = services.update(db, repository, id, update_with)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+    else:
+        return schemas.Vehicle.from_orm(vehicle)
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
 def get_vehicle(  # noqa: D417
-        *,
-        session: Session = Depends(session_factory),
-        repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle)),
-        id: int) -> schemas.Vehicle:  # noqa: A002
+    *,
+    session: AbstractSession = Depends(SESSION_LOCAL),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+    id: int,
+) -> schemas.Vehicle:  # noqa: A002
     """
     Get a vehicle by ID.
 
@@ -125,20 +145,23 @@ def get_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.get(db, repository, id)
+            vehicle = services.get(db, repository, id)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+    else:
+        return schemas.Vehicle.from_orm(vehicle)
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_vehicle(  # noqa: D417
         *,
-        session: Session = Depends(session_factory),
-        repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle)),
-        id: int) -> None:  # noqa: A002
+        session: AbstractSession = Depends(SESSION_LOCAL),
+        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+        id: int,
+) -> None:  # noqa: A002
     """
     Delete an vehicle by ID.
 

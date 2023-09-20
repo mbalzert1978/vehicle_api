@@ -17,6 +17,10 @@ def test_CRUD_happy_path(client: TestClient):
     assert len(get.json()) == 1
     assert isinstance(get.json(), list)
 
+    # filter vehicles
+    get = client.get("/vehicle/name/test_vehicle")
+    assert get.status_code == status.HTTP_200_OK
+
     # Retrieve specific vehicle
     get = client.get("/vehicle/1")
     assert get.status_code == status.HTTP_200_OK

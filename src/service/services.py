@@ -1,16 +1,16 @@
 """Services module."""
 from enum import Enum
+from typing import TypeVar
 
 from src.core.error import HTTPError
-from src.core.session import Session
+from src.core.session import AbstractSession
 from src.crud import AbstractRepository
-from src.schemas import vehicle as schemas
 
+T = TypeVar("T")
 UNPROCESSABLE = "unprocessable value, not a"
 
 
 class FilterBy(str, Enum):
-
     """Filter by Enum."""
 
     NAME = "name"
@@ -18,8 +18,7 @@ class FilterBy(str, Enum):
     READY_TO_DRIVE = "ready_to_drive"
 
 
-def create(session: Session, repository: AbstractRepository, name: str, year_of_manufacture: int, body: dict | None, *,
-           ready_to_drive: bool) -> schemas.Vehicle:
+def create(session: AbstractSession, repository: AbstractRepository, to_create: T) -> T:
     """
     Create a new vehicle.
 
@@ -27,27 +26,20 @@ def create(session: Session, repository: AbstractRepository, name: str, year_of_
     ----
     session: An Session object.
     repository: An AbstractRepository object.
-    name: The name of the vehicle.
-    year_of_manufacture: The year of manufacture of the vehicle.
-    body: Additional details about the vehicle in the form of a dictionary.
-    Defaults to an empty dictionary if None.
-    ready_to_drive: A boolean indicating whether the vehicle is ready to drive.
+    to_create: A object to create.
 
     Returns:
     -------
-    A `Vehicle` object representing the created vehicle.
+    A object representing the created vehicle.
+
+    Raises:
+    ------
+    HTTPError: If the vehicle already exists.
     """
-    vehicle = repository.create(
-        session=session,
-        to_create=schemas.VehicleCreate(name=name,
-                                        year_of_manufacture=year_of_manufacture,
-                                        body=body or {},
-                                        ready_to_drive=ready_to_drive),
-    )
-    return schemas.Vehicle.from_orm(vehicle)
+    return repository.create(session=session, to_create=to_create)
 
 
-def get(session: Session, repository: AbstractRepository, id: int) -> schemas.Vehicle:  # noqa: A002
+def get(session: AbstractSession, repository: AbstractRepository, id: int) -> T:  # noqa: A002
     """
         Get a vehicle by ID.
 
@@ -66,11 +58,11 @@ def get(session: Session, repository: AbstractRepository, id: int) -> schemas.Ve
     HTTPError: If the vehicle with the specified ID is not found.
     """
     if vehicle := repository.get(session=session, id=id):
-        return schemas.Vehicle.from_orm(vehicle)
+        return vehicle
     raise HTTPError(status_code=404, detail="Vehicle not found.")
 
 
-def list_all(session: Session, repository: AbstractRepository) -> list[schemas.Vehicle]:
+def list_all(session: AbstractSession, repository: AbstractRepository) -> list[T]:
     """
     List all vehicles.
 
@@ -86,11 +78,10 @@ def list_all(session: Session, repository: AbstractRepository) -> list[schemas.V
     A list of `Vehicle` objects representing the vehicles.
 
     """
-    return [schemas.Vehicle.from_orm(vehicle) for vehicle in repository.list(session)]
+    return repository.list(session)
 
 
-def filter_by(session: Session, repository: AbstractRepository, filter_by: FilterBy,
-              value: str) -> list[schemas.Vehicle]:
+def filter_by(session: AbstractSession, repository: AbstractRepository, filter_by: FilterBy, value: str) -> list[T]:
     """
     Filter vehicles by a given value.
 
@@ -111,20 +102,20 @@ def filter_by(session: Session, repository: AbstractRepository, filter_by: Filte
     """
     match filter_by:
         case FilterBy.NAME:
-            vehicles = repository.list(session=session, filter_by={FilterBy.NAME: value})
+            return repository.list(session=session, filter_by={FilterBy.NAME: value})
         case FilterBy.YEAR_OF_MANUFACTURE:
             parsed = _parse_int(value)
-            vehicles = repository.list(session=session, filter_by={FilterBy.YEAR_OF_MANUFACTURE: parsed})
+            return repository.list(session=session, filter_by={FilterBy.YEAR_OF_MANUFACTURE: parsed})
         case FilterBy.READY_TO_DRIVE:
             parsed = _parse_bool(value)
-            vehicles = repository.list(session=session, filter_by={FilterBy.READY_TO_DRIVE: parsed})
-    return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
+            return repository.list(session=session, filter_by={FilterBy.READY_TO_DRIVE: parsed})
 
-def _parse_int(value:str) -> int:
+
+def _parse_int(value: str) -> int:
     """Parse a string to an integer."""
     try:
         parsed = int(value)
-    except ValueError as e:
+    except (ValueError, TypeError) as e:
         raise HTTPError(status_code=422, detail=f"{UNPROCESSABLE} integer.") from e
     else:
         return parsed
@@ -135,11 +126,7 @@ def _parse_bool(value: str) -> bool:
     return value.lower() in {"yes", "true", "t", "1"}
 
 
-def update(
-        session: Session,
-        repository: AbstractRepository,
-        id: int,  # noqa: A002
-        update_with: schemas.VehicleUpdate) -> schemas.Vehicle:
+def update(session: AbstractSession, repository: AbstractRepository, id: int, update_with: T) -> T:  # noqa: A002
     """
     Update a vehicle by ID.
 
@@ -160,10 +147,10 @@ def update(
     """
     if not (to_update := repository.get(session=session, id=id)):
         raise HTTPError(status_code=404, detail="Vehicle not found.")
-    return schemas.Vehicle.from_orm(repository.update(session=session, to_update=to_update, data=update_with))
+    return repository.update(session=session, to_update=to_update, data=update_with)
 
 
-def delete(session: Session, repository: AbstractRepository, id: int) -> None:  # noqa: A002
+def delete(session: AbstractSession, repository: AbstractRepository, id: int) -> None:  # noqa: A002
     """
     Delete a vehicle by ID.
 

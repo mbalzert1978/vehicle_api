@@ -11,17 +11,17 @@ from src.model.vehicle import Base
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from src.core.session import Session
+    from src.core.session import AbstractSession
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 T = TypeVar("T")
 
-REPOSITORY_FETCHER = SQLAlchemyFetcher
+REPOSITORY_LOCAL: AbstractRepositoryMaker = SQLAlchemyFetcher
 
 
-class Fetcher(Protocol[ModelType]):
+class AbstractRepositoryMaker(Protocol[ModelType]):
     model: ModelType | None = None
 
     def __call__(self) -> AbstractRepository | type[AbstractRepository]:
@@ -33,7 +33,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
     """The abstract repository protocol."""
 
     @staticmethod
-    def execute(self, session: Session, *, stmnt: str) -> None:
+    def execute(session: AbstractSession, *, stmnt: str) -> None:
         """
         Execute a statement in the database.
 
@@ -45,7 +45,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the statement to execute.
         """
 
-    def create(self, session: Session, *, to_create: CreateSchemaType) -> ModelType:
+    def create(self, session: AbstractSession, *, to_create: CreateSchemaType) -> ModelType:
         """
         Create a ModelType object in the database.
 
@@ -62,7 +62,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the ModelType object.
         """
 
-    def get(self, session: Session, *, id: int, default: T | None = None) -> ModelType | T:
+    def get(self, session: AbstractSession, *, id: int, default: T | None = None) -> ModelType | T:
         """
         Get a ModelType object from the database.
 
@@ -82,7 +82,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the ModelType object or the default value.
         """
 
-    def list(self, session: Session, *, filter_by: dict | None = None) -> Sequence[ModelType]:
+    def list(self, session: AbstractSession, *, filter_by: dict | None = None) -> Sequence[ModelType]:
         """
         Get a list of ModelType objects from the database.
 
@@ -99,7 +99,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the list of ModelType objects.
         """
 
-    def update(self, session: Session, *, to_update: ModelType, data: UpdateSchemaType) -> ModelType:
+    def update(self, session: AbstractSession, *, to_update: ModelType, data: UpdateSchemaType) -> ModelType:
         """
         Update a ModelType object in the database.
 
@@ -118,7 +118,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the updated ModelType object.
         """
 
-    def delete(self, session: Session, *, id: int) -> ModelType | None:
+    def delete(self, session: AbstractSession, *, id: int) -> ModelType | None:
         """
         Delete a ModelType object from the database.
 
