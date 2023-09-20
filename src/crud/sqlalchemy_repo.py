@@ -20,12 +20,16 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 T = TypeVar("T")
 
 
-def fetch_sqlalchemy_repo() -> type[SQLAlchemyRepository]:
-    return SQLAlchemyRepository
+class SQLAlchemyFetcher(Generic[ModelType]):
+
+    def __init__(self, model: type[ModelType] | None = None) -> None:
+        self.model = model
+
+    def __call__(self) -> SQLAlchemyRepository[ModelType] | type[SQLAlchemyRepository]:
+        return SQLAlchemyRepository(self.model) if self.model else SQLAlchemyRepository
 
 
-class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType,
-                                   UpdateSchemaType]):
+class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
     def __init__(self, model: type[ModelType]) -> None:
@@ -35,11 +39,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType,
     def execute(session: Session, *, stmnt: str) -> None:
         session.execute(text(stmnt))
 
-    def get(self,
-            session: Session,
-            *,
-            id: int,
-            default: T | None = None) -> ModelType | T:
+    def get(self, session: Session, *, id: int, default: T | None = None) -> ModelType | T:
         """
         Retrieve a model instance by its ID.
 
@@ -47,38 +47,35 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType,
         ----
         session: An SQLAlchemy Session object.
         id: The ID of the model instance to retrieve.
+        default: The value to return if the model instance is not found.
 
         Returns:
         -------
-        The model instance if found, or None if not found.
+        The model instance with the specified ID.
 
         """
         return session.get(self.model, id) or default
 
-    def list(  # noqa: A003
-            self,
-            session: Session,
-            *,
-            filter_by: dict | None = None) -> Sequence[ModelType]:
+    def list(self, session: Session, *, filter_by: dict | None = None) -> Sequence[ModelType]:  # noqa: A003
         """
-        Retrieve multiple model instances with optional offset and limit.
+        Retrieve a list of model instances.
 
         Args:
         ----
         session: An SQLAlchemy Session object.
-        offset: The number of results to skip from the beginning.
-        limit: The maximum number of results to retrieve.
+        filter_by: A dictionary of key-value pairs to filter by.
 
         Returns:
         -------
-        A sequence of model instances.
+        A list of model instances.
 
         """
-        stmt = select(self.model).filter_by(**filter_by or {})
+        stmt = select(self.model)
+        if filter_by:
+            stmt = stmt.filter_by(**filter_by)
         return session.execute(stmt).scalars().all()
 
-    def create(self, session: Session, *,
-               to_create: CreateSchemaType) -> ModelType:
+    def create(self, session: Session, *, to_create: CreateSchemaType) -> ModelType:
         """
         Create a new model instance.
 
@@ -96,8 +93,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType,
         obj = self.model(**serialized_data)
         return write_to_database(session, obj)
 
-    def update(self, session: Session, *, to_update: ModelType,
-               data: UpdateSchemaType) -> ModelType:
+    def update(self, session: Session, *, to_update: ModelType, data: UpdateSchemaType) -> ModelType:
         """
         Update a model instance with new data.
 
@@ -151,8 +147,7 @@ def extract_data(update_with: UpdateSchemaType | dict) -> dict:
     The extracted update data as a dictionary.
 
     """
-    return (update_with if isinstance(update_with, dict) else update_with.dict(
-        exclude_unset=True))
+    return update_with if isinstance(update_with, dict) else update_with.dict(exclude_unset=True)
 
 
 def update_fields(

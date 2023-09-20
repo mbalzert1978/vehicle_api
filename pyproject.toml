@@ -32,8 +32,17 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-line-length = 79
+line-length = 119
 target-version = ['py311']
+
+[tool.yapf]
+based_on_style = "pep8"
+spaces_before_comment = 2
+column_limit = 119
+continuation_indent_width = 4
+split_penalty_after_opening_bracket = 10000
+SPLIT_BEFORE_DOT = true
+allow_split_before_dict_value = false
 
 [tool.ruff]
 select = [

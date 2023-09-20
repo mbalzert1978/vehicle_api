@@ -18,8 +18,7 @@ class Base(abc.ABC):
 class Vehicle(Base):
     """Vehicle Model."""
 
-    def __init__(self, name: str, year_of_manufacture: int, body: dict, *,
-                 ready_to_drive: bool) -> None:
+    def __init__(self, name: str, year_of_manufacture: int, body: dict, *, ready_to_drive: bool) -> None:
         self.name = name
         self.year_of_manufacture = year_of_manufacture
         self.body = body

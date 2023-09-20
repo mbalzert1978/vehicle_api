@@ -1,8 +1,7 @@
 """Sqlalchemy related module."""
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -11,8 +10,13 @@ from src.core.config import settings
 from src.model.sql_alchemy import mapper_registry, vehicle_table
 from src.model.vehicle import Vehicle
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 
 class Session(Protocol):
+
+    """Abstract session interface."""
 
     def __enter__(self) -> Session:
         ...
@@ -49,6 +53,7 @@ class SQLAlchemySessionMaker(AbstractSessionMaker):
 
     def __init__(self,
                  url: str | None = None,
+                 *,
                  autocommit: bool = False,
                  autoflush: bool = False,
                  echo: bool = settings.ECHO,
@@ -65,9 +70,7 @@ class SQLAlchemySessionMaker(AbstractSessionMaker):
         mapper_registry.map_imperatively(Vehicle, vehicle_table)
 
     def __call__(self, client: Callable | None = None) -> Session:
-        session = client or sessionmaker(autocommit=self.autocommit,
-                                         autoflush=self.autoflush,
-                                         bind=self.engine)
+        session = client or sessionmaker(autocommit=self.autocommit, autoflush=self.autoflush, bind=self.engine)
         return session()
 
 

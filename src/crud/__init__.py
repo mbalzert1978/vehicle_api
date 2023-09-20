@@ -1,4 +1,4 @@
 """crud Module."""
-from src.crud.crud import REPOSITORY_GETTER, AbstractRepository
+from src.crud.crud import REPOSITORY_FETCHER, AbstractRepository
 
-__all__ = ["AbstractRepository", "REPOSITORY_GETTER"]
+__all__ = ["AbstractRepository", "REPOSITORY_FETCHER"]

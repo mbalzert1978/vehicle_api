@@ -8,7 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.api.dependencies import session_factory
 from src.core.error import HTTPError
 from src.core.session import Session
-from src.crud import REPOSITORY_GETTER, AbstractRepository
+from src.crud import REPOSITORY_FETCHER, AbstractRepository
+from src.model import vehicle as models
 from src.schemas import vehicle as schemas
 from src.service import services
 
@@ -20,11 +21,10 @@ UNCAUGHT = "Uncaught exception"
 
 
 @router.get("/", response_model=list[schemas.Vehicle])
-def list_vehicle(
-    *,
-    session: Session = Depends(session_factory),
-    repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
-) -> list[schemas.Vehicle]:
+def list_vehicle(*,
+                 session: Session = Depends(session_factory),
+                 repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle))
+                 ) -> list[schemas.Vehicle]:
     """List all vehicles."""
     try:
         with session as db:
@@ -33,18 +33,16 @@ def list_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.get("/{filter_by}/{value}", response_model=list[schemas.Vehicle])
-def filter_vehicle(
-    *,
-    filter_by: services.FilterBy,
-    value: str,
-    session: Session = Depends(session_factory),
-    repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
-) -> list[schemas.Vehicle]:
+def filter_vehicle(*,
+                   filter_by: services.FilterBy,
+                   value: str,
+                   session: Session = Depends(session_factory),
+                   repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle))
+                   ) -> list[schemas.Vehicle]:
     """Filter vehicles based on a given criterion."""
     try:
         with session as db:
@@ -53,20 +51,18 @@ def filter_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.post("/", response_model=schemas.Vehicle)
 def create_vehicle(  # noqa: D417
-    *,
-    session: Session = Depends(session_factory),
-    repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
-    name: str,
-    year_of_manufacture: int,
-    body: dict | None = None,
-    ready_to_drive: bool = False,
-) -> schemas.Vehicle:
+        *,
+        session: Session = Depends(session_factory),
+        repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle)),
+        name: str,
+        year_of_manufacture: int,
+        body: dict | None = None,
+        ready_to_drive: bool = False) -> schemas.Vehicle:
     r"""
     Create a new vehicle.
 
@@ -81,30 +77,21 @@ def create_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            return services.create(
-                db,
-                repository,
-                name,
-                year_of_manufacture,
-                body,
-                ready_to_drive=ready_to_drive,
-            )
+            return services.create(db, repository, name, year_of_manufacture, body, ready_to_drive=ready_to_drive)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.put("/{id}", response_model=schemas.Vehicle)
 def update_vehicle(  # noqa: D417
-    *,
-    session: Session = Depends(session_factory),
-    repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
-    id: int,  # noqa: A002
-    update_with: schemas.VehicleUpdate,
-) -> schemas.Vehicle:
+        *,
+        session: Session = Depends(session_factory),
+        repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle)),
+        id: int,  # noqa: A002
+        update_with: schemas.VehicleUpdate) -> schemas.Vehicle:
     r"""
     Update a vehicle.
 
@@ -120,17 +107,15 @@ def update_vehicle(  # noqa: D417
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
 def get_vehicle(  # noqa: D417
         *,
         session: Session = Depends(session_factory),
-        repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
-        id: int,  # noqa: A002
-) -> schemas.Vehicle:
+        repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle)),
+        id: int) -> schemas.Vehicle:  # noqa: A002
     """
     Get a vehicle by ID.
 
@@ -145,17 +130,15 @@ def get_vehicle(  # noqa: D417
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_vehicle(  # noqa: D417
         *,
         session: Session = Depends(session_factory),
-        repository: type[AbstractRepository] = Depends(REPOSITORY_GETTER),
-        id: int,  # noqa: A002
-) -> None:
+        repository: AbstractRepository = Depends(REPOSITORY_FETCHER(models.Vehicle)),
+        id: int) -> None:  # noqa: A002
     """
     Delete an vehicle by ID.
 
@@ -170,5 +153,4 @@ def delete_vehicle(  # noqa: D417
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
