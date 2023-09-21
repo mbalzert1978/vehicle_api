@@ -3,6 +3,7 @@ from pydantic import BaseSettings, PostgresDsn, validator
 
 
 class Settings(BaseSettings):
+
     """Project settings."""
 
     API_VERSION: str = "v1"
@@ -43,6 +44,7 @@ class Settings(BaseSettings):
         )
 
     class Config:
+
         """Pydantic configuration."""
 
         env_file = ".env"

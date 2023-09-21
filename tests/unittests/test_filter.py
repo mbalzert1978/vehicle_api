@@ -8,7 +8,7 @@ from src.service.services import _parse_bool, _parse_int
 
 # Happy path tests
 @pytest.mark.parametrize(
-    "value, expected",
+    ("value", "expected"),
     [
         # Test case 1: "yes" (lowercase)
         ("yes", True),
@@ -39,7 +39,7 @@ def test_parse_bool_happy_path(value, expected):
 
 # Edge cases
 @pytest.mark.parametrize(
-    "value, expected",
+    ("value", "expected"),
     [
         # Test case 1: Empty string
         ("", False),
@@ -68,7 +68,7 @@ def test_parse_bool_edge_cases(value, expected):
 
 # Happy path tests
 @pytest.mark.parametrize(
-    "value, expected",
+    ("value", "expected"),
     [
         # Test case 1: Valid integer string
         ("123", 123),
@@ -89,7 +89,7 @@ def test_parse_int_happy_path(value, expected):
 
 # Edge cases
 @pytest.mark.parametrize(
-    "value, expected",
+    ("value", "expected"),
     [
         # Test case 1: Empty string
         ("", HTTPError(status_code=422, detail="unprocessable value, not a integer.")),
@@ -115,7 +115,7 @@ def test_parse_int_edge_cases(value, expected):
         # Test case 2: List value
         (["123"], HTTPError(status_code=422, detail="unprocessable value, not a integer.")),
         # Test case 3: Dictionary value
-        ({"value": "123"}, HTTPError(status_code=422, detail="unprocessable value, not a integer."))
+        ({"value": "123"}, HTTPError(status_code=422, detail="unprocessable value, not a integer.")),
     ],
     ids=["none_value", "list_value", "dictionary_value"],
 )

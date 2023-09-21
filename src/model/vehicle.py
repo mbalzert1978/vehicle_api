@@ -1,9 +1,11 @@
 """Model."""
 
 import abc
+import datetime
 
 
 class Base(abc.ABC):
+
     """Base Model."""
 
     @abc.abstractmethod
@@ -15,13 +17,23 @@ class Base(abc.ABC):
         raise NotImplementedError
 
 
+def _get_current_year() -> int:
+    return datetime.datetime.now(tz=datetime.timezone.utc).date().year
+
+
 class Vehicle(Base):
+
     """Vehicle Model."""
 
-    def __init__(self, name: str, year_of_manufacture: int, body: dict, *, ready_to_drive: bool) -> None:
+    def __init__(self,
+                 name: str = "default",
+                 year_of_manufacture: int | None = None,
+                 body: dict | None = None,
+                 *,
+                 ready_to_drive: bool = False) -> None:
         self.name = name
-        self.year_of_manufacture = year_of_manufacture
-        self.body = body
+        self.year_of_manufacture = year_of_manufacture or _get_current_year()
+        self.body = body or {}
         self.ready_to_drive = ready_to_drive
 
     def dump(self) -> dict:

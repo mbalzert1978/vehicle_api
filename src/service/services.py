@@ -1,16 +1,18 @@
 """Services module."""
+# ruff: noqa: A002
 from enum import Enum
 from typing import TypeVar
 
 from src.core.error import HTTPError
 from src.core.session import AbstractSession
-from src.crud import AbstractRepository
+from src.crud import AbstractRepository, CreateSchemaType, ModelType, UpdateSchemaType
 
-T = TypeVar("T")
 UNPROCESSABLE = "unprocessable value, not a"
+T = TypeVar("T")
 
 
 class FilterBy(str, Enum):
+
     """Filter by Enum."""
 
     NAME = "name"
@@ -18,7 +20,7 @@ class FilterBy(str, Enum):
     READY_TO_DRIVE = "ready_to_drive"
 
 
-def create(session: AbstractSession, repository: AbstractRepository, to_create: T) -> T:
+def create(session: AbstractSession, repository: AbstractRepository, to_create: CreateSchemaType) -> ModelType:
     """
     Create a new vehicle.
 
@@ -39,30 +41,31 @@ def create(session: AbstractSession, repository: AbstractRepository, to_create: 
     return repository.create(session=session, to_create=to_create)
 
 
-def get(session: AbstractSession, repository: AbstractRepository, id: int) -> T:  # noqa: A002
+def get(session: AbstractSession, repository: AbstractRepository, id: int, default: T | None = None) -> ModelType:
     """
-        Get a vehicle by ID.
+    Get a vehicle.
 
     Args:
     ----
     session: An Session object.
     repository: An AbstractRepository object.
-    id: The ID of the vehicle to retrieve.
+    id: The id of the vehicle.
+    default: The default value to return if the vehicle does not exist.
 
     Returns:
     -------
-    A `Vehicle` object representing the retrieved vehicle.
+    A object representing the vehicle.
 
     Raises:
     ------
-    HTTPError: If the vehicle with the specified ID is not found.
+    HTTPError: If the vehicle does not exist.
     """
-    if vehicle := repository.get(session=session, id=id):
+    if vehicle := repository.get(session=session, id=id, default=default):
         return vehicle
     raise HTTPError(status_code=404, detail="Vehicle not found.")
 
 
-def list_all(session: AbstractSession, repository: AbstractRepository) -> list[T]:
+def list_all(session: AbstractSession, repository: AbstractRepository) -> list[ModelType]:
     """
     List all vehicles.
 
@@ -81,7 +84,8 @@ def list_all(session: AbstractSession, repository: AbstractRepository) -> list[T
     return repository.list(session)
 
 
-def filter_by(session: AbstractSession, repository: AbstractRepository, filter_by: FilterBy, value: str) -> list[T]:
+def filter_by(session: AbstractSession, repository: AbstractRepository, filter_by: FilterBy,
+              value: str) -> list[ModelType]:
     """
     Filter vehicles by a given value.
 
@@ -126,7 +130,8 @@ def _parse_bool(value: str) -> bool:
     return value.lower() in {"yes", "true", "t", "1"}
 
 
-def update(session: AbstractSession, repository: AbstractRepository, id: int, update_with: T) -> T:  # noqa: A002
+def update(session: AbstractSession, repository: AbstractRepository, id: int,
+           update_with: UpdateSchemaType) -> ModelType:
     """
     Update a vehicle by ID.
 
@@ -150,7 +155,7 @@ def update(session: AbstractSession, repository: AbstractRepository, id: int, up
     return repository.update(session=session, to_update=to_update, data=update_with)
 
 
-def delete(session: AbstractSession, repository: AbstractRepository, id: int) -> None:  # noqa: A002
+def delete(session: AbstractSession, repository: AbstractRepository, id: int) -> None:
     """
     Delete a vehicle by ID.
 

@@ -5,6 +5,7 @@ from pydantic import BaseModel, validator
 
 
 class VehicleBase(BaseModel):
+
     """Base vehicle model."""
 
     name: str
@@ -13,12 +14,14 @@ class VehicleBase(BaseModel):
 
 
 class VehicleCreate(VehicleBase):
+
     """Vehicle create model."""
 
     body: dict
 
 
 class VehicleUpdate(BaseModel):
+
     """Vehicle update model."""
 
     name: str | None = None
@@ -28,6 +31,7 @@ class VehicleUpdate(BaseModel):
 
 
 class VehicleInDBBase(VehicleBase):
+
     """Vehicle in DB model."""
 
     id: int | None = None  # noqa: A003
@@ -37,6 +41,7 @@ class VehicleInDBBase(VehicleBase):
     ready_to_drive: bool = False
 
     class Config:
+
         """Pydantic config."""
 
         orm_mode = True
@@ -60,8 +65,10 @@ class VehicleInDBBase(VehicleBase):
 
 
 class Vehicle(VehicleInDBBase):
+
     """Vehicle model."""
 
 
 class VehicleInDB(VehicleInDBBase):
+
     """Vehicle in DB model."""

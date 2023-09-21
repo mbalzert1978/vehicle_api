@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.core.error import HTTPError
 from src.core.session import SESSION_LOCAL, AbstractSession
 from src.crud import REPOSITORY_LOCAL, AbstractRepository
-from src.model import vehicle as models
+from src.model.vehicle import Vehicle
 from src.schemas import vehicle as schemas
 from src.service import services
 
@@ -17,19 +17,18 @@ router = APIRouter(prefix="/vehicle", tags=["vehicle"])
 log = logging.getLogger(__name__)
 
 UNCAUGHT = "Uncaught exception"
-MODEL_TYPE = models.Vehicle
 
 
 @router.get("/", response_model=list[schemas.Vehicle])
 def list_vehicle(
         *,
         session: AbstractSession = Depends(SESSION_LOCAL),
-        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
 ) -> list[schemas.Vehicle]:
     """List all vehicles."""
     try:
         with session as db:
-            vehicles = services.list_all(db, repository)
+            vehicles: list[Vehicle] = services.list_all(db, repository)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
@@ -45,12 +44,12 @@ def filter_vehicle(
         filter_by: services.FilterBy,
         value: str,
         session: AbstractSession = Depends(SESSION_LOCAL),
-        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
 ) -> list[schemas.Vehicle]:
     """Filter vehicles based on a given criterion."""
     try:
         with session as db:
-            vehicles = services.filter_by(db, repository, filter_by, value)
+            vehicles: list[Vehicle] = services.filter_by(db, repository, filter_by, value)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
@@ -64,7 +63,7 @@ def filter_vehicle(
 def create_vehicle(  # noqa: D417
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
     name: str,
     year_of_manufacture: int,
     body: dict | None = None,
@@ -84,7 +83,7 @@ def create_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            vehicle = services.create(
+            vehicle: Vehicle = services.create(
                 db,
                 repository,
                 to_create=schemas.VehicleCreate(name=name,
@@ -105,7 +104,7 @@ def create_vehicle(  # noqa: D417
 def update_vehicle(  # noqa: D417
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
     id: int,  # noqa: A002
     update_with: schemas.VehicleUpdate,
 ) -> schemas.Vehicle:
@@ -119,7 +118,7 @@ def update_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            vehicle = services.update(db, repository, id, update_with)
+            vehicle: Vehicle = services.update(db, repository, id, update_with)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
@@ -131,11 +130,11 @@ def update_vehicle(  # noqa: D417
 
 @router.get("/{id}", response_model=schemas.Vehicle)
 def get_vehicle(  # noqa: D417
-    *,
-    session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
-    id: int,
-) -> schemas.Vehicle:  # noqa: A002
+        *,
+        session: AbstractSession = Depends(SESSION_LOCAL),
+        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+        id: int,  # noqa: A002
+) -> schemas.Vehicle:
     """
     Get a vehicle by ID.
 
@@ -145,7 +144,7 @@ def get_vehicle(  # noqa: D417
     """
     try:
         with session as db:
-            vehicle = services.get(db, repository, id)
+            vehicle: Vehicle = services.get(db, repository, id, Vehicle())
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
@@ -159,9 +158,9 @@ def get_vehicle(  # noqa: D417
 def delete_vehicle(  # noqa: D417
         *,
         session: AbstractSession = Depends(SESSION_LOCAL),
-        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(MODEL_TYPE)),
-        id: int,
-) -> None:  # noqa: A002
+        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+        id: int,  # noqa: A002
+) -> None:
     """
     Delete an vehicle by ID.
 

@@ -22,14 +22,25 @@ T = TypeVar("T")
 
 class SQLAlchemyFetcher(Generic[ModelType]):
 
+    """Factory for SQLAlchemy repo instances for a database."""
+
     def __init__(self, model: type[ModelType] | None = None) -> None:
         self.model = model
 
     def __call__(self) -> SQLAlchemyRepository[ModelType] | type[SQLAlchemyRepository]:
+        """
+        Return a SQLAlchemyRepository instance.
+
+        Returns
+        -------
+        A SQLAlchemyRepository instance.
+
+        """
         return SQLAlchemyRepository(self.model) if self.model else SQLAlchemyRepository
 
 
 class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
     def __init__(self, model: type[ModelType]) -> None:
@@ -37,9 +48,18 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
 
     @staticmethod
     def execute(session: Session, *, stmnt: str) -> None:
+        """
+        Execute a SQL statement.
+
+        Args:
+        ----
+        session: An SQLAlchemy Session object.
+        stmnt: The SQL statement to execute.
+
+        """
         session.execute(text(stmnt))
 
-    def get(self, session: Session, *, id: int, default: T | None = None) -> ModelType | T:
+    def get(self, session: Session, *, id: int, default: T | None = None) -> ModelType | T:  # noqa: A002
         """
         Retrieve a model instance by its ID.
 
@@ -113,7 +133,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         update_fields(to_update, serialized_data, update_data)
         return write_to_database(session, to_update)
 
-    def delete(self, session: Session, *, id: int) -> ModelType | None:
+    def delete(self, session: Session, *, id: int) -> ModelType | None:  # noqa: A002
         """
         Remove a model instance by its ID.
 

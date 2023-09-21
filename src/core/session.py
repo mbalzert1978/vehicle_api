@@ -21,10 +21,11 @@ R = TypeVar("R")
 
 
 class AbstractSession(Protocol[P, R]):
+
     """Abstract session interface."""
 
     def __enter__(self) -> AbstractSession:
-        """Context manager"""
+        """Context manager."""
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Context manager exit method."""
@@ -32,7 +33,7 @@ class AbstractSession(Protocol[P, R]):
     def execute(self, statement: str, *args: P.args, **kwargs: P.kwargs) -> R:
         """Session execute method."""
 
-    def get(self, *args: P.args, **kwargs: P.kwargs) -> None:
+    def get(self, *args: P.args, **kwargs: P.kwargs) -> R | None:
         """Session get method."""
 
     def close(self, *args: P.args, **kwargs: P.kwargs) -> None:
@@ -52,6 +53,7 @@ class AbstractSession(Protocol[P, R]):
 
 
 class AbstractSessionMaker(Protocol[ModelType, TableType]):
+
     """Abstract session maker interface."""
 
     def __call__(self) -> Generator[AbstractSession, Any, None]:
@@ -59,6 +61,8 @@ class AbstractSessionMaker(Protocol[ModelType, TableType]):
 
 
 class SQLAlchemySessionMaker(Generic[ModelType, TableType]):
+
+    """SQLAlchemy session maker."""
 
     def __init__(
         self,
