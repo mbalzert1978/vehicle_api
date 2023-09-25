@@ -1,9 +1,10 @@
 """FastAPI vehicles module."""
 # mypy: disable-error-code="arg-type"
 # ruff: noqa: B008
+import datetime
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from src.core.error import HTTPError
 from src.core.session import SESSION_LOCAL, AbstractSession
@@ -21,14 +22,25 @@ UNCAUGHT = "Uncaught exception"
 
 @router.get("/", response_model=list[schemas.Vehicle])
 def list_vehicle(
-        *,
-        session: AbstractSession = Depends(SESSION_LOCAL),
-        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    *,
+    session: AbstractSession = Depends(SESSION_LOCAL),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    name: str | None = None,
+    year_of_manufacture: int = Query(default=None, ge=2000, le=datetime.datetime.now(tz=datetime.UTC).date().year),
+    ready_to_drive: bool | None = None,
 ) -> list[schemas.Vehicle]:
-    """List all vehicles."""
+    """
+    List all vehicles.
+
+    Filters can be applied to refine results based on name, manufacturing year, and readiness for driving.
+    """
     try:
         with session as db:
-            vehicles: list[Vehicle] = services.list_all(db, repository)
+            vehicles: list[Vehicle] = services.list(
+                db,
+                repository,
+                filter_by=_set_filter(name, year_of_manufacture, ready_to_drive),
+            )
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
@@ -38,29 +50,19 @@ def list_vehicle(
         return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
 
 
-@router.get("/{filter_by}/{value}", response_model=list[schemas.Vehicle])
-def filter_vehicle(
-        *,
-        filter_by: services.FilterBy,
-        value: str,
-        session: AbstractSession = Depends(SESSION_LOCAL),
-        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-) -> list[schemas.Vehicle]:
-    """Filter vehicles based on a given criterion."""
-    try:
-        with session as db:
-            vehicles: list[Vehicle] = services.filter_by(db, repository, filter_by, value)
-    except HTTPError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
-    except Exception as e:
-        log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
-    else:
-        return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
+def _set_filter(name: str | None, year_of_manufacture: int | None, ready_to_drive: bool | None) -> dict:
+    filter_by = {}
+    if name is not None:
+        filter_by["name"] = name
+    if year_of_manufacture is not None:
+        filter_by["year_of_manufacture"] = year_of_manufacture
+    if ready_to_drive is not None:
+        filter_by["ready_to_drive"] = ready_to_drive
+    return filter_by
 
 
 @router.post("/", response_model=schemas.Vehicle)
-def create_vehicle(  # noqa: D417
+def create_vehicle(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
     repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
@@ -86,10 +88,12 @@ def create_vehicle(  # noqa: D417
             vehicle: Vehicle = services.create(
                 db,
                 repository,
-                to_create=schemas.VehicleCreate(name=name,
-                                                year_of_manufacture=year_of_manufacture,
-                                                body=body,
-                                                ready_to_drive=ready_to_drive),
+                to_create=schemas.VehicleCreate(
+                    name=name,
+                    year_of_manufacture=year_of_manufacture,
+                    body=body,
+                    ready_to_drive=ready_to_drive,
+                ),
             )
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
@@ -101,7 +105,7 @@ def create_vehicle(  # noqa: D417
 
 
 @router.put("/{id}", response_model=schemas.Vehicle)
-def update_vehicle(  # noqa: D417
+def update_vehicle(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
     repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
@@ -129,11 +133,11 @@ def update_vehicle(  # noqa: D417
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
-def get_vehicle(  # noqa: D417
-        *,
-        session: AbstractSession = Depends(SESSION_LOCAL),
-        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-        id: int,  # noqa: A002
+def get_vehicle(
+    *,
+    session: AbstractSession = Depends(SESSION_LOCAL),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    id: int,  # noqa: A002
 ) -> schemas.Vehicle:
     """
     Get a vehicle by ID.
@@ -155,11 +159,11 @@ def get_vehicle(  # noqa: D417
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_vehicle(  # noqa: D417
-        *,
-        session: AbstractSession = Depends(SESSION_LOCAL),
-        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-        id: int,  # noqa: A002
+def delete_vehicle(
+    *,
+    session: AbstractSession = Depends(SESSION_LOCAL),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    id: int,  # noqa: A002
 ) -> None:
     """
     Delete an vehicle by ID.

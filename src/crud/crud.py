@@ -24,7 +24,7 @@ REPOSITORY_LOCAL: AbstractRepositoryMaker = SQLAlchemyFetcher
 class AbstractRepositoryMaker(Protocol[ModelType]):
     model: ModelType | None = None
 
-    def __call__(self) -> AbstractRepository | type[AbstractRepository]:
+    def __call__(self, model_type: ModelType | None = None) -> AbstractRepository | type[AbstractRepository]:
         """Fetch an repository object."""
 
 

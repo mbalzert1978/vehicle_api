@@ -15,10 +15,12 @@ log = logging.getLogger(__name__)
 
 
 @service.get("/")
-def database_status(*,
-                    session: AbstractSession = Depends(SESSION_LOCAL),
-                    repository: AbstractRepository = Depends(REPOSITORY_LOCAL())) -> str:
-    """Checks the database status."""
+def database_status(
+    *,
+    session: AbstractSession = Depends(SESSION_LOCAL),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL()),
+) -> str:
+    """Check the database status."""
     try:
         with session as db:
             repository.execute(db, stmnt="SELECT 1=1;")

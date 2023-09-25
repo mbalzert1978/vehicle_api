@@ -44,11 +44,10 @@ SPLIT_BEFORE_DOT = true
 allow_split_before_dict_value = false
 
 [tool.ruff]
+line-length = 119
 select = [
     "A",
     "B",
-    "D",
-    "E",
     "F",
     "G",
     "I",

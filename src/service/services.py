@@ -1,6 +1,5 @@
 """Services module."""
 # ruff: noqa: A002
-from enum import Enum
 from typing import TypeVar
 
 from src.core.error import HTTPError
@@ -9,15 +8,6 @@ from src.crud import AbstractRepository, CreateSchemaType, ModelType, UpdateSche
 
 UNPROCESSABLE = "unprocessable value, not a"
 T = TypeVar("T")
-
-
-class FilterBy(str, Enum):
-
-    """Filter by Enum."""
-
-    NAME = "name"
-    YEAR_OF_MANUFACTURE = "year_of_manufacture"
-    READY_TO_DRIVE = "ready_to_drive"
 
 
 def create(session: AbstractSession, repository: AbstractRepository, to_create: CreateSchemaType) -> ModelType:
@@ -65,73 +55,35 @@ def get(session: AbstractSession, repository: AbstractRepository, id: int, defau
     raise HTTPError(status_code=404, detail="Vehicle not found.")
 
 
-def list_all(session: AbstractSession, repository: AbstractRepository) -> list[ModelType]:
+def list(  # noqa: A001
+    session: AbstractSession,
+    repository: AbstractRepository,
+    filter_by: dict | None = None,
+) -> list[ModelType]:
     """
     List all vehicles.
 
-    Args:
-    ----
-    session: An Session object.
-    repository: A AbstractRepository object.
-    offset: The offset of the data.
-    limit: The limit of the displayed data.
-
-    Returns:
-    -------
-    A list of `Vehicle` objects representing the vehicles.
-
-    """
-    return repository.list(session)
-
-
-def filter_by(session: AbstractSession, repository: AbstractRepository, filter_by: FilterBy,
-              value: str) -> list[ModelType]:
-    """
-    Filter vehicles by a given value.
+    Given filter_by parameter the vehicle will be filtered.
 
     Args:
     ----
     session: An Session object.
     repository: An AbstractRepository object.
-    filter_by: The filter by to apply.
-    value: The value to filter by.
+    filter_by: A dict of filter criterions. Defaults to None.
 
     Returns:
     -------
-    A list of `Vehicle` objects representing the vehicles.
-
-    Raises:
-    ------
-    HTTPError: If the filter by is invalid.
+    returns: A list of `Vehicle` objects.
     """
-    match filter_by:
-        case FilterBy.NAME:
-            return repository.list(session=session, filter_by={FilterBy.NAME: value})
-        case FilterBy.YEAR_OF_MANUFACTURE:
-            parsed = _parse_int(value)
-            return repository.list(session=session, filter_by={FilterBy.YEAR_OF_MANUFACTURE: parsed})
-        case FilterBy.READY_TO_DRIVE:
-            parsed = _parse_bool(value)
-            return repository.list(session=session, filter_by={FilterBy.READY_TO_DRIVE: parsed})
+    return repository.list(session, filter_by=filter_by)
 
 
-def _parse_int(value: str) -> int:
-    """Parse a string to an integer."""
-    try:
-        parsed = int(value)
-    except (ValueError, TypeError) as e:
-        raise HTTPError(status_code=422, detail=f"{UNPROCESSABLE} integer.") from e
-    else:
-        return parsed
-
-
-def _parse_bool(value: str) -> bool:
-    """Convert a string to a boolean."""
-    return value.lower() in {"yes", "true", "t", "1"}
-
-
-def update(session: AbstractSession, repository: AbstractRepository, id: int,
-           update_with: UpdateSchemaType) -> ModelType:
+def update(
+    session: AbstractSession,
+    repository: AbstractRepository,
+    id: int,
+    update_with: UpdateSchemaType,
+) -> ModelType:
     """
     Update a vehicle by ID.
 

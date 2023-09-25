@@ -4,7 +4,6 @@ from typing import Any
 
 
 class AttrStub:
-
     def __init__(self, return_value: Any | None = None) -> None:
         self.__dict__["commands"] = []
         self.__dict__["return_value"] = return_value
@@ -16,17 +15,18 @@ class AttrStub:
         return self.__dict__.get("return_value")
 
     def __setattr__(self, __name: str, __value: Any) -> None:
-        self.__dict__["commands"][__name] = (__value, )
+        self.__dict__["commands"][__name] = (__value,)
 
 
 class Stub:
-
-    def __init__(self,
-                 spec: type[Any] | None = None,
-                 return_value: Any | None = None,
-                 raise_on: str = "",
-                 raises: type[Exception] | None = None,
-                 attr_stub: AttrStub | None = None) -> None:
+    def __init__(
+        self,
+        spec: type[Any] | None = None,
+        return_value: Any | None = None,
+        raise_on: str = "",
+        raises: type[Exception] | None = None,
+        attr_stub: AttrStub | None = None,
+    ) -> None:
         self.spec = spec
         self.commands = {}
         self.raise_on = raise_on

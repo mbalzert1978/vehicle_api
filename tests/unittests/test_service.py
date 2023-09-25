@@ -23,58 +23,47 @@ def test_service_get_happy():
 
     assert repository.attr_stub.commands == expected
 
+
 def test_service_get_not_found():
     repository = Stub(spec=AbstractRepository)
 
     with pytest.raises(HTTPError):
         services.get("TestSession", repository, 1)
 
+
 def test_service_filter_name():
     repository = Stub(spec=AbstractRepository)
-    services.filter_by("TestSession", repository, services.FilterBy.NAME, "test")
+    services.list(session="TestSession", repository=repository, filter_by={"name": "test"})
 
-    expected = [(), {"session": "TestSession", "filter_by": {services.FilterBy.NAME: "test"}}]
+    expected = [("TestSession",), {"filter_by": {"name": "test"}}]
 
     assert repository.attr_stub.commands == expected
+
 
 def test_service_filter_year():
     repository = Stub(spec=AbstractRepository)
-    services.filter_by("TestSession", repository, services.FilterBy.YEAR_OF_MANUFACTURE, "2020")
+    services.list(session="TestSession", repository=repository, filter_by={"year_of_manufacture": 2023})
 
-    expected = [(), {"session": "TestSession", "filter_by": {services.FilterBy.YEAR_OF_MANUFACTURE: 2020}}]
+    expected = [("TestSession",), {"filter_by": {"year_of_manufacture": 2023}}]
 
     assert repository.attr_stub.commands == expected
 
-def test_parse_int():
-    assert services._parse_int("123") == 123
-
-def test_parse_int_negative():
-    with pytest.raises(HTTPError):
-        services._parse_int("-abc")
-
-def test_parse_bool():
-    assert services._parse_bool("True")
-    assert services._parse_bool("1")
-    assert services._parse_bool("t")
-    assert services._parse_bool("yes")
-
-def test_parse_bool_negative():
-    assert not services._parse_bool("lksdjf+lkjasd")
-    assert not services._parse_bool("0")
 
 def test_service_filter_ready():
     repository = Stub(spec=AbstractRepository)
-    services.filter_by("TestSession", repository, services.FilterBy.READY_TO_DRIVE, "True")
+    services.list(session="TestSession", repository=repository, filter_by={"ready_to_drive": False})
 
-    expected = [(), {"session": "TestSession", "filter_by": {services.FilterBy.READY_TO_DRIVE: True}}]
+    expected = [("TestSession",), {"filter_by": {"ready_to_drive": False}}]
 
     assert repository.attr_stub.commands == expected
+
 
 def test_update_negative():
     repository = Stub(spec=AbstractRepository)
 
     with pytest.raises(HTTPError):
         services.update("TestSession", repository, 1, "to_update")
+
 
 def test_delete_negative():
     repository = Stub(spec=AbstractRepository)
