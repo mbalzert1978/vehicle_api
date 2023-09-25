@@ -2,6 +2,7 @@
 # mypy: disable-error-code="arg-type"
 # ruff: noqa: B008
 import logging
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import OperationalError
@@ -19,7 +20,7 @@ def database_status(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
     repository: AbstractRepository = Depends(REPOSITORY_LOCAL()),
-) -> str:
+) -> Literal[200]:
     """Check the database status."""
     try:
         with session as db:

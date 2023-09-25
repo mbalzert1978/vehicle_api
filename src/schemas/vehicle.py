@@ -2,7 +2,7 @@
 import datetime
 import json
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, validator
 
 
 def _get_now_year() -> int:
@@ -75,12 +75,7 @@ class VehicleInDBBase(VehicleCreate):
     """Vehicle in DB model."""
 
     id: int | None = None  # noqa: A003
-
-    class Config:
-
-        """Pydantic config."""
-
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Vehicle(VehicleInDBBase):
