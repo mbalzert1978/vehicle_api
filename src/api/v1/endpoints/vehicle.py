@@ -18,6 +18,7 @@ router = APIRouter(prefix="/vehicle", tags=["vehicle"])
 log = logging.getLogger(__name__)
 
 UNCAUGHT = "Uncaught exception"
+FILTER_ON = "filter by {criterion}, optional."
 
 
 @router.get("/", response_model=list[schemas.Vehicle])
@@ -25,9 +26,17 @@ def list_vehicle(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
     repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-    name: str | None = None,
-    year_of_manufacture: int = Query(default=None, ge=2000, le=datetime.datetime.now(tz=datetime.UTC).date().year),
-    ready_to_drive: bool | None = None,
+    name: str | None = Query(default=None, description=FILTER_ON.format(criterion="vehicle name"), example="Audi"),
+    year_of_manufacture: int
+    | None = Query(
+        default=None,
+        ge=2000,
+        le=datetime.datetime.now(tz=datetime.UTC).date().year,
+        example=2020,
+        description=FILTER_ON.format(criterion="year of manufacture"),
+    ),
+    ready_to_drive: bool
+    | None = Query(default=None, description=FILTER_ON.format(criterion="ready to drive"), example=True),
 ) -> list[schemas.Vehicle]:
     """
     List all vehicles.
@@ -66,10 +75,7 @@ def create_vehicle(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
     repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-    name: str,
-    year_of_manufacture: int,
-    body: dict | None = None,
-    ready_to_drive: bool = False,
+    to_create: schemas.VehicleCreate,
 ) -> schemas.Vehicle:
     r"""
     Create a new vehicle.
@@ -85,16 +91,7 @@ def create_vehicle(
     """
     try:
         with session as db:
-            vehicle: Vehicle = services.create(
-                db,
-                repository,
-                to_create=schemas.VehicleCreate(
-                    name=name,
-                    year_of_manufacture=year_of_manufacture,
-                    body=body,
-                    ready_to_drive=ready_to_drive,
-                ),
-            )
+            vehicle: Vehicle = services.create(db, repository, to_create=to_create)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:

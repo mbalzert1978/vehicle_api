@@ -22,6 +22,12 @@ PARAMS = {
     "name": "test_vehicle",
     "year_of_manufacture": 2020,
     "ready_to_drive": False,
+    "body": {
+        "color": "test_color",
+        "kilometer": 10,
+        "price": 10_000,
+        "vehicle_type": "test_type",
+    },
 }
 UPDATE = {
     "name": "updated_vehicle",
