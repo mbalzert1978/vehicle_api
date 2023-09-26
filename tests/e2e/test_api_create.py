@@ -8,7 +8,7 @@ from tests.data import BODY, PARAMS, UPDATE
 
 def test_CRUD_happy_path(client: TestClient):
     # Create a new vehicle
-    create = client.post("/vehicle",content=json.dumps(PARAMS))
+    create = client.post("/vehicle", content=json.dumps(PARAMS))
     assert create.status_code == status.HTTP_200_OK
 
     # Retrieve vehicles

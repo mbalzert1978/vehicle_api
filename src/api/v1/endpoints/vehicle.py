@@ -56,11 +56,15 @@ def list_vehicle(
         log.exception(UNCAUGHT)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
-        return [schemas.Vehicle.from_orm(vehicle) for vehicle in vehicles]
+        return [schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles]
 
 
-def _set_filter(name: str | None, year_of_manufacture: int | None, ready_to_drive: bool | None) -> dict:
-    filter_by = {}
+def _set_filter(
+    name: str | None,
+    year_of_manufacture: int | None,
+    ready_to_drive: bool | None,
+) -> dict[str, str | int | bool]:
+    filter_by: dict[str, str | int | bool] = {}
     if name is not None:
         filter_by["name"] = name
     if year_of_manufacture is not None:
@@ -98,7 +102,7 @@ def create_vehicle(
         log.exception(UNCAUGHT)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
-        return schemas.Vehicle.from_orm(vehicle)
+        return schemas.Vehicle.model_validate(vehicle)
 
 
 @router.put("/{id}", response_model=schemas.Vehicle)
@@ -126,7 +130,7 @@ def update_vehicle(
         log.exception(UNCAUGHT)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
-        return schemas.Vehicle.from_orm(vehicle)
+        return schemas.Vehicle.model_validate(vehicle)
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
@@ -152,7 +156,7 @@ def get_vehicle(
         log.exception(UNCAUGHT)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
-        return schemas.Vehicle.from_orm(vehicle)
+        return schemas.Vehicle.model_validate(vehicle)
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
