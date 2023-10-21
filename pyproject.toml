@@ -85,4 +85,4 @@ select = [
     "UP",
     "YTT",
 ]
-ignore = ["ANN001", "ANN101", "ANN102", "D211", "D212", "D107"]
+ignore = ["ANN001", "ANN101", "ANN102", "D211", "D212", "D107", "Q000"]
