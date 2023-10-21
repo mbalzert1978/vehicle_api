@@ -68,8 +68,12 @@ class SQLAlchemyRepository(
         session.execute(text(stmnt))
 
     def get(
-        self, session: Session, *, id: int, default: T | None = None
-    ) -> ModelType | T:  # noqa: A002
+        self,
+        session: Session,
+        *,
+        id: int,
+        default: T | None = None,
+    ) -> ModelType | T:
         """
         Retrieve a model instance by its ID.
 
@@ -87,8 +91,11 @@ class SQLAlchemyRepository(
         return session.get(self.model, id) or default
 
     def list(
-        self, session: Session, *, filter_by: dict | None = None
-    ) -> Sequence[ModelType]:  # noqa: A003
+        self,
+        session: Session,
+        *,
+        filter_by: dict | None = None,
+    ) -> Sequence[ModelType]:
         """
         Retrieve a list of model instances.
 
@@ -108,7 +115,10 @@ class SQLAlchemyRepository(
         return session.execute(stmt).scalars().all()
 
     def create(
-        self, session: Session, *, to_create: CreateSchemaType
+        self,
+        session: Session,
+        *,
+        to_create: CreateSchemaType,
     ) -> ModelType:
         """
         Create a new model instance.
@@ -128,7 +138,11 @@ class SQLAlchemyRepository(
         return write_to_database(session, obj)
 
     def update(
-        self, session: Session, *, to_update: ModelType, data: UpdateSchemaType
+        self,
+        session: Session,
+        *,
+        to_update: ModelType,
+        data: UpdateSchemaType,
     ) -> ModelType:
         """
         Update a model instance with new data.
@@ -149,9 +163,7 @@ class SQLAlchemyRepository(
         update_fields(to_update, serialized_data, update_data)
         return write_to_database(session, to_update)
 
-    def delete(
-        self, session: Session, *, id: int
-    ) -> ModelType | None:  # noqa: A002
+    def delete(self, session: Session, *, id: int) -> ModelType | None:
         """
         Remove a model instance by its ID.
 
@@ -188,7 +200,7 @@ def extract_data(update_with: UpdateSchemaType | dict) -> dict:
     return (
         update_with
         if isinstance(update_with, dict)
-        else update_with.dict(exclude_unset=True)
+        else update_with.model_dump(exclude_unset=True)
     )
 
 
