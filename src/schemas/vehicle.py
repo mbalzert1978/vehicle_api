@@ -13,14 +13,16 @@ class VehicleBase(BaseModel):
 
     """Base vehicle model."""
 
-    name: str = Field(description="The name of the vehicle.", example="Audi")
+    name: str = Field(description='The name of the vehicle.', example='Audi')
     year_of_manufacture: int = Field(
-        description="The year of manufacture for the vehicle.",
+        description='The year of manufacture for the vehicle.',
         ge=2000,
         le=_get_now_year(),
         default=_get_now_year(),
     )
-    ready_to_drive: bool = Field(description="Whether the vehicle is ready to drive.", default=False)
+    ready_to_drive: bool = Field(
+        description='Whether the vehicle is ready to drive.', default=False
+    )
 
 
 class VehicleCreate(VehicleBase):
@@ -28,12 +30,12 @@ class VehicleCreate(VehicleBase):
     """Vehicle create model."""
 
     body: dict = Field(
-        description="Additional information about the vehicle in the form of a dictionary.",
+        description='Additional information about the vehicle in the form of a dictionary.',
         default_factory=dict,
-        example=dict(color="black"),
+        example=dict(color='black'),
     )
 
-    @validator("body", pre=True)
+    @validator('body', pre=True)
     @classmethod
     def parse_body(cls, v: str | dict) -> dict | None:
         """
@@ -55,19 +57,23 @@ class VehicleUpdate(BaseModel):
 
     """Vehicle update model."""
 
-    name: str | None = Field(description="The name of the vehicle.", example="Audi", default=None)
+    name: str | None = Field(
+        description='The name of the vehicle.', example='Audi', default=None
+    )
     year_of_manufacture: int | None = Field(
-        description="The year of manufacture for the vehicle.",
+        description='The year of manufacture for the vehicle.',
         ge=2000,
         le=_get_now_year(),
         default=None,
     )
     body: dict | None = Field(
-        description="Additional information about the vehicle in the form of a dictionary.",
+        description='Additional information about the vehicle in the form of a dictionary.',
         default_factory=dict,
         example=None,
     )
-    ready_to_drive: bool = Field(description="Whether the vehicle is ready to drive.", default=None)
+    ready_to_drive: bool = Field(
+        description='Whether the vehicle is ready to drive.', default=None
+    )
 
 
 class VehicleInDBBase(VehicleCreate):

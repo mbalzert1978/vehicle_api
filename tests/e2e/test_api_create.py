@@ -8,34 +8,34 @@ from tests.data import BODY, PARAMS, UPDATE
 
 def test_CRUD_happy_path(client: TestClient):
     # Create a new vehicle
-    create = client.post("/vehicle", content=json.dumps(PARAMS))
+    create = client.post('/vehicle', content=json.dumps(PARAMS))
     assert create.status_code == status.HTTP_200_OK
 
     # Retrieve vehicles
-    get = client.get("/vehicle")
+    get = client.get('/vehicle')
     assert get.status_code == status.HTTP_200_OK
     assert len(get.json()) == 1
     assert isinstance(get.json(), list)
 
     # filter vehicles
-    filtered = client.get("/vehicle/?name=test_vehicle")
+    filtered = client.get('/vehicle/?name=test_vehicle')
     assert filtered.status_code == status.HTTP_200_OK
     assert len(filtered.json()) == 1
 
     # Retrieve specific vehicle
-    get = client.get("/vehicle/1")
+    get = client.get('/vehicle/1')
     assert get.status_code == status.HTTP_200_OK
     assert get.json() == {
         **PARAMS,
-        "body": BODY,
-        "id": create.json()["id"],
+        'body': BODY,
+        'id': create.json()['id'],
     }
 
     # Update vehicle
-    update = client.put("/vehicle/1", content=json.dumps(UPDATE))
+    update = client.put('/vehicle/1', content=json.dumps(UPDATE))
     assert update.status_code == status.HTTP_200_OK
-    assert update.json() == {**UPDATE, "id": 1}
+    assert update.json() == {**UPDATE, 'id': 1}
 
     # Delete vehicle
-    delete = client.delete("/vehicle/1")
+    delete = client.delete('/vehicle/1')
     assert delete.status_code == status.HTTP_204_NO_CONTENT

@@ -58,16 +58,16 @@ class Observer(Protocol):
 class ConcreteWeatherA(Observer):
     def update(self, subject: Weatherstation) -> None:
         if subject.get_data() < 3:
-            print("ConcreteObserverA: Reacted to the event")
+            print('ConcreteObserverA: Reacted to the event')
 
 
 class ConcreteWeatherB(Observer):
     def update(self, subject: Weatherstation) -> None:
         if subject.get_data() == 0 or subject.get_data() >= 2:
-            print("ConcreteObserverB: Reacted to the event")
+            print('ConcreteObserverB: Reacted to the event')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     subject = WeatherstationObserver()
     observer_a = ConcreteWeatherA()
     observer_b = ConcreteWeatherB()

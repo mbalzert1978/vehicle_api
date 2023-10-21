@@ -23,9 +23,9 @@ def example_data(session: Session) -> None:
 @pytest.fixture()
 def db_engine() -> Generator[Engine, Any, None]:
     engine = create_engine(
-        "sqlite:///:memory:",
+        'sqlite:///:memory:',
         echo=True,
-        connect_args={"check_same_thread": False},
+        connect_args={'check_same_thread': False},
         poolclass=StaticPool,
     )
     mapper_registry.metadata.create_all(bind=engine)

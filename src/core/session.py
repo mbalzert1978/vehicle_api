@@ -13,11 +13,11 @@ from src.model.vehicle import Base, Vehicle
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-ModelType = TypeVar("ModelType", bound=Base)
-TableType = TypeVar("TableType", bound=Table)
+ModelType = TypeVar('ModelType', bound=Base)
+TableType = TypeVar('TableType', bound=Table)
 
-P = ParamSpec("P")
-R = TypeVar("R")
+P = ParamSpec('P')
+R = TypeVar('R')
 
 
 class AbstractSession(Protocol[P, R]):
@@ -90,7 +90,11 @@ class SQLAlchemySessionMaker(Generic[ModelType, TableType]):
         ------
         An SQLAlchemy Session object.
         """
-        Session = sessionmaker(autocommit=self.autocommit, autoflush=self.autoflush, bind=self.engine)  # noqa: N806
+        Session = sessionmaker(
+            autocommit=self.autocommit,
+            autoflush=self.autoflush,
+            bind=self.engine,
+        )  # noqa: N806
         try:
             session = Session()
             yield session
@@ -112,11 +116,13 @@ def fetch_db_uri() -> str:
 
     """
     if not settings.DATABASE_URI:
-        msg = "DATABASE_URI is not set in .env file."
+        msg = 'DATABASE_URI is not set in .env file.'
         raise ValueError(msg)
     if not isinstance(settings.DATABASE_URI, str):
         return str(settings.DATABASE_URI)
     return settings.DATABASE_URI
 
 
-SESSION_LOCAL: AbstractSessionMaker = SQLAlchemySessionMaker(fetch_db_uri(), obj=Vehicle, map_on=vehicle_table)
+SESSION_LOCAL: AbstractSessionMaker = SQLAlchemySessionMaker(
+    fetch_db_uri(), obj=Vehicle, map_on=vehicle_table
+)

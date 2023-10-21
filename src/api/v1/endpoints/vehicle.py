@@ -13,30 +13,39 @@ from src.model.vehicle import Vehicle
 from src.schemas import vehicle as schemas
 from src.service import services
 
-router = APIRouter(prefix="/vehicle", tags=["vehicle"])
+router = APIRouter(prefix='/vehicle', tags=['vehicle'])
 
 log = logging.getLogger(__name__)
 
-UNCAUGHT = "Uncaught exception"
-FILTER_ON = "filter by {criterion}, optional."
+UNCAUGHT = 'Uncaught exception'
+FILTER_ON = 'filter by {criterion}, optional.'
 
 
-@router.get("/", response_model=list[schemas.Vehicle])
+@router.get('/', response_model=list[schemas.Vehicle])
 def list_vehicle(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
     repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-    name: str | None = Query(default=None, description=FILTER_ON.format(criterion="vehicle name"), example="Audi"),
+    name: str
+    | None = Query(
+        default=None,
+        description=FILTER_ON.format(criterion='vehicle name'),
+        example='Audi',
+    ),
     year_of_manufacture: int
     | None = Query(
         default=None,
         ge=2000,
         le=datetime.datetime.now(tz=datetime.UTC).date().year,
         example=2020,
-        description=FILTER_ON.format(criterion="year of manufacture"),
+        description=FILTER_ON.format(criterion='year of manufacture'),
     ),
     ready_to_drive: bool
-    | None = Query(default=None, description=FILTER_ON.format(criterion="ready to drive"), example=True),
+    | None = Query(
+        default=None,
+        description=FILTER_ON.format(criterion='ready to drive'),
+        example=True,
+    ),
 ) -> list[schemas.Vehicle]:
     """
     List all vehicles.
@@ -48,15 +57,21 @@ def list_vehicle(
             vehicles: list[Vehicle] = services.list(
                 db,
                 repository,
-                filter_by=_set_filter(name, year_of_manufacture, ready_to_drive),
+                filter_by=_set_filter(
+                    name, year_of_manufacture, ready_to_drive
+                ),
             )
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        ) from e
     else:
-        return [schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles]
+        return [
+            schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles
+        ]
 
 
 def _set_filter(
@@ -66,15 +81,15 @@ def _set_filter(
 ) -> dict[str, str | int | bool]:
     filter_by: dict[str, str | int | bool] = {}
     if name is not None:
-        filter_by["name"] = name
+        filter_by['name'] = name
     if year_of_manufacture is not None:
-        filter_by["year_of_manufacture"] = year_of_manufacture
+        filter_by['year_of_manufacture'] = year_of_manufacture
     if ready_to_drive is not None:
-        filter_by["ready_to_drive"] = ready_to_drive
+        filter_by['ready_to_drive'] = ready_to_drive
     return filter_by
 
 
-@router.post("/", response_model=schemas.Vehicle)
+@router.post('/', response_model=schemas.Vehicle)
 def create_vehicle(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
@@ -95,17 +110,21 @@ def create_vehicle(
     """
     try:
         with session as db:
-            vehicle: Vehicle = services.create(db, repository, to_create=to_create)
+            vehicle: Vehicle = services.create(
+                db, repository, to_create=to_create
+            )
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        ) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
 
 
-@router.put("/{id}", response_model=schemas.Vehicle)
+@router.put('/{id}', response_model=schemas.Vehicle)
 def update_vehicle(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
@@ -128,12 +147,14 @@ def update_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        ) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
 
 
-@router.get("/{id}", response_model=schemas.Vehicle)
+@router.get('/{id}', response_model=schemas.Vehicle)
 def get_vehicle(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
@@ -154,12 +175,14 @@ def get_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        ) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_vehicle(
     *,
     session: AbstractSession = Depends(SESSION_LOCAL),
@@ -180,4 +203,6 @@ def delete_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        ) from e

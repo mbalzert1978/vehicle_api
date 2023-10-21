@@ -22,7 +22,7 @@ def test_create(session: Session):
         to_create=TEST_VEHICLE,
     )
 
-    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=result.id)
+    sql = text('SELECT * FROM vehicle WHERE id=:id').bindparams(id=result.id)
 
     result = schemas.Vehicle.from_orm(session.execute(sql).one())
 
@@ -33,7 +33,7 @@ def test_create(session: Session):
     assert result.ready_to_drive == TEST_VEHICLE.ready_to_drive
 
 
-@pytest.mark.usefixtures("example_data")
+@pytest.mark.usefixtures('example_data')
 def test_get(session: Session):
     """
     Given: A database session with data for multiple vehicles
@@ -49,7 +49,7 @@ def test_get(session: Session):
     assert result.ready_to_drive == I30.ready_to_drive
 
 
-@pytest.mark.usefixtures("example_data")
+@pytest.mark.usefixtures('example_data')
 def test_list(session: Session):
     """
     Given: A database session with data for multiple vehicles
@@ -62,7 +62,7 @@ def test_list(session: Session):
     assert isinstance(result, list)
 
 
-@pytest.mark.usefixtures("example_data")
+@pytest.mark.usefixtures('example_data')
 def test_update(session: Session):
     """
     Given: A database session with data for multiple vehicles
@@ -77,7 +77,7 @@ def test_update(session: Session):
         data=schemas.VehicleUpdate(**TEST_VEHICLE.dict()),
     )
 
-    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
+    sql = text('SELECT * FROM vehicle WHERE id=:id').bindparams(id=1)
     result = schemas.VehicleInDB.from_orm(session.execute(sql).one())
 
     assert result.id is not None
@@ -87,7 +87,7 @@ def test_update(session: Session):
     assert result.ready_to_drive == TEST_VEHICLE.ready_to_drive
 
 
-@pytest.mark.usefixtures("example_data")
+@pytest.mark.usefixtures('example_data')
 def test_delete(session: Session):
     """
     Given: A database session with data for multiple vehicles
@@ -98,6 +98,6 @@ def test_delete(session: Session):
 
     SQLAlchemyRepository(model.Vehicle).delete(session, id=expected.id)
 
-    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
+    sql = text('SELECT * FROM vehicle WHERE id=:id').bindparams(id=1)
 
     assert not session.execute(sql).first()

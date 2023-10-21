@@ -14,10 +14,10 @@ if TYPE_CHECKING:
 
     from sqlalchemy.orm import Session
 
-ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
-T = TypeVar("T")
+ModelType = TypeVar('ModelType', bound=Base)
+CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
+UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
+T = TypeVar('T')
 
 
 class SQLAlchemyFetcher(Generic[ModelType]):
@@ -27,7 +27,9 @@ class SQLAlchemyFetcher(Generic[ModelType]):
     def __init__(self, model: type[ModelType] | None = None) -> None:
         self.model = model
 
-    def __call__(self) -> SQLAlchemyRepository[ModelType] | type[SQLAlchemyRepository]:
+    def __call__(
+        self,
+    ) -> SQLAlchemyRepository[ModelType] | type[SQLAlchemyRepository]:
         """
         Return a SQLAlchemyRepository instance.
 
@@ -36,10 +38,16 @@ class SQLAlchemyFetcher(Generic[ModelType]):
         A SQLAlchemyRepository instance.
 
         """
-        return SQLAlchemyRepository(self.model) if self.model else SQLAlchemyRepository
+        return (
+            SQLAlchemyRepository(self.model)
+            if self.model
+            else SQLAlchemyRepository
+        )
 
 
-class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class SQLAlchemyRepository(
+    Generic[ModelType, CreateSchemaType, UpdateSchemaType]
+):
 
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
@@ -59,7 +67,9 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         """
         session.execute(text(stmnt))
 
-    def get(self, session: Session, *, id: int, default: T | None = None) -> ModelType | T:  # noqa: A002
+    def get(
+        self, session: Session, *, id: int, default: T | None = None
+    ) -> ModelType | T:  # noqa: A002
         """
         Retrieve a model instance by its ID.
 
@@ -76,7 +86,9 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         """
         return session.get(self.model, id) or default
 
-    def list(self, session: Session, *, filter_by: dict | None = None) -> Sequence[ModelType]:  # noqa: A003
+    def list(
+        self, session: Session, *, filter_by: dict | None = None
+    ) -> Sequence[ModelType]:  # noqa: A003
         """
         Retrieve a list of model instances.
 
@@ -95,7 +107,9 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
             stmt = stmt.filter_by(**filter_by)
         return session.execute(stmt).scalars().all()
 
-    def create(self, session: Session, *, to_create: CreateSchemaType) -> ModelType:
+    def create(
+        self, session: Session, *, to_create: CreateSchemaType
+    ) -> ModelType:
         """
         Create a new model instance.
 
@@ -113,7 +127,9 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         obj = self.model(**serialized_data)
         return write_to_database(session, obj)
 
-    def update(self, session: Session, *, to_update: ModelType, data: UpdateSchemaType) -> ModelType:
+    def update(
+        self, session: Session, *, to_update: ModelType, data: UpdateSchemaType
+    ) -> ModelType:
         """
         Update a model instance with new data.
 
@@ -133,7 +149,9 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         update_fields(to_update, serialized_data, update_data)
         return write_to_database(session, to_update)
 
-    def delete(self, session: Session, *, id: int) -> ModelType | None:  # noqa: A002
+    def delete(
+        self, session: Session, *, id: int
+    ) -> ModelType | None:  # noqa: A002
         """
         Remove a model instance by its ID.
 
@@ -167,7 +185,11 @@ def extract_data(update_with: UpdateSchemaType | dict) -> dict:
     The extracted update data as a dictionary.
 
     """
-    return update_with if isinstance(update_with, dict) else update_with.dict(exclude_unset=True)
+    return (
+        update_with
+        if isinstance(update_with, dict)
+        else update_with.dict(exclude_unset=True)
+    )
 
 
 def update_fields(

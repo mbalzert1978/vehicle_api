@@ -4,13 +4,22 @@ from typing import TypeVar
 
 from src.core.error import HTTPError
 from src.core.session import AbstractSession
-from src.crud import AbstractRepository, CreateSchemaType, ModelType, UpdateSchemaType
+from src.crud import (
+    AbstractRepository,
+    CreateSchemaType,
+    ModelType,
+    UpdateSchemaType,
+)
 
-UNPROCESSABLE = "unprocessable value, not a"
-T = TypeVar("T")
+UNPROCESSABLE = 'unprocessable value, not a'
+T = TypeVar('T')
 
 
-def create(session: AbstractSession, repository: AbstractRepository, to_create: CreateSchemaType) -> ModelType:
+def create(
+    session: AbstractSession,
+    repository: AbstractRepository,
+    to_create: CreateSchemaType,
+) -> ModelType:
     """
     Create a new vehicle.
 
@@ -31,7 +40,12 @@ def create(session: AbstractSession, repository: AbstractRepository, to_create: 
     return repository.create(session=session, to_create=to_create)
 
 
-def get(session: AbstractSession, repository: AbstractRepository, id: int, default: T | None = None) -> ModelType:
+def get(
+    session: AbstractSession,
+    repository: AbstractRepository,
+    id: int,
+    default: T | None = None,
+) -> ModelType:
     """
     Get a vehicle.
 
@@ -52,7 +66,7 @@ def get(session: AbstractSession, repository: AbstractRepository, id: int, defau
     """
     if vehicle := repository.get(session=session, id=id, default=default):
         return vehicle
-    raise HTTPError(status_code=404, detail="Vehicle not found.")
+    raise HTTPError(status_code=404, detail='Vehicle not found.')
 
 
 def list(  # noqa: A001
@@ -103,11 +117,15 @@ def update(
     HTTPError: If the vehicle with the specified ID is not found.
     """
     if not (to_update := repository.get(session=session, id=id)):
-        raise HTTPError(status_code=404, detail="Vehicle not found.")
-    return repository.update(session=session, to_update=to_update, data=update_with)
+        raise HTTPError(status_code=404, detail='Vehicle not found.')
+    return repository.update(
+        session=session, to_update=to_update, data=update_with
+    )
 
 
-def delete(session: AbstractSession, repository: AbstractRepository, id: int) -> None:
+def delete(
+    session: AbstractSession, repository: AbstractRepository, id: int
+) -> None:
     """
     Delete a vehicle by ID.
 
@@ -123,4 +141,4 @@ def delete(session: AbstractSession, repository: AbstractRepository, id: int) ->
     """
     if repository.delete(session=session, id=id):
         return
-    raise HTTPError(status_code=404, detail="Vehicle not found.")
+    raise HTTPError(status_code=404, detail='Vehicle not found.')
