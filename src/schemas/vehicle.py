@@ -2,7 +2,7 @@
 import datetime
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 
 def _get_now_year() -> int:
@@ -13,7 +13,7 @@ class VehicleBase(BaseModel):
 
     """Base vehicle model."""
 
-    name: str = Field(description='The name of the vehicle.', example='Audi')
+    name: str = Field(description='The name of the vehicle.', examples=['Audi'])
     year_of_manufacture: int = Field(
         description='The year of manufacture for the vehicle.',
         ge=2000,
@@ -21,7 +21,7 @@ class VehicleBase(BaseModel):
         default=_get_now_year(),
     )
     ready_to_drive: bool = Field(
-        description='Whether the vehicle is ready to drive.', default=False
+        description='Whether the vehicle is ready to drive.', default=False,
     )
 
 
@@ -32,12 +32,12 @@ class VehicleCreate(VehicleBase):
     body: dict = Field(
         description='Additional information about the vehicle in the form of a dictionary.',
         default_factory=dict,
-        example=dict(color='black'),
+        examples=[dict(color='black')],
     )
 
-    @validator('body', pre=True)
+    @field_validator('body', mode='before')
     @classmethod
-    def parse_body(cls, v: str | dict) -> dict | None:
+    def parse_body(cls, v: str, _: ValidationInfo)->dict:
         """
         Parse the body value as JSON.
 
@@ -58,7 +58,7 @@ class VehicleUpdate(BaseModel):
     """Vehicle update model."""
 
     name: str | None = Field(
-        description='The name of the vehicle.', example='Audi', default=None
+        description='The name of the vehicle.', examples=['Audi'], default=None,
     )
     year_of_manufacture: int | None = Field(
         description='The year of manufacture for the vehicle.',
@@ -69,10 +69,10 @@ class VehicleUpdate(BaseModel):
     body: dict | None = Field(
         description='Additional information about the vehicle in the form of a dictionary.',
         default_factory=dict,
-        example=None,
+        examples=[dict(color='black')],
     )
     ready_to_drive: bool = Field(
-        description='Whether the vehicle is ready to drive.', default=None
+        description='Whether the vehicle is ready to drive.', default=None,
     )
 
 
