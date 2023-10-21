@@ -11,10 +11,10 @@ fastapi = "^0.97.0"
 sqlalchemy = "^2.0.16"
 pydantic = { extras = ["dotenv"], version = "^1.10.9" }
 httpx = "^0.24.1"
-psycopg2 = "^2.9.6"
 uvicorn = "^0.22.0"
 alembic = "^1.11.1"
 result = "^0.13.1"
+psycopg2-binary = "^2.9.9"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.262"
