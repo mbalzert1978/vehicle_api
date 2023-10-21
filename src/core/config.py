@@ -1,5 +1,5 @@
 """Configuration file for the project."""
-from pydantic import ConfigDict, PostgresDsn, validator
+from pydantic import ConfigDict, PostgresDsn, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -19,9 +19,9 @@ class Settings(BaseSettings):
 
     model_config = ConfigDict(env_file='.env', env_file_encoding='utf-8')
 
-    @validator('DATABASE_URI', pre=True)
+    @field_validator('DATABASE_URI', mode="before")
     @classmethod
-    def assemble_db_connection(cls, v: str, values: dict) -> str:
+    def assemble_db_connection(cls, v: str, info: ValidationInfo) -> str:
         """
         Assemble the database connection URI.
 
@@ -39,11 +39,11 @@ class Settings(BaseSettings):
             return v
         return PostgresDsn.build(
             scheme='postgresql',
-            username=values.get('POSTGRES_USER'),
-            password=values.get('POSTGRES_PASSWORD'),
-            host=values.get('POSTGRES_SERVER'),
-            port=values.get('POSTGRES_PORT') or 5432,
-            path=f"/{values.get('POSTGRES_DATABASE') or 'test'}",
+            username=info.data.get('POSTGRES_USER'),
+            password=info.data.get('POSTGRES_PASSWORD'),
+            host=info.data.get('POSTGRES_SERVER'),
+            port=info.data.get('POSTGRES_PORT') or 5432,
+            path=f"/{info.data.get('POSTGRES_DATABASE') or 'test'}",
         )
 
 

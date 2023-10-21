@@ -30,21 +30,21 @@ def list_vehicle(
     | None = Query(
         default=None,
         description=FILTER_ON.format(criterion='vehicle name'),
-        example='Audi',
+        examples=['Audi'],
     ),
     year_of_manufacture: int
     | None = Query(
         default=None,
         ge=2000,
         le=datetime.datetime.now(tz=datetime.UTC).date().year,
-        example=2020,
+        examples=[2020],
         description=FILTER_ON.format(criterion='year of manufacture'),
     ),
     ready_to_drive: bool
     | None = Query(
         default=None,
         description=FILTER_ON.format(criterion='ready to drive'),
-        example=True,
+        examples=[True],
     ),
 ) -> list[schemas.Vehicle]:
     """
@@ -58,7 +58,7 @@ def list_vehicle(
                 db,
                 repository,
                 filter_by=_set_filter(
-                    name, year_of_manufacture, ready_to_drive
+                    name, year_of_manufacture, ready_to_drive,
                 ),
             )
     except HTTPError as e:
@@ -66,7 +66,7 @@ def list_vehicle(
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         ) from e
     else:
         return [
@@ -111,14 +111,14 @@ def create_vehicle(
     try:
         with session as db:
             vehicle: Vehicle = services.create(
-                db, repository, to_create=to_create
+                db, repository, to_create=to_create,
             )
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         ) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
@@ -148,7 +148,7 @@ def update_vehicle(
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         ) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
@@ -176,7 +176,7 @@ def get_vehicle(
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         ) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
@@ -204,5 +204,5 @@ def delete_vehicle(
     except Exception as e:
         log.exception(UNCAUGHT)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         ) from e
