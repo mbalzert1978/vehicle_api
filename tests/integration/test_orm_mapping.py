@@ -19,7 +19,7 @@ def test_create_vehicle(session: Session) -> None:
     session.add(expected)
     session.commit()
 
-    sql = text('SELECT * FROM vehicle WHERE id=:id').bindparams(id=1)
+    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
     result = schemas.Vehicle.model_validate(session.execute(sql).one())
 
     assert result.name == expected.name
@@ -28,7 +28,7 @@ def test_create_vehicle(session: Session) -> None:
     assert result.ready_to_drive == expected.ready_to_drive
 
 
-@pytest.mark.usefixtures('example_data')
+@pytest.mark.usefixtures("example_data")
 def test_read_vehicle(session: Session) -> None:
     """
     Given: A database session with a vehicle
@@ -44,7 +44,7 @@ def test_read_vehicle(session: Session) -> None:
     assert expected.ready_to_drive == I30.ready_to_drive
 
 
-@pytest.mark.usefixtures('example_data')
+@pytest.mark.usefixtures("example_data")
 def test_update_vehicle(session: Session) -> None:
     """
     Given: A database session with a vehicle
@@ -65,7 +65,7 @@ def test_update_vehicle(session: Session) -> None:
     session.commit()
     session.refresh(result)
 
-    assert result.name == expected['name']
-    assert result.year_of_manufacture == expected['year_of_manufacture']
-    assert result.body == expected['body']
-    assert result.ready_to_drive == expected['ready_to_drive']
+    assert result.name == expected["name"]
+    assert result.year_of_manufacture == expected["year_of_manufacture"]
+    assert result.body == expected["body"]
+    assert result.ready_to_drive == expected["ready_to_drive"]

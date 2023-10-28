@@ -8,7 +8,7 @@ from tests.stubs import Stub
 
 def test_list_vehicles_negative():
     sess = Stub()
-    repo = Stub(raise_on='list', raises=HTTPError(404, 'TestRaise'))
+    repo = Stub(raise_on="list", raises=HTTPError(404, "TestRaise"))
 
     with pytest.raises(HTTPException):
         list_vehicle(session=sess, repository=repo)
@@ -16,7 +16,7 @@ def test_list_vehicles_negative():
 
 def test_list_vehicles_negative_uncaught():
     sess = Stub()
-    repo = Stub(raise_on='list', raises=Exception)
+    repo = Stub(raise_on="list", raises=Exception)
 
     with pytest.raises(HTTPException):
         list_vehicle(session=sess, repository=repo)
@@ -24,15 +24,15 @@ def test_list_vehicles_negative_uncaught():
 
 def test_filter_vehicles_negative():
     sess = Stub()
-    repo = Stub(raise_on='list', raises=HTTPError(404, 'TestRaise'))
+    repo = Stub(raise_on="list", raises=HTTPError(404, "TestRaise"))
 
     with pytest.raises(HTTPException):
-        list_vehicle(session=sess, repository=repo, name='test')
+        list_vehicle(session=sess, repository=repo, name="test")
 
 
 def test_filter_vehicles_negative_uncaught():
     sess = Stub()
-    repo = Stub(raise_on='list', raises=Exception)
+    repo = Stub(raise_on="list", raises=Exception)
 
     with pytest.raises(HTTPException):
-        list_vehicle(session=sess, repository=repo, name='test')
+        list_vehicle(session=sess, repository=repo, name="test")

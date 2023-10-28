@@ -14,10 +14,10 @@ if TYPE_CHECKING:
 
     from sqlalchemy.orm import Session
 
-ModelType = TypeVar('ModelType', bound=Base)
-CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
-UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
-T = TypeVar('T')
+ModelType = TypeVar("ModelType", bound=Base)
+CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
+UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+T = TypeVar("T")
 
 
 class SQLAlchemyFetcher(Generic[ModelType]):
@@ -38,16 +38,10 @@ class SQLAlchemyFetcher(Generic[ModelType]):
         A SQLAlchemyRepository instance.
 
         """
-        return (
-            SQLAlchemyRepository(self.model)
-            if self.model
-            else SQLAlchemyRepository
-        )
+        return SQLAlchemyRepository(self.model) if self.model else SQLAlchemyRepository
 
 
-class SQLAlchemyRepository(
-    Generic[ModelType, CreateSchemaType, UpdateSchemaType]
-):
+class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
@@ -197,11 +191,7 @@ def extract_data(update_with: UpdateSchemaType | dict) -> dict:
     The extracted update data as a dictionary.
 
     """
-    return (
-        update_with
-        if isinstance(update_with, dict)
-        else update_with.model_dump(exclude_unset=True)
-    )
+    return update_with if isinstance(update_with, dict) else update_with.model_dump(exclude_unset=True)
 
 
 def update_fields(

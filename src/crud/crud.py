@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 
     from src.core.session import AbstractSession
 
-ModelType = TypeVar('ModelType', bound=Base)
-CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
-UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
-T = TypeVar('T')
+ModelType = TypeVar("ModelType", bound=Base)
+CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
+UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+T = TypeVar("T")
 
 REPOSITORY_LOCAL: AbstractRepositoryMaker = SQLAlchemyFetcher
 
@@ -24,15 +24,11 @@ REPOSITORY_LOCAL: AbstractRepositoryMaker = SQLAlchemyFetcher
 class AbstractRepositoryMaker(Protocol[ModelType]):
     model: ModelType | None = None
 
-    def __call__(
-        self, model_type: ModelType | None = None
-    ) -> AbstractRepository | type[AbstractRepository]:
+    def __call__(self, model_type: ModelType | None = None) -> AbstractRepository | type[AbstractRepository]:
         """Fetch an repository object."""
 
 
-class AbstractRepository(
-    Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
-):
+class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]):
     model: ModelType
     """The abstract repository protocol."""
 
@@ -49,9 +45,7 @@ class AbstractRepository(
             the statement to execute.
         """
 
-    def create(
-        self, session: AbstractSession, *, to_create: CreateSchemaType
-    ) -> ModelType:
+    def create(self, session: AbstractSession, *, to_create: CreateSchemaType) -> ModelType:
         """
         Create a ModelType object in the database.
 
@@ -68,9 +62,7 @@ class AbstractRepository(
             the ModelType object.
         """
 
-    def get(
-        self, session: AbstractSession, *, id: int, default: T | None = None
-    ) -> ModelType | T:
+    def get(self, session: AbstractSession, *, id: int, default: T | None = None) -> ModelType | T:
         """
         Get a ModelType object from the database.
 
@@ -90,9 +82,7 @@ class AbstractRepository(
             the ModelType object or the default value.
         """
 
-    def list(
-        self, session: AbstractSession, *, filter_by: dict | None = None
-    ) -> Sequence[ModelType]:
+    def list(self, session: AbstractSession, *, filter_by: dict | None = None) -> Sequence[ModelType]:
         """
         Get a list of ModelType objects from the database.
 

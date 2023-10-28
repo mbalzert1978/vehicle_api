@@ -11,8 +11,8 @@ from src.crud import (
     UpdateSchemaType,
 )
 
-UNPROCESSABLE = 'unprocessable value, not a'
-T = TypeVar('T')
+UNPROCESSABLE = "unprocessable value, not a"
+T = TypeVar("T")
 
 
 def create(
@@ -66,7 +66,7 @@ def get(
     """
     if vehicle := repository.get(session=session, id=id, default=default):
         return vehicle
-    raise HTTPError(status_code=404, detail='Vehicle not found.')
+    raise HTTPError(status_code=404, detail="Vehicle not found.")
 
 
 def list(  # noqa: A001
@@ -117,15 +117,11 @@ def update(
     HTTPError: If the vehicle with the specified ID is not found.
     """
     if not (to_update := repository.get(session=session, id=id)):
-        raise HTTPError(status_code=404, detail='Vehicle not found.')
-    return repository.update(
-        session=session, to_update=to_update, data=update_with
-    )
+        raise HTTPError(status_code=404, detail="Vehicle not found.")
+    return repository.update(session=session, to_update=to_update, data=update_with)
 
 
-def delete(
-    session: AbstractSession, repository: AbstractRepository, id: int
-) -> None:
+def delete(session: AbstractSession, repository: AbstractRepository, id: int) -> None:
     """
     Delete a vehicle by ID.
 
@@ -141,4 +137,4 @@ def delete(
     """
     if repository.delete(session=session, id=id):
         return
-    raise HTTPError(status_code=404, detail='Vehicle not found.')
+    raise HTTPError(status_code=404, detail="Vehicle not found.")

@@ -7,7 +7,7 @@ class Settings(BaseSettings):
 
     """Project settings."""
 
-    API_VERSION: str = 'v1'
+    API_VERSION: str = "v1"
     PROJECT_NAME: str
     POSTGRES_SERVER: str
     POSTGRES_USER: str
@@ -17,9 +17,9 @@ class Settings(BaseSettings):
     ECHO: bool = False
     DATABASE_URI: PostgresDsn | None = None
 
-    model_config = ConfigDict(env_file='.env', env_file_encoding='utf-8')
+    model_config = ConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    @field_validator('DATABASE_URI', mode="before")
+    @field_validator("DATABASE_URI", mode="before")
     @classmethod
     def assemble_db_connection(cls, v: str, info: ValidationInfo) -> str:
         """
@@ -38,11 +38,11 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return v
         return PostgresDsn.build(
-            scheme='postgresql',
-            username=info.data.get('POSTGRES_USER'),
-            password=info.data.get('POSTGRES_PASSWORD'),
-            host=info.data.get('POSTGRES_SERVER'),
-            port=info.data.get('POSTGRES_PORT') or 5432,
+            scheme="postgresql",
+            username=info.data.get("POSTGRES_USER"),
+            password=info.data.get("POSTGRES_PASSWORD"),
+            host=info.data.get("POSTGRES_SERVER"),
+            port=info.data.get("POSTGRES_PORT") or 5432,
             path=f"/{info.data.get('POSTGRES_DATABASE') or 'test'}",
         )
 

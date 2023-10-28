@@ -8,9 +8,9 @@ from src.crud.crud import (
 )
 
 __all__ = [
-    'AbstractRepository',
-    'REPOSITORY_LOCAL',
-    'ModelType',
-    'CreateSchemaType',
-    'UpdateSchemaType',
+    "AbstractRepository",
+    "REPOSITORY_LOCAL",
+    "ModelType",
+    "CreateSchemaType",
+    "UpdateSchemaType",
 ]

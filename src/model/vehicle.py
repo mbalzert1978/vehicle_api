@@ -27,7 +27,7 @@ class Vehicle(Base):
 
     def __init__(
         self,
-        name: str = 'default',
+        name: str = "default",
         year_of_manufacture: int | None = None,
         body: dict | None = None,
         *,
@@ -44,8 +44,8 @@ class Vehicle(Base):
 
     def __repr__(self) -> str:
         return (
-            f'Vehicle(name={self.name}, '
-            f'year_of_manufacture={self.year_of_manufacture}, '
-            f'body={self.body}, '
-            f'ready_to_drive={self.ready_to_drive})'
+            f"Vehicle(name={self.name}, "
+            f"year_of_manufacture={self.year_of_manufacture}, "
+            f"body={self.body}, "
+            f"ready_to_drive={self.ready_to_drive})"
         )
