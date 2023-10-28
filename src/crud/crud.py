@@ -1,7 +1,7 @@
 # ruff: noqa: A003, A002
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, TypeVar
+from typing import TYPE_CHECKING, Protocol, TypeVar, overload
 
 from pydantic import BaseModel
 
@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
-T = TypeVar("T")
 
 REPOSITORY_LOCAL: AbstractRepositoryMaker = SQLAlchemyFetcher
 
@@ -62,7 +61,16 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the ModelType object.
         """
 
-    def get(self, session: AbstractSession, *, id: int, default: T | None = None) -> ModelType | T:
+    @overload
+    def get(self, session: AbstractSession, *, id: int) -> ModelType:
+        ...
+
+    @overload
+    def get[U](self, session: AbstractSession, *, id: int, default: U) -> ModelType | U:
+        ...
+
+    @overload
+    def get[U](self, session: AbstractSession, *, id: int, default: U | None = None) -> ModelType | U:
         """
         Get a ModelType object from the database.
 
