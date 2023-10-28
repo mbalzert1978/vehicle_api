@@ -5,7 +5,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 
-def _get_now_year() -> int:
+def _get_year_now() -> int:
     return datetime.datetime.now(tz=datetime.UTC).year
 
 
@@ -17,8 +17,8 @@ class VehicleBase(BaseModel):
     year_of_manufacture: int = Field(
         description="The year of manufacture for the vehicle.",
         ge=2000,
-        le=_get_now_year(),
-        default=_get_now_year(),
+        le=_get_year_now(),
+        default=_get_year_now(),
     )
     ready_to_drive: bool = Field(
         description="Whether the vehicle is ready to drive.",
@@ -65,8 +65,8 @@ class VehicleUpdate(BaseModel):
     )
     year_of_manufacture: int | None = Field(
         description="The year of manufacture for the vehicle.",
-        ge=2000,
-        le=_get_now_year(),
+        ge=1980,
+        le=_get_year_now(),
         default=None,
     )
     body: dict | None = Field(
