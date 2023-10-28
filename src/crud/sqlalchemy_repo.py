@@ -17,11 +17,9 @@ if TYPE_CHECKING:
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
-T = TypeVar("T")
 
 
 class SQLAlchemyFetcher(Generic[ModelType]):
-
     """Factory for SQLAlchemy repo instances for a database."""
 
     def __init__(self, model: type[ModelType] | None = None) -> None:
@@ -42,7 +40,6 @@ class SQLAlchemyFetcher(Generic[ModelType]):
 
 
 class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
     def __init__(self, model: type[ModelType]) -> None:
@@ -61,13 +58,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         """
         session.execute(text(stmnt))
 
-    def get(
-        self,
-        session: Session,
-        *,
-        id: int,
-        default: T | None = None,
-    ) -> ModelType | T:
+    def get[U](self, session: Session, *, id: int, default: U | None = None) -> ModelType | U:
         """
         Retrieve a model instance by its ID.
 
@@ -84,12 +75,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         """
         return session.get(self.model, id) or default
 
-    def list(
-        self,
-        session: Session,
-        *,
-        filter_by: dict | None = None,
-    ) -> Sequence[ModelType]:
+    def list(self, session: Session, *, filter_by: dict | None = None) -> Sequence[ModelType]:
         """
         Retrieve a list of model instances.
 
@@ -108,12 +94,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
             stmt = stmt.filter_by(**filter_by)
         return session.execute(stmt).scalars().all()
 
-    def create(
-        self,
-        session: Session,
-        *,
-        to_create: CreateSchemaType,
-    ) -> ModelType:
+    def create(self, session: Session, *, to_create: CreateSchemaType) -> ModelType:
         """
         Create a new model instance.
 
@@ -129,15 +110,29 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         """
         serialized_data = jsonable_encoder(to_create)
         obj = self.model(**serialized_data)
-        return write_to_database(session, obj)
+        return self.write_to_database(session, obj)
 
-    def update(
-        self,
-        session: Session,
-        *,
-        to_update: ModelType,
-        data: UpdateSchemaType,
-    ) -> ModelType:
+    @staticmethod
+    def write_to_database(session: Session, to_create: ModelType) -> ModelType:
+        """
+        Write a model instance to the database.
+
+        Args:
+        ----
+        session: An SQLAlchemy Session object.
+        to_create: The model instance to write to the database.
+
+        Returns:
+        -------
+        The written model instance.
+
+        """
+        session.add(to_create)
+        session.commit()
+        session.refresh(to_create)
+        return to_create
+
+    def update(self, session: Session, *, to_update: ModelType, data: UpdateSchemaType) -> ModelType:
         """
         Update a model instance with new data.
 
@@ -153,9 +148,46 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
 
         """
         serialized_data = jsonable_encoder(to_update)
-        update_data = extract_data(data)
-        update_fields(to_update, serialized_data, update_data)
-        return write_to_database(session, to_update)
+        update_data = self.extract_data(data)
+        self.update_fields(to_update, serialized_data, update_data)
+        return self.write_to_database(session, to_update)
+
+    @staticmethod
+    def extract_data(update_with: UpdateSchemaType | dict) -> dict:
+        """
+        Extract the update data from the given object.
+
+        Args:
+        ----
+        update_with: The object containing the update data.
+
+        Returns:
+        -------
+        The extracted update data as a dictionary.
+
+        """
+        return update_with if isinstance(update_with, dict) else update_with.model_dump(exclude_unset=True)
+
+    @staticmethod
+    def update_fields(to_update: ModelType, serialized_data: dict, update_data: dict) -> None:
+        """
+        Update the fields of a model instance with new data.
+
+        Args:
+        ----
+        to_update: The model instance to update.
+        serialized_data: The serialized data of the model instance.
+        update_data: The data containing the fields to update.
+
+        Returns:
+        -------
+        None
+
+        """
+        for field in serialized_data:
+            if field not in update_data:
+                continue
+            setattr(to_update, field, update_data[field])
 
     def delete(self, session: Session, *, id: int) -> ModelType | None:
         """
@@ -176,64 +208,3 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         session.delete(obj)
         session.commit()
         return obj
-
-
-def extract_data(update_with: UpdateSchemaType | dict) -> dict:
-    """
-    Extract the update data from the given object.
-
-    Args:
-    ----
-    update_with: The object containing the update data.
-
-    Returns:
-    -------
-    The extracted update data as a dictionary.
-
-    """
-    return update_with if isinstance(update_with, dict) else update_with.model_dump(exclude_unset=True)
-
-
-def update_fields(
-    to_update: ModelType,
-    serialized_data: dict,
-    update_data: dict,
-) -> None:
-    """
-    Update the fields of a model instance with new data.
-
-    Args:
-    ----
-    to_update: The model instance to update.
-    serialized_data: The serialized data of the model instance.
-    update_data: The data containing the fields to update.
-
-    Returns:
-    -------
-    None
-
-    """
-    for field in serialized_data:
-        if field not in update_data:
-            continue
-        setattr(to_update, field, update_data[field])
-
-
-def write_to_database(session: Session, to_create: ModelType) -> ModelType:
-    """
-    Write a model instance to the database.
-
-    Args:
-    ----
-    session: An SQLAlchemy Session object.
-    to_create: The model instance to write to the database.
-
-    Returns:
-    -------
-    The written model instance.
-
-    """
-    session.add(to_create)
-    session.commit()
-    session.refresh(to_create)
-    return to_create
