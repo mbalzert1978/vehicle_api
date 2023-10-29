@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     POSTGRES_DATABASE: str
     POSTGRES_PORT: int | None = None
     ECHO: bool = False
-    DATABASE_URI: PostgresDsn | None = None
+    DATABASE_URI: str | None = None
 
     model_config = ConfigDict(env_file=".env", env_file_encoding="utf-8")
 
@@ -37,14 +37,14 @@ class Settings(BaseSettings):
         """
         if isinstance(v, str):
             return v
-        return PostgresDsn.build(
+        return str(PostgresDsn.build(
             scheme="postgresql",
             username=info.data.get("POSTGRES_USER"),
             password=info.data.get("POSTGRES_PASSWORD"),
             host=info.data.get("POSTGRES_SERVER"),
             port=info.data.get("POSTGRES_PORT") or 5432,
-            path=f"/{info.data.get('POSTGRES_DATABASE') or 'test'}",
-        )
+            path=info.data.get('POSTGRES_DATABASE', 'test'),
+        ))
 
 
 settings = Settings()  # type: ignore[call-arg]
