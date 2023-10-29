@@ -3,11 +3,11 @@
 create a .env file like this:
 
 ``` .env
-PROJECT_NAME="VehicleDB"
-POSTGRES_SERVER="127.0.0.1"
-POSTGRES_USER="postgres"
-POSTGRES_PASSWORD="admin123"
-POSTGRES_DATABASE="db"
+PROJECT_NAME=VehicleDB
+POSTGRES_SERVER=127.0.0.1
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=admin123
+POSTGRES_DATABASE=db
 ```
 
 have a db running like this:
