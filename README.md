@@ -1,4 +1,17 @@
 # vehicle_api
+
+create a .env file like this:
+
+``` .env
+PROJECT_NAME="VehicleDB"
+POSTGRES_SERVER="127.0.0.1"
+POSTGRES_USER="postgres"
+POSTGRES_PASSWORD="admin123"
+POSTGRES_DATABASE="db"
+```
+
+have a db running like this:
+
 ### Postgres Schema
 ``` sql
 CREATE TABLE vehicle (
@@ -9,6 +22,14 @@ CREATE TABLE vehicle (
 	ready_to_drive BOOLEAN NOT NULL,
 	PRIMARY KEY (id)
 )
+```
+
+or just create a new database named db or whatever you name it in the .env file.
+
+Then run :
+
+``` bash
+poetry run alembic upgrade head
 ```
 
 ## Webanwendung:
