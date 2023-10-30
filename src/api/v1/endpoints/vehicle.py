@@ -57,36 +57,19 @@ def list_vehicle(
             vehicles: list[Vehicle] = services.list(
                 db,
                 repository,
-                filter_by=_set_filter(
-                    name,
-                    year_of_manufacture,
-                    ready_to_drive,
-                ),
+                filter_by={
+                    "name": name,
+                    "year_of_manufacture": year_of_manufacture,
+                    "ready_to_drive": ready_to_drive,
+                },
             )
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e
     else:
         return [schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles]
-
-
-def _set_filter(
-    name: str | None,
-    year_of_manufacture: int | None,
-    ready_to_drive: bool | None,
-) -> dict[str, str | int | bool]:
-    filter_by: dict[str, str | int | bool] = {}
-    if name is not None:
-        filter_by["name"] = name
-    if year_of_manufacture is not None:
-        filter_by["year_of_manufacture"] = year_of_manufacture
-    if ready_to_drive is not None:
-        filter_by["ready_to_drive"] = ready_to_drive
-    return filter_by
 
 
 @router.post("/", response_model=schemas.Vehicle)
@@ -119,9 +102,7 @@ def create_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
 
@@ -149,19 +130,17 @@ def update_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
 def get_vehicle(
-    *,
-    session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-    id: int,  # noqa: A002
+        *,
+        session: AbstractSession = Depends(SESSION_LOCAL),
+        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+        id: int,  # noqa: A002
 ) -> schemas.Vehicle:
     """
     Get a vehicle by ID.
@@ -177,19 +156,17 @@ def get_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_vehicle(
-    *,
-    session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-    id: int,  # noqa: A002
+        *,
+        session: AbstractSession = Depends(SESSION_LOCAL),
+        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+        id: int,  # noqa: A002
 ) -> None:
     """
     Delete an vehicle by ID.
@@ -205,6 +182,4 @@ def delete_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e

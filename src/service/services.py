@@ -89,7 +89,10 @@ def list(  # noqa: A001
     -------
     returns: A list of `Vehicle` objects.
     """
-    return repository.list(session, filter_by=filter_by)
+    return repository.list(session, filter_by=_remove_none_values(filter_by))
+
+def _remove_none_values(dictionary: dict) -> dict:
+    return {k: v for k, v in dictionary.items() if v is not None}
 
 
 def update(
