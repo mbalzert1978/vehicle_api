@@ -7,7 +7,7 @@ from src.core.config import settings
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f'/api/{settings.API_VERSION}/openapi.json',
+    openapi_url=f"/api/{settings.API_VERSION}/openapi.json",
 )
 
 app.include_router(router)

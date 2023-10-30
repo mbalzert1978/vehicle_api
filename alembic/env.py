@@ -13,7 +13,7 @@ target_metadata = mapper_registry.metadata
 
 def get_url() -> str:
     if not settings.DATABASE_URI:
-        err = 'DATABASE_URI is not set, check .env file.'
+        err = "DATABASE_URI is not set, check .env file."
         raise ValueError(err)
     return settings.DATABASE_URI
 
@@ -52,10 +52,10 @@ def run_migrations_online() -> None:
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration['sqlalchemy.url'] = get_url()  # type: ignore[index]
+    configuration["sqlalchemy.url"] = get_url()  # type: ignore[index]
     connectable = engine_from_config(
         configuration,  # type: ignore[arg-type]
-        prefix='sqlalchemy.',
+        prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
