@@ -67,7 +67,7 @@ def list_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
         return [schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles]
 
@@ -102,7 +102,7 @@ def create_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
 
@@ -130,17 +130,17 @@ def update_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
 def get_vehicle(
-        *,
-        session: AbstractSession = Depends(SESSION_LOCAL),
-        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-        id: int,  # noqa: A002
+    *,
+    session: AbstractSession = Depends(SESSION_LOCAL),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    id: int,  # noqa: A002
 ) -> schemas.Vehicle:
     """
     Get a vehicle by ID.
@@ -156,17 +156,17 @@ def get_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
     else:
         return schemas.Vehicle.model_validate(vehicle)
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_vehicle(
-        *,
-        session: AbstractSession = Depends(SESSION_LOCAL),
-        repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
-        id: int,  # noqa: A002
+    *,
+    session: AbstractSession = Depends(SESSION_LOCAL),
+    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    id: int,  # noqa: A002
 ) -> None:
     """
     Delete an vehicle by ID.
@@ -182,4 +182,4 @@ def delete_vehicle(
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:
         log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e

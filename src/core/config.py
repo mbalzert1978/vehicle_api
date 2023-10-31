@@ -37,14 +37,16 @@ class Settings(BaseSettings):
         """
         if isinstance(v, str):
             return v
-        return str(PostgresDsn.build(
-            scheme="postgresql",
-            username=info.data.get("POSTGRES_USER"),
-            password=info.data.get("POSTGRES_PASSWORD"),
-            host=info.data.get("POSTGRES_SERVER"),
-            port=info.data.get("POSTGRES_PORT") or 5432,
-            path=info.data.get('POSTGRES_DATABASE', 'test'),
-        ))
+        return str(
+            PostgresDsn.build(
+                scheme="postgresql",
+                username=info.data.get("POSTGRES_USER"),
+                password=info.data.get("POSTGRES_PASSWORD"),
+                host=info.data.get("POSTGRES_SERVER"),
+                port=info.data.get("POSTGRES_PORT") or 5432,
+                path=info.data.get("POSTGRES_DATABASE", "test"),
+            ),
+        )
 
 
 settings = Settings()  # type: ignore[call-arg]
