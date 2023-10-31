@@ -151,7 +151,7 @@ def get_vehicle(
     """
     try:
         with session as db:
-            vehicle: Vehicle = services.get(db, repository, id, Vehicle())
+            vehicle: Vehicle = services.get(db, repository, id)
     except HTTPError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
     except Exception as e:

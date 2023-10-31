@@ -4,12 +4,8 @@ from typing import TypeVar
 
 from src.core.error import HTTPError
 from src.core.session import AbstractSession
-from src.crud import (
-    AbstractRepository,
-    CreateSchemaType,
-    ModelType,
-    UpdateSchemaType,
-)
+from src.crud import AbstractRepository, CreateSchemaType, ModelType, UpdateSchemaType
+from src.monads.option import Null, Some
 
 UNPROCESSABLE = "unprocessable value, not a"
 T = TypeVar("T")
@@ -40,12 +36,7 @@ def create(
     return repository.create(session=session, to_create=to_create)
 
 
-def get(
-    session: AbstractSession,
-    repository: AbstractRepository,
-    id: int,
-    default: T | None = None,
-) -> ModelType:
+def get(session: AbstractSession, repository: AbstractRepository, id: int) -> ModelType:
     """
     Get a vehicle.
 
@@ -64,9 +55,11 @@ def get(
     ------
     HTTPError: If the vehicle does not exist.
     """
-    if vehicle := repository.get(session=session, id=id, default=default):
-        return vehicle
-    raise HTTPError(status_code=404, detail="Vehicle not found.")
+    match repository.get(session=session, id=id):
+        case Null():
+            raise HTTPError(status_code=404, detail="Vehicle not found.")
+        case Some(value):
+            return value
 
 
 def list(  # noqa: A001
@@ -120,9 +113,11 @@ def update(
     ------
     HTTPError: If the vehicle with the specified ID is not found.
     """
-    if not (to_update := repository.get(session=session, id=id)):
-        raise HTTPError(status_code=404, detail="Vehicle not found.")
-    return repository.update(session=session, to_update=to_update, data=update_with)
+    match repository.get(session=session, id=id):
+        case Null():
+            raise HTTPError(status_code=404, detail="Vehicle not found.")
+        case Some(to_update):
+            return repository.update(session=session, to_update=to_update, data=update_with)
 
 
 def delete(session: AbstractSession, repository: AbstractRepository, id: int) -> None:
@@ -139,6 +134,8 @@ def delete(session: AbstractSession, repository: AbstractRepository, id: int) ->
     ------
     HTTPError: If the vehicle with the specified ID is not found.
     """
-    if repository.delete(session=session, id=id):
-        return
-    raise HTTPError(status_code=404, detail="Vehicle not found.")
+    match repository.delete(session=session, id=id):
+        case Null():
+            raise HTTPError(status_code=404, detail="Vehicle not found.")
+        case Some():
+            return

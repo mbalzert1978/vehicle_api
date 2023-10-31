@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy import select, text
 
 from src.model.vehicle import Base
+from src.monads.option import Null, Option, Some
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -58,7 +59,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         """
         session.execute(text(stmnt))
 
-    def get[U](self, session: Session, *, id: int, default: U | None = None) -> ModelType | U:
+    def get(self, session: Session, *, id: int) -> Option[ModelType]:
         """
         Retrieve a model instance by its ID.
 
@@ -73,7 +74,11 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         The model instance with the specified ID.
 
         """
-        return session.get(self.model, id) or default
+        match session.get(self.model, id):
+            case None:
+                return Null()
+            case _ as value:
+                return Some(value)
 
     def list(self, session: Session, *, filter_by: dict | None = None) -> Sequence[ModelType]:
         """
@@ -203,8 +208,10 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         The removed model instance if found, or None if not found.
 
         """
-        if not (obj := session.get(self.model, id)):
-            return None
-        session.delete(obj)
-        session.commit()
-        return obj
+        match session.get(self.model, id):
+            case None:
+                return Null()
+            case _ as obj:
+                session.delete(obj)
+                session.commit()
+                return Some(obj)

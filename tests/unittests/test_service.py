@@ -2,6 +2,7 @@ import pytest
 
 from src.core.error import HTTPError
 from src.crud import AbstractRepository
+from src.monads.option import Null
 from src.service import services
 from tests.stubs import Stub
 
@@ -19,13 +20,13 @@ def test_service_get_happy():
     repository = Stub(spec=AbstractRepository, return_value=1)
     services.get("TestSession", repository, 1)
 
-    expected = [(), {"session": "TestSession", "id": 1, "default": None}]
+    expected = [(), {"session": "TestSession", "id": 1}]
 
     assert repository.attr_stub.commands == expected
 
 
 def test_service_get_not_found():
-    repository = Stub(spec=AbstractRepository)
+    repository = Stub(spec=AbstractRepository, return_value=Null())
 
     with pytest.raises(HTTPError):
         services.get("TestSession", repository, 1)
@@ -71,14 +72,14 @@ def test_service_filter_ready():
 
 
 def test_update_negative():
-    repository = Stub(spec=AbstractRepository)
+    repository = Stub(spec=AbstractRepository, return_value=Null())
 
     with pytest.raises(HTTPError):
         services.update("TestSession", repository, 1, "to_update")
 
 
 def test_delete_negative():
-    repository = Stub(spec=AbstractRepository)
+    repository = Stub(spec=AbstractRepository, return_value=Null())
 
     with pytest.raises(HTTPError):
         services.delete("TestSession", repository, 1)

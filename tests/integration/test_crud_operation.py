@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 import src.model.vehicle as model
 import src.schemas.vehicle as schemas
 from src.crud.sqlalchemy_repo import SQLAlchemyRepository
+from src.monads.option import Null, Some
 from tests.data import I30, TEST_VEHICLE
 
 
@@ -40,13 +41,15 @@ def test_get(session: Session):
     When: Retrieving a vehicle by its ID using the Repository
     Then: The corresponding vehicle should be returned.
     """
-    result = SQLAlchemyRepository(model.Vehicle).get(session, id=1)
-
-    assert result.id is not None
-    assert result.name == I30.name
-    assert result.year_of_manufacture == I30.year_of_manufacture
-    assert result.body == I30.body
-    assert result.ready_to_drive == I30.ready_to_drive
+    match SQLAlchemyRepository(model.Vehicle).get(session, id=1):
+        case Null():
+            pytest.fail("Vehicle not in db check example data!")
+        case Some(result):
+            assert result.id is not None
+            assert result.name == I30.name
+            assert result.year_of_manufacture == I30.year_of_manufacture
+            assert result.body == I30.body
+            assert result.ready_to_drive == I30.ready_to_drive
 
 
 @pytest.mark.usefixtures("example_data")
@@ -69,22 +72,24 @@ def test_update(session: Session):
     When: Updating a vehicle by its ID using the Repository
     Then: The corresponding vehicle should be updated.
     """
-    to_update = SQLAlchemyRepository(model.Vehicle).get(session=session, id=1)
+    match SQLAlchemyRepository(model.Vehicle).get(session=session, id=1):
+        case Null():
+            pytest.fail("Vehicle not in db check example data!")
+        case Some(to_update):
+            SQLAlchemyRepository(model.Vehicle).update(
+                session,
+                to_update=to_update,
+                data=schemas.VehicleUpdate(**TEST_VEHICLE.model_dump()),
+            )
 
-    SQLAlchemyRepository(model.Vehicle).update(
-        session,
-        to_update=to_update,
-        data=schemas.VehicleUpdate(**TEST_VEHICLE.model_dump()),
-    )
+            sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
+            result = schemas.VehicleInDB.model_validate(session.execute(sql).one())
 
-    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
-    result = schemas.VehicleInDB.model_validate(session.execute(sql).one())
-
-    assert result.id is not None
-    assert result.name == TEST_VEHICLE.name
-    assert result.year_of_manufacture == TEST_VEHICLE.year_of_manufacture
-    assert result.body == TEST_VEHICLE.body
-    assert result.ready_to_drive == TEST_VEHICLE.ready_to_drive
+            assert result.id is not None
+            assert result.name == TEST_VEHICLE.name
+            assert result.year_of_manufacture == TEST_VEHICLE.year_of_manufacture
+            assert result.body == TEST_VEHICLE.body
+            assert result.ready_to_drive == TEST_VEHICLE.ready_to_drive
 
 
 @pytest.mark.usefixtures("example_data")
@@ -94,10 +99,12 @@ def test_delete(session: Session):
     When: Deleting a vehicle by its ID using the Repository
     Then: The corresponding vehicle should be deleted.
     """
-    expected = SQLAlchemyRepository(model.Vehicle).get(session=session, id=1)
+    match SQLAlchemyRepository(model.Vehicle).get(session=session, id=1):
+        case Null():
+            pytest.fail("Vehicle not in db check example data!")
+        case Some(expected):
+            SQLAlchemyRepository(model.Vehicle).delete(session, id=expected.id)
 
-    SQLAlchemyRepository(model.Vehicle).delete(session, id=expected.id)
+            sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
 
-    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
-
-    assert not session.execute(sql).first()
+            assert not session.execute(sql).first()

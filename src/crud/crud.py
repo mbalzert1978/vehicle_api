@@ -1,7 +1,7 @@
 # ruff: noqa: A003, A002
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 from pydantic import BaseModel
 
@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from src.core.session import AbstractSession
+    from src.monads.option import Option
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -32,7 +33,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
     """The abstract repository protocol."""
 
     @staticmethod
-    def execute(session: AbstractSession, *, stmnt: str) -> None:
+    def execute(session: AbstractSession, *, stmnt: str) -> Option[Any]:
         """
         Execute a statement in the database.
 
@@ -61,16 +62,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the ModelType object.
         """
 
-    @overload
-    def get(self, session: AbstractSession, *, id: int) -> ModelType:
-        ...
-
-    @overload
-    def get[U](self, session: AbstractSession, *, id: int, default: U) -> ModelType | U:
-        ...
-
-    @overload
-    def get[U](self, session: AbstractSession, *, id: int, default: U | None = None) -> ModelType | U:
+    def get(self, session: AbstractSession, *, id: int) -> Option[ModelType]:
         """
         Get a ModelType object from the database.
 
@@ -132,7 +124,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the updated ModelType object.
         """
 
-    def delete(self, session: AbstractSession, *, id: int) -> ModelType | None:
+    def delete(self, session: AbstractSession, *, id: int) -> Option[ModelType]:
         """
         Delete a ModelType object from the database.
 

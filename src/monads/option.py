@@ -40,17 +40,19 @@ class Some[T]:
     def unwrap_or_raise(self, _: BaseException) -> T:
         return self.value
 
-    def map[U](self, fn: typing.Callable[[T], U]) -> Option[U, N]:
-        if (result := fn(self.value)) is None:
-            return Null(result)
-        Some(result)
+    def map[U](self, fn: typing.Callable[[T], U]) -> Option[U]:
+        match fn(self.value):
+            case None:
+                return Null()
+            case _ as value:
+                return Some(value)
 
 
 @dataclasses.dataclass(slots=True)
 class Null[N]:
     __match_args__ = ("value",)
 
-    value: N
+    value: N = None
 
     def __setattr__(self, *_) -> None:
         if hasattr(self, "value"):
@@ -84,8 +86,8 @@ class Null[N]:
             raise exc
         raise exception
 
-    def map[U](self, _: typing.Callable[[N], U]) -> Option[U, N]:
+    def map[U](self, _: typing.Callable[[N], U]) -> Option[U]:
         return self
 
 
-Option: typing.TypeAlias = Some[T] | Null[N]
+Option: typing.TypeAlias = Some[T] | Null
