@@ -7,7 +7,6 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import select, text
 
-from src.core.error import NotFoundError
 from src.model.vehicle import Base
 from src.monads.result import Err, Ok, Result
 
@@ -72,7 +71,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
 
         Returns:
         -------
-        The model instance with the specified ID.
+        Result[ModelType, Exception]
 
         """
         try:
@@ -91,7 +90,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
 
         Returns:
         -------
-        A list of model instances.
+        Result[Sequence[ModelType], Exception]
 
         """
         try:
@@ -113,7 +112,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
 
         Returns:
         -------
-        The created model instance.
+        Result[ModelType, Exception]
 
         """
         try:
@@ -157,7 +156,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
 
         Returns:
         -------
-        The updated model instance.
+        Result[ModelType, Exception]
 
         """
         try:
@@ -205,27 +204,22 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
                 continue
             setattr(to_update, field, update_data[field])
 
-    def delete(self, session: Session, *, id: int) -> Result[ModelType, Exception]:
+    def delete(self, session: Session, *, to_delete: ModelType) -> Result[ModelType, Exception]:
         """
-        Remove a model instance by its ID.
+        Delete the model instance from the database.
 
-        Args:
-        ----
+        Args
+        ----------
         session: An SQLAlchemy Session object.
-        id: The ID of the model instance to remove.
+        to_delete: The model instance to delete.
 
-        Returns:
+        Returns
         -------
-        The removed model instance if found, or None if not found.
-
+        Result[ModelType, Exception]
         """
         try:
-            match session.get(self.model, id):
-                case None:
-                    return Err(NotFoundError(id))
-                case _ as obj:
-                    session.delete(obj)
-                    session.commit()
-                    return Ok(obj)
+            session.delete(to_delete)
+            session.commit()
+            return Ok(to_delete)
         except Exception as exc:
             return Err(exc)

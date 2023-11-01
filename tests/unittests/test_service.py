@@ -75,7 +75,7 @@ def test_update_negative():
 
 
 def test_delete_negative():
-    repository = Stub(spec=AbstractRepository, return_value=Err(NotFoundError(1)))
+    repository = Stub(spec=AbstractRepository, return_value=Ok(None))
 
     match services.delete("TestSession", repository, 1):
         case Err(NotFoundError()):

@@ -66,7 +66,10 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
         """
 
     def list(
-        self, session: AbstractSession, *, filter_by: dict | None = None,
+        self,
+        session: AbstractSession,
+        *,
+        filter_by: dict | None = None,
     ) -> Result[Sequence[ModelType], Exception]:
         """
         Get a list of ModelType objects from the database.
@@ -102,7 +105,11 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
         """
 
     def update(
-        self, session: AbstractSession, *, to_update: ModelType, data: UpdateSchemaType,
+        self,
+        session: AbstractSession,
+        *,
+        to_update: ModelType,
+        data: UpdateSchemaType,
     ) -> Result[ModelType, Exception]:
         """
         Update a ModelType object in the database.
@@ -122,7 +129,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the updated ModelType object.
         """
 
-    def delete(self, session: AbstractSession, *, id: int) -> Result[ModelType, Exception]:
+    def delete(self, session: AbstractSession, *, to_delete: ModelType) -> Result[ModelType, Exception]:
         """
         Delete a ModelType object from the database.
 

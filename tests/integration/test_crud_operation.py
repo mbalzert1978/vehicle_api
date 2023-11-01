@@ -100,7 +100,7 @@ def test_delete(session: Session):
     """
     match SQLAlchemyRepository(model.Vehicle).get(session=session, id=1):
         case Ok(expected):
-            SQLAlchemyRepository(model.Vehicle).delete(session, id=expected.id)
+            SQLAlchemyRepository(model.Vehicle).delete(session, to_delete=expected)
 
             sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
 

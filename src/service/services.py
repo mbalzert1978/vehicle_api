@@ -127,4 +127,8 @@ def delete(session: AbstractSession, repository: AbstractRepository, id: int) ->
     ------
     HTTPError: If the vehicle with the specified ID is not found.
     """
-    return repository.delete(session=session, id=id)
+    match repository.get(session=session, id=id):
+        case Ok(None):
+            return Err(NotFoundError(id))
+        case Ok(to_delete):
+            return repository.delete(session=session, to_delete=to_delete)
