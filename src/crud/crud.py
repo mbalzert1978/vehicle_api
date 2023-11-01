@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from src.core.session import AbstractSession
-    from src.monads.option import Option
+    from src.monads.result import Result
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -33,7 +33,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
     """The abstract repository protocol."""
 
     @staticmethod
-    def execute(session: AbstractSession, *, stmnt: str) -> Option[Any]:
+    def execute(session: AbstractSession, *, stmnt: str) -> Any:
         """
         Execute a statement in the database.
 
@@ -45,24 +45,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the statement to execute.
         """
 
-    def create(self, session: AbstractSession, *, to_create: CreateSchemaType) -> ModelType:
-        """
-        Create a ModelType object in the database.
-
-        Parameters
-        ----------
-        session : Session
-            the database session object.
-        to_create : CreateSchemaType
-            the CreateSchemaType object to create.
-
-        Returns
-        -------
-        ModelType
-            the ModelType object.
-        """
-
-    def get(self, session: AbstractSession, *, id: int) -> Option[ModelType]:
+    def get(self, session: AbstractSession, *, id: int) -> Result[ModelType, Exception]:
         """
         Get a ModelType object from the database.
 
@@ -82,7 +65,9 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the ModelType object or the default value.
         """
 
-    def list(self, session: AbstractSession, *, filter_by: dict | None = None) -> Sequence[ModelType]:
+    def list(
+        self, session: AbstractSession, *, filter_by: dict | None = None,
+    ) -> Result[Sequence[ModelType], Exception]:
         """
         Get a list of ModelType objects from the database.
 
@@ -99,13 +84,26 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the list of ModelType objects.
         """
 
+    def create(self, session: AbstractSession, *, to_create: CreateSchemaType) -> Result[ModelType, Exception]:
+        """
+        Create a ModelType object in the database.
+
+        Parameters
+        ----------
+        session : Session
+            the database session object.
+        to_create : CreateSchemaType
+            the CreateSchemaType object to create.
+
+        Returns
+        -------
+        ModelType
+            the ModelType object.
+        """
+
     def update(
-        self,
-        session: AbstractSession,
-        *,
-        to_update: ModelType,
-        data: UpdateSchemaType,
-    ) -> ModelType:
+        self, session: AbstractSession, *, to_update: ModelType, data: UpdateSchemaType,
+    ) -> Result[ModelType, Exception]:
         """
         Update a ModelType object in the database.
 
@@ -124,7 +122,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the updated ModelType object.
         """
 
-    def delete(self, session: AbstractSession, *, id: int) -> Option[ModelType]:
+    def delete(self, session: AbstractSession, *, id: int) -> Result[ModelType, Exception]:
         """
         Delete a ModelType object from the database.
 

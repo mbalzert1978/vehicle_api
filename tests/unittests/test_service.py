@@ -1,8 +1,8 @@
 import pytest
 
-from src.core.error import HTTPError
+from src.core.error import NotFoundError
 from src.crud import AbstractRepository
-from src.monads.option import Null
+from src.monads.result import Err, Ok
 from src.service import services
 from tests.stubs import Stub
 
@@ -23,13 +23,6 @@ def test_service_get_happy():
     expected = [(), {"session": "TestSession", "id": 1}]
 
     assert repository.attr_stub.commands == expected
-
-
-def test_service_get_not_found():
-    repository = Stub(spec=AbstractRepository, return_value=Null())
-
-    with pytest.raises(HTTPError):
-        services.get("TestSession", repository, 1)
 
 
 def test_service_filter_name():
@@ -72,14 +65,20 @@ def test_service_filter_ready():
 
 
 def test_update_negative():
-    repository = Stub(spec=AbstractRepository, return_value=Null())
+    repository = Stub(spec=AbstractRepository, return_value=Ok(None))
 
-    with pytest.raises(HTTPError):
-        services.update("TestSession", repository, 1, "to_update")
+    match services.update("TestSession", repository, 1, "to_update"):
+        case Err(NotFoundError()):
+            pass
+        case _:
+            pytest.fail(f"should return {Err(NotFoundError())}")
 
 
 def test_delete_negative():
-    repository = Stub(spec=AbstractRepository, return_value=Null())
+    repository = Stub(spec=AbstractRepository, return_value=Err(NotFoundError(1)))
 
-    with pytest.raises(HTTPError):
-        services.delete("TestSession", repository, 1)
+    match services.delete("TestSession", repository, 1):
+        case Err(NotFoundError()):
+            pass
+        case _:
+            pytest.fail(f"should return {Err(NotFoundError())}")

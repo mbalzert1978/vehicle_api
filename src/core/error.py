@@ -10,6 +10,10 @@ class HTTPError(Exception):
         self.detail = detail
 
 
+class CreateError(Exception):
+    """Error raised when trying to create a new object."""
+
+
 class UnwrapError(Exception):
     def __init__(self, from_: BaseException) -> None:
         self.from_ = from_
@@ -17,3 +21,8 @@ class UnwrapError(Exception):
 
 class ReadOnlyError(Exception):
     """Error raised when trying to modify a read-only object."""
+
+
+class NotFoundError(Exception):
+    def init(self, id: int) -> None:
+        self.id = id

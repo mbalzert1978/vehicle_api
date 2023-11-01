@@ -1,11 +1,12 @@
 """Services module."""
 # ruff: noqa: A002
+from collections.abc import Sequence
 from typing import TypeVar
 
-from src.core.error import HTTPError
+from src.core.error import NotFoundError
 from src.core.session import AbstractSession
 from src.crud import AbstractRepository, CreateSchemaType, ModelType, UpdateSchemaType
-from src.monads.option import Null, Some
+from src.monads.result import Err, Ok, Result
 
 UNPROCESSABLE = "unprocessable value, not a"
 T = TypeVar("T")
@@ -15,7 +16,7 @@ def create(
     session: AbstractSession,
     repository: AbstractRepository,
     to_create: CreateSchemaType,
-) -> ModelType:
+) -> Result[ModelType, Exception]:
     """
     Create a new vehicle.
 
@@ -27,16 +28,12 @@ def create(
 
     Returns:
     -------
-    A object representing the created vehicle.
-
-    Raises:
-    ------
-    HTTPError: If the vehicle already exists.
+    A result object representing the created vehicle.
     """
     return repository.create(session=session, to_create=to_create)
 
 
-def get(session: AbstractSession, repository: AbstractRepository, id: int) -> ModelType:
+def get(session: AbstractSession, repository: AbstractRepository, id: int) -> Result[ModelType, Exception]:
     """
     Get a vehicle.
 
@@ -55,18 +52,14 @@ def get(session: AbstractSession, repository: AbstractRepository, id: int) -> Mo
     ------
     HTTPError: If the vehicle does not exist.
     """
-    match repository.get(session=session, id=id):
-        case Null():
-            raise HTTPError(status_code=404, detail="Vehicle not found.")
-        case Some(value):
-            return value
+    return repository.get(session=session, id=id)
 
 
 def list(  # noqa: A001
     session: AbstractSession,
     repository: AbstractRepository,
     filter_by: dict | None = None,
-) -> list[ModelType]:
+) -> Result[Sequence[ModelType], Exception]:
     """
     List all vehicles.
 
@@ -94,7 +87,7 @@ def update(
     repository: AbstractRepository,
     id: int,
     update_with: UpdateSchemaType,
-) -> ModelType:
+) -> Result[ModelType, Exception]:
     """
     Update a vehicle by ID.
 
@@ -114,13 +107,13 @@ def update(
     HTTPError: If the vehicle with the specified ID is not found.
     """
     match repository.get(session=session, id=id):
-        case Null():
-            raise HTTPError(status_code=404, detail="Vehicle not found.")
-        case Some(to_update):
+        case Ok(None):
+            return Err(NotFoundError(id))
+        case Ok(to_update):
             return repository.update(session=session, to_update=to_update, data=update_with)
 
 
-def delete(session: AbstractSession, repository: AbstractRepository, id: int) -> None:
+def delete(session: AbstractSession, repository: AbstractRepository, id: int) -> Result[ModelType, Exception]:
     """
     Delete a vehicle by ID.
 
@@ -134,8 +127,4 @@ def delete(session: AbstractSession, repository: AbstractRepository, id: int) ->
     ------
     HTTPError: If the vehicle with the specified ID is not found.
     """
-    match repository.delete(session=session, id=id):
-        case Null():
-            raise HTTPError(status_code=404, detail="Vehicle not found.")
-        case Some():
-            return
+    return repository.delete(session=session, id=id)

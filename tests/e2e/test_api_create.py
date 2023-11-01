@@ -25,11 +25,8 @@ def test_CRUD_happy_path(client: TestClient):
     # Retrieve specific vehicle
     get = client.get("/vehicle/1")
     assert get.status_code == status.HTTP_200_OK
-    assert get.json() == {
-        **PARAMS,
-        "body": BODY,
-        "id": create.json()["id"],
-    }
+    result = get.json()
+    assert result == {**PARAMS, "body": BODY, "id": create.json()["id"]}
 
     # Update vehicle
     update = client.put("/vehicle/1", content=json.dumps(UPDATE))

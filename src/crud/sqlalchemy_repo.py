@@ -7,8 +7,9 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import select, text
 
+from src.core.error import NotFoundError
 from src.model.vehicle import Base
-from src.monads.option import Null, Option, Some
+from src.monads.result import Err, Ok, Result
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -59,7 +60,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         """
         session.execute(text(stmnt))
 
-    def get(self, session: Session, *, id: int) -> Option[ModelType]:
+    def get(self, session: Session, *, id: int) -> Result[ModelType, Exception]:
         """
         Retrieve a model instance by its ID.
 
@@ -74,13 +75,12 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         The model instance with the specified ID.
 
         """
-        match session.get(self.model, id):
-            case None:
-                return Null()
-            case _ as value:
-                return Some(value)
+        try:
+            return Ok(session.get(self.model, id))
+        except Exception as exc:
+            return Err(exc)
 
-    def list(self, session: Session, *, filter_by: dict | None = None) -> Sequence[ModelType]:
+    def list(self, session: Session, *, filter_by: dict | None = None) -> Result[Sequence[ModelType], Exception]:
         """
         Retrieve a list of model instances.
 
@@ -94,12 +94,15 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         A list of model instances.
 
         """
-        stmt = select(self.model)
-        if filter_by:
-            stmt = stmt.filter_by(**filter_by)
-        return session.execute(stmt).scalars().all()
+        try:
+            stmt = select(self.model)
+            if filter_by:
+                stmt = stmt.filter_by(**filter_by)
+            return Ok(session.execute(stmt).scalars().all())
+        except Exception as exc:
+            return Err(exc)
 
-    def create(self, session: Session, *, to_create: CreateSchemaType) -> ModelType:
+    def create(self, session: Session, *, to_create: CreateSchemaType) -> Result[ModelType, Exception]:
         """
         Create a new model instance.
 
@@ -113,9 +116,12 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         The created model instance.
 
         """
-        serialized_data = jsonable_encoder(to_create)
-        obj = self.model(**serialized_data)
-        return self.write_to_database(session, obj)
+        try:
+            serialized_data = jsonable_encoder(to_create)
+            obj = self.model(**serialized_data)
+            return Ok(self.write_to_database(session, obj))
+        except Exception as exc:
+            return Err(exc)
 
     @staticmethod
     def write_to_database(session: Session, to_create: ModelType) -> ModelType:
@@ -137,7 +143,9 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         session.refresh(to_create)
         return to_create
 
-    def update(self, session: Session, *, to_update: ModelType, data: UpdateSchemaType) -> ModelType:
+    def update(
+        self, session: Session, *, to_update: ModelType, data: UpdateSchemaType,
+    ) -> Result[ModelType, Exception]:
         """
         Update a model instance with new data.
 
@@ -152,10 +160,13 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         The updated model instance.
 
         """
-        serialized_data = jsonable_encoder(to_update)
-        update_data = self.extract_data(data)
-        self.update_fields(to_update, serialized_data, update_data)
-        return self.write_to_database(session, to_update)
+        try:
+            serialized_data = jsonable_encoder(to_update)
+            update_data = self.extract_data(data)
+            self.update_fields(to_update, serialized_data, update_data)
+            return Ok(self.write_to_database(session, to_update))
+        except Exception as exc:
+            return Err(exc)
 
     @staticmethod
     def extract_data(update_with: UpdateSchemaType | dict) -> dict:
@@ -194,7 +205,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
                 continue
             setattr(to_update, field, update_data[field])
 
-    def delete(self, session: Session, *, id: int) -> ModelType | None:
+    def delete(self, session: Session, *, id: int) -> Result[ModelType, Exception]:
         """
         Remove a model instance by its ID.
 
@@ -208,10 +219,13 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         The removed model instance if found, or None if not found.
 
         """
-        match session.get(self.model, id):
-            case None:
-                return Null()
-            case _ as obj:
-                session.delete(obj)
-                session.commit()
-                return Some(obj)
+        try:
+            match session.get(self.model, id):
+                case None:
+                    return Err(NotFoundError(id))
+                case _ as obj:
+                    session.delete(obj)
+                    session.commit()
+                    return Ok(obj)
+        except Exception as exc:
+            return Err(exc)

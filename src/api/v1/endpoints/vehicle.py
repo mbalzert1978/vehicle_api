@@ -6,10 +6,11 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from src.core.error import HTTPError
+from src.core.error import NotFoundError
 from src.core.session import SESSION_LOCAL, AbstractSession
 from src.crud import REPOSITORY_LOCAL, AbstractRepository
 from src.model.vehicle import Vehicle
+from src.monads.result import Err, Ok
 from src.schemas import vehicle as schemas
 from src.service import services
 
@@ -52,24 +53,14 @@ def list_vehicle(
 
     Filters can be applied to refine results based on name, manufacturing year, and readiness for driving.
     """
-    try:
-        with session as db:
-            vehicles: list[Vehicle] = services.list(
-                db,
-                repository,
-                filter_by={
-                    "name": name,
-                    "year_of_manufacture": year_of_manufacture,
-                    "ready_to_drive": ready_to_drive,
-                },
-            )
-    except HTTPError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
-    except Exception as e:
-        log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
-    else:
-        return [schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles]
+    filter_by = {"name": name, "year_of_manufacture": year_of_manufacture, "ready_to_drive": ready_to_drive}
+    with session as db:
+        match services.list(db, repository, filter_by=filter_by):
+            case Ok(list(vehicles)):
+                return [schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles]
+            case Err(exc):
+                log.exception(UNCAUGHT)
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from exc
 
 
 @router.post("/", response_model=schemas.Vehicle)
@@ -91,20 +82,13 @@ def create_vehicle(
     ready_to_drive: A boolean flag indicating whether the vehicle is ready to drive.
     Defaults to False.
     """
-    try:
-        with session as db:
-            vehicle: Vehicle = services.create(
-                db,
-                repository,
-                to_create=to_create,
-            )
-    except HTTPError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
-    except Exception as e:
-        log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
-    else:
-        return schemas.Vehicle.model_validate(vehicle)
+    with session as db:
+        match services.create(db, repository, to_create=to_create):
+            case Ok(vehicle):
+                return schemas.Vehicle.model_validate(vehicle)
+            case Err(exc):
+                log.exception(UNCAUGHT)
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from exc
 
 
 @router.put("/{id}", response_model=schemas.Vehicle)
@@ -123,16 +107,15 @@ def update_vehicle(
     id: The ID of the vehicle to update.\
     update_with: An instance of `schemas.VehicleUpdate` with updated information.
     """
-    try:
-        with session as db:
-            vehicle: Vehicle = services.update(db, repository, id, update_with)
-    except HTTPError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
-    except Exception as e:
-        log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
-    else:
-        return schemas.Vehicle.model_validate(vehicle)
+    with session as db:
+        match services.update(db, repository, id, update_with):
+            case Ok(vehicle):
+                return schemas.Vehicle.model_validate(vehicle)
+            case Err(NotFoundError() as exc):
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vehicle not found.") from exc
+            case Err(exc):
+                log.exception(UNCAUGHT)
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from exc
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
@@ -149,16 +132,15 @@ def get_vehicle(
     ----
     id: The ID of the vehicle to retrieve.
     """
-    try:
-        with session as db:
-            vehicle: Vehicle = services.get(db, repository, id)
-    except HTTPError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
-    except Exception as e:
-        log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
-    else:
-        return schemas.Vehicle.model_validate(vehicle)
+    with session as db:
+        match services.get(db, repository, id):
+            case Ok(vehicle):
+                return schemas.Vehicle.model_validate(vehicle)
+            case Ok(None):
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vehicle not found.")
+            case Err(exc):
+                log.exception(UNCAUGHT)
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from exc
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -175,11 +157,12 @@ def delete_vehicle(
     ----
     id: The ID of the vehicle to delete.
     """
-    try:
-        with session as db:
-            services.delete(db, repository, id)
-    except HTTPError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
-    except Exception as e:
-        log.exception(UNCAUGHT)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+    with session as db:
+        match services.delete(db, repository, id):
+            case Ok():
+                return
+            case Err(NotFoundError() as exc):
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vehicle not found.") from exc
+            case Err(exc):
+                log.exception(UNCAUGHT)
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from exc
