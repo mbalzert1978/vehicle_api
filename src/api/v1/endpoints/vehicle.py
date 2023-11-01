@@ -134,10 +134,10 @@ def get_vehicle(
     """
     with session as db:
         match services.get(db, repository, id):
-            case Ok(vehicle):
-                return schemas.Vehicle.model_validate(vehicle)
             case Ok(None):
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vehicle not found.")
+            case Ok(vehicle):
+                return schemas.Vehicle.model_validate(vehicle)
             case Err(exc):
                 log.exception(UNCAUGHT)
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from exc
