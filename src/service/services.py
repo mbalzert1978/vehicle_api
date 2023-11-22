@@ -91,6 +91,7 @@ def list(  # noqa: A001
     """
     return repository.list(session, filter_by=_remove_none_values(filter_by))
 
+
 def _remove_none_values(dictionary: dict) -> dict:
     return {k: v for k, v in dictionary.items() if v is not None}
 

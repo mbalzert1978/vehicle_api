@@ -1,6 +1,6 @@
 """Configuration file for the project."""
-from pydantic import ConfigDict, PostgresDsn, ValidationInfo, field_validator
-from pydantic_settings import BaseSettings
+from pydantic import PostgresDsn, ValidationInfo, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     ECHO: bool = False
     DATABASE_URI: str | None = None
 
-    model_config = ConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     @field_validator("DATABASE_URI", mode="before")
     @classmethod
@@ -37,14 +37,16 @@ class Settings(BaseSettings):
         """
         if isinstance(v, str):
             return v
-        return str(PostgresDsn.build(
-            scheme="postgresql",
-            username=info.data.get("POSTGRES_USER"),
-            password=info.data.get("POSTGRES_PASSWORD"),
-            host=info.data.get("POSTGRES_SERVER"),
-            port=info.data.get("POSTGRES_PORT") or 5432,
-            path=info.data.get('POSTGRES_DATABASE', 'test'),
-        ))
+        return str(
+            PostgresDsn.build(
+                scheme="postgresql",
+                username=info.data.get("POSTGRES_USER"),
+                password=info.data.get("POSTGRES_PASSWORD"),
+                host=info.data.get("POSTGRES_SERVER"),
+                port=info.data.get("POSTGRES_PORT") or 5432,
+                path=info.data.get("POSTGRES_DATABASE", "test"),
+            ),
+        )
 
 
 settings = Settings()  # type: ignore[call-arg]
