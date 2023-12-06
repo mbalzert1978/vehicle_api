@@ -2,7 +2,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 
-async def uncought_error(_: Request, exc: Exception) -> JSONResponse:
+async def uncought_handler(_: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
         status_code=500,
         headers={"Content-Type": "application/problem+json"},

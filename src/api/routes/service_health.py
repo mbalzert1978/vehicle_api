@@ -14,8 +14,8 @@ log = logging.getLogger(__name__)
 
 @router.get("/", response_model=DatabaseStatus)
 def database_status(
-    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository)), # noqa: B008
-)  -> DatabaseStatus:
+    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository)),  # noqa: B008
+) -> DatabaseStatus:
     """Check the database status."""
     repository.execute(stmnt="SELECT 1=1;")
     return DatabaseStatus()
