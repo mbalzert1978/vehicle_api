@@ -90,7 +90,11 @@ class SQLAlchemySessionMaker(Generic[ModelType, TableType]):
         ------
         An SQLAlchemy Session object.
         """
-        Session = sessionmaker(autocommit=self.autocommit, autoflush=self.autoflush, bind=self.engine)  # noqa: N806
+        Session = sessionmaker(
+            autocommit=self.autocommit,
+            autoflush=self.autoflush,
+            bind=self.engine,
+        )
         try:
             session = Session()
             yield session
@@ -114,6 +118,8 @@ def fetch_db_uri() -> str:
     if not settings.DATABASE_URI:
         msg = "DATABASE_URI is not set in .env file."
         raise ValueError(msg)
+    if not isinstance(settings.DATABASE_URI, str):
+        return str(settings.DATABASE_URI)
     return settings.DATABASE_URI
 
 

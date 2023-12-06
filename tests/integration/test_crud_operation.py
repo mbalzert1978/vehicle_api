@@ -24,7 +24,7 @@ def test_create(session: Session):
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=result.id)
 
-    result = schemas.Vehicle.from_orm(session.execute(sql).one())
+    result = schemas.Vehicle.model_validate(session.execute(sql).one())
 
     assert result.id is not None
     assert result.name == TEST_VEHICLE.name
@@ -74,11 +74,11 @@ def test_update(session: Session):
     SQLAlchemyRepository(model.Vehicle).update(
         session,
         to_update=to_update,
-        data=schemas.VehicleUpdate(**TEST_VEHICLE.dict()),
+        data=schemas.VehicleUpdate(**TEST_VEHICLE.model_dump()),
     )
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
-    result = schemas.VehicleInDB.from_orm(session.execute(sql).one())
+    result = schemas.VehicleInDB.model_validate(session.execute(sql).one())
 
     assert result.id is not None
     assert result.name == TEST_VEHICLE.name

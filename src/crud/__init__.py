@@ -7,4 +7,10 @@ from src.crud.crud import (
     UpdateSchemaType,
 )
 
-__all__ = ["AbstractRepository", "REPOSITORY_LOCAL", "ModelType", "CreateSchemaType", "UpdateSchemaType"]
+__all__ = [
+    "AbstractRepository",
+    "REPOSITORY_LOCAL",
+    "ModelType",
+    "CreateSchemaType",
+    "UpdateSchemaType",
+]

@@ -14,13 +14,13 @@ def test_create_vehicle(session: Session) -> None:
     When: Creating a new vehicle
     Then: The vehicle should be added to the database.
     """
-    expected = model.Vehicle(**I30.dict())
+    expected = model.Vehicle(**I30.model_dump())
 
     session.add(expected)
     session.commit()
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
-    result = schemas.Vehicle.from_orm(session.execute(sql).one())
+    result = schemas.Vehicle.model_validate(session.execute(sql).one())
 
     assert result.name == expected.name
     assert result.year_of_manufacture == expected.year_of_manufacture
@@ -54,7 +54,7 @@ def test_update_vehicle(session: Session) -> None:
     result = session.execute(select(model.Vehicle)).scalars().first()
     serialized = jsonable_encoder(result)
 
-    expected = TEST_VEHICLE.dict(exclude_unset=True)
+    expected = TEST_VEHICLE.model_dump(exclude_unset=True)
 
     for field in serialized:
         if field not in expected:

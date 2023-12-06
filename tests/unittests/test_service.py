@@ -33,7 +33,11 @@ def test_service_get_not_found():
 
 def test_service_filter_name():
     repository = Stub(spec=AbstractRepository)
-    services.list(session="TestSession", repository=repository, filter_by={"name": "test"})
+    services.list(
+        session="TestSession",
+        repository=repository,
+        filter_by={"name": "test"},
+    )
 
     expected = [("TestSession",), {"filter_by": {"name": "test"}}]
 
@@ -42,7 +46,11 @@ def test_service_filter_name():
 
 def test_service_filter_year():
     repository = Stub(spec=AbstractRepository)
-    services.list(session="TestSession", repository=repository, filter_by={"year_of_manufacture": 2023})
+    services.list(
+        session="TestSession",
+        repository=repository,
+        filter_by={"year_of_manufacture": 2023},
+    )
 
     expected = [("TestSession",), {"filter_by": {"year_of_manufacture": 2023}}]
 
@@ -51,7 +59,11 @@ def test_service_filter_year():
 
 def test_service_filter_ready():
     repository = Stub(spec=AbstractRepository)
-    services.list(session="TestSession", repository=repository, filter_by={"ready_to_drive": False})
+    services.list(
+        session="TestSession",
+        repository=repository,
+        filter_by={"ready_to_drive": False},
+    )
 
     expected = [("TestSession",), {"filter_by": {"ready_to_drive": False}}]
 

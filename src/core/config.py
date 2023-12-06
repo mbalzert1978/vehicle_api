@@ -1,5 +1,6 @@
 """Configuration file for the project."""
-from pydantic import BaseSettings, PostgresDsn, validator
+from pydantic import PostgresDsn, ValidationInfo, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -12,13 +13,15 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DATABASE: str
-    POSTGRES_PORT: str | None = None
+    POSTGRES_PORT: int | None = None
     ECHO: bool = False
-    DATABASE_URI: PostgresDsn | None = None
+    DATABASE_URI: str | None = None
 
-    @validator("DATABASE_URI", pre=True)
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    @field_validator("DATABASE_URI", mode="before")
     @classmethod
-    def assemble_db_connection(cls, v: str, values: dict) -> str:
+    def assemble_db_connection(cls, v: str, info: ValidationInfo) -> str:
         """
         Assemble the database connection URI.
 
@@ -34,21 +37,16 @@ class Settings(BaseSettings):
         """
         if isinstance(v, str):
             return v
-        return PostgresDsn.build(
-            scheme="postgresql",
-            user=values.get("POSTGRES_USER"),
-            password=values.get("POSTGRES_PASSWORD"),
-            host=values.get("POSTGRES_SERVER"),
-            path=f"/{values.get('POSTGRES_DATABASE') or 'test'}",
-            port=values.get("POSTGRES_PORT") or "5432",
+        return str(
+            PostgresDsn.build(
+                scheme="postgresql",
+                username=info.data.get("POSTGRES_USER"),
+                password=info.data.get("POSTGRES_PASSWORD"),
+                host=info.data.get("POSTGRES_SERVER"),
+                port=info.data.get("POSTGRES_PORT") or 5432,
+                path=info.data.get("POSTGRES_DATABASE", "test"),
+            ),
         )
-
-    class Config:
-
-        """Pydantic configuration."""
-
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
 
 settings = Settings()  # type: ignore[call-arg]
