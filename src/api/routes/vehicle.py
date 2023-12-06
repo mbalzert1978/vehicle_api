@@ -12,7 +12,7 @@ from src.model.vehicle import Vehicle
 from src.schemas import vehicle as schemas
 from src.service import services
 
-router = APIRouter(prefix="/vehicle", tags=["vehicle"])
+router = APIRouter()
 
 log = logging.getLogger(__name__)
 

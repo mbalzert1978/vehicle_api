@@ -4,12 +4,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from fastapi import Depends
-from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from src.core.config import get_app_settings
 from src.crud.base import BaseRepository
+from src.model.base import Base
 from src.model.sql_alchemy import map_tables
 
 if TYPE_CHECKING:
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 settings = get_app_settings()
 map_tables()
+
 
 def get_session() -> Iterator[Session]:
     """
@@ -40,14 +41,14 @@ def get_session() -> Iterator[Session]:
     finally:
         session.close()
 
+
 def get_repository(
     repo_type: type[BaseRepository],
-    model_type: type[BaseModel] = BaseModel,
+    model_type: type[Base] = Base,
 ) -> Callable[[Session], BaseRepository]:
     def _setup_repo(
         session: Session = Depends(get_session),
     ) -> BaseRepository:
-
         return repo_type(session, model_type)
 
     return _setup_repo

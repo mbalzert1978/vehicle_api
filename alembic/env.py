@@ -11,6 +11,8 @@ fileConfig(config.config_file_name)  # type: ignore[arg-type]
 target_metadata = mapper_registry.metadata
 
 settings = get_app_settings()
+
+
 def get_url() -> str:
     if not settings.database_url:
         err = "DATABASE_URI is not set, check .env file."

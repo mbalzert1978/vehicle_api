@@ -15,11 +15,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-class SQLAlchemyRepository[ModelType:Base](BaseRepository):
+class SQLAlchemyRepository[ModelType: Base](BaseRepository):
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
-
-    def __init__(self, session: Session, model_type: ModelType) -> None:
-        super().__init__(session, model_type)
 
     def execute(self, *, stmnt: str) -> None:
         """
@@ -27,7 +24,6 @@ class SQLAlchemyRepository[ModelType:Base](BaseRepository):
 
         Args:
         ----
-        session: An SQLAlchemy Session object.
         stmnt: The SQL statement to execute.
 
         """
@@ -40,7 +36,6 @@ class SQLAlchemyRepository[ModelType:Base](BaseRepository):
 
         Args:
         ----
-        session: An SQLAlchemy Session object.
         id: The ID of the model instance to retrieve.
         default: The value to return if the model instance is not found.
 
@@ -58,7 +53,6 @@ class SQLAlchemyRepository[ModelType:Base](BaseRepository):
 
         Args:
         ----
-        session: An SQLAlchemy Session object.
         filter_by: A dictionary of key-value pairs to filter by.
 
         Returns:
@@ -78,7 +72,6 @@ class SQLAlchemyRepository[ModelType:Base](BaseRepository):
 
         Args:
         ----
-        session: An SQLAlchemy Session object.
         to_create: The data to create the model instance.
 
         Returns:
@@ -98,7 +91,6 @@ class SQLAlchemyRepository[ModelType:Base](BaseRepository):
 
         Args:
         ----
-        session: An SQLAlchemy Session object.
         to_create: The model instance to write to the database.
 
         Returns:
@@ -117,7 +109,6 @@ class SQLAlchemyRepository[ModelType:Base](BaseRepository):
 
         Args:
         ----
-        session: An SQLAlchemy Session object.
         to_update: The model instance to update.
         data: The data to update the model instance with.
 
@@ -175,7 +166,6 @@ class SQLAlchemyRepository[ModelType:Base](BaseRepository):
 
         Args:
         ----
-        session: An SQLAlchemy Session object.
         id: The ID of the model instance to remove.
 
         Returns:

@@ -8,12 +8,12 @@ from fastapi import APIRouter, Depends
 from src import crud
 from src.api.dependecies.database import get_repository
 
-service = APIRouter(prefix="/service", tags=["service"])
+router = APIRouter()
 
 log = logging.getLogger(__name__)
 
 
-@service.get("/")
+@router.get("/")
 def database_status(
     repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository)),
 ) -> dict[str, str]:
