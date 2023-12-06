@@ -6,13 +6,13 @@ import logging
 
 from fastapi import APIRouter, Depends, Query, status
 
-from src.core.session import SESSION_LOCAL, AbstractSession
-from src.crud import REPOSITORY_LOCAL, AbstractRepository
+from src import crud
+from src.api.dependecies.database import get_repository
 from src.model.vehicle import Vehicle
 from src.schemas import vehicle as schemas
 from src.service import services
 
-router = APIRouter(prefix="/vehicle", tags=["vehicle"])
+router = APIRouter()
 
 log = logging.getLogger(__name__)
 
@@ -23,8 +23,7 @@ FILTER_ON = "filter by {criterion}, optional."
 @router.get("/", response_model=list[schemas.Vehicle])
 def list_vehicle(
     *,
-    session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository, Vehicle)),
     name: str
     | None = Query(
         default=None,
@@ -51,24 +50,22 @@ def list_vehicle(
 
     Filters can be applied to refine results based on name, manufacturing year, and readiness for driving.
     """
-    with session as db:
-        vehicles: list[Vehicle] = services.list(
-            db,
-            repository,
-            filter_by={
-                "name": name,
-                "year_of_manufacture": year_of_manufacture,
-                "ready_to_drive": ready_to_drive,
-            },
-        )
+
+    vehicles: list[Vehicle] = services.list(
+        repository,
+        filter_by={
+            "name": name,
+            "year_of_manufacture": year_of_manufacture,
+            "ready_to_drive": ready_to_drive,
+        },
+    )
     return [schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles]
 
 
 @router.post("/", response_model=schemas.Vehicle)
 def create_vehicle(
     *,
-    session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository, Vehicle)),
     to_create: schemas.VehicleCreate,
 ) -> schemas.Vehicle:
     r"""
@@ -83,19 +80,13 @@ def create_vehicle(
     ready_to_drive: A boolean flag indicating whether the vehicle is ready to drive.
     Defaults to False.
     """
-    with session as db:
-        return schemas.Vehicle.model_validate(services.create(
-            db,
-            repository,
-            to_create=to_create,
-        ))
+    return schemas.Vehicle.model_validate(services.create(repository, to_create=to_create))
 
 
 @router.put("/{id}", response_model=schemas.Vehicle)
 def update_vehicle(
     *,
-    session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository, Vehicle)),
     id: int,  # noqa: A002
     update_with: schemas.VehicleUpdate,
 ) -> schemas.Vehicle:
@@ -107,15 +98,13 @@ def update_vehicle(
     id: The ID of the vehicle to update.\
     update_with: An instance of `schemas.VehicleUpdate` with updated information.
     """
-    with session as db:
-        return schemas.Vehicle.model_validate(services.update(db, repository, id, update_with))
+    return schemas.Vehicle.model_validate(services.update(repository, id, update_with))
 
 
 @router.get("/{id}", response_model=schemas.Vehicle)
 def get_vehicle(
     *,
-    session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository, Vehicle)),
     id: int,  # noqa: A002
 ) -> schemas.Vehicle:
     """
@@ -125,15 +114,13 @@ def get_vehicle(
     ----
     id: The ID of the vehicle to retrieve.
     """
-    with session as db:
-        return schemas.Vehicle.model_validate(services.get(db, repository, id, Vehicle()))
+    return schemas.Vehicle.model_validate(services.get(repository, id, Vehicle()))
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_vehicle(
     *,
-    session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL(Vehicle)),
+    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository, Vehicle)),
     id: int,  # noqa: A002
 ) -> None:
     """
@@ -143,5 +130,4 @@ def delete_vehicle(
     ----
     id: The ID of the vehicle to delete.
     """
-    with session as db:
-        services.delete(db, repository, id)
+    services.delete(repository, id)

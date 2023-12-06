@@ -1,20 +1,8 @@
 """Model."""
 
-import abc
 import datetime
 
-
-class Base(abc.ABC):
-
-    """Base Model."""
-
-    @abc.abstractmethod
-    def dump(self) -> dict:
-        """Dump Model."""
-
-    @abc.abstractmethod
-    def __repr__(self) -> str:
-        raise NotImplementedError
+from .base import Base
 
 
 def _get_current_year() -> int:

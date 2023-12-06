@@ -1,25 +1,11 @@
 """Services module."""
-# ruff: noqa: A002
-from typing import TypeVar
-
 from src.core.error import HTTPError
-from src.core.session import AbstractSession
-from src.crud import (
-    AbstractRepository,
-    CreateSchemaType,
-    ModelType,
-    UpdateSchemaType,
-)
+from src.crud import AbstractRepository
 
 UNPROCESSABLE = "unprocessable value, not a"
-T = TypeVar("T")
 
 
-def create(
-    session: AbstractSession,
-    repository: AbstractRepository,
-    to_create: CreateSchemaType,
-) -> ModelType:
+def create[ModelType, CreateSchemaType](repository: AbstractRepository, to_create: CreateSchemaType) -> ModelType:
     """
     Create a new vehicle.
 
@@ -37,15 +23,10 @@ def create(
     ------
     HTTPError: If the vehicle already exists.
     """
-    return repository.create(session=session, to_create=to_create)
+    return repository.create(to_create=to_create)
 
 
-def get(
-    session: AbstractSession,
-    repository: AbstractRepository,
-    id: int,
-    default: T | None = None,
-) -> ModelType:
+def get[ModelType, U](repository: AbstractRepository, id: int, default: U | None = None) -> ModelType | U:
     """
     Get a vehicle.
 
@@ -64,16 +45,12 @@ def get(
     ------
     HTTPError: If the vehicle does not exist.
     """
-    if vehicle := repository.get(session=session, id=id, default=default):
+    if vehicle := repository.get(id=id, default=default):
         return vehicle
     raise HTTPError(status_code=404, detail="Vehicle not found.")
 
 
-def list(  # noqa: A001
-    session: AbstractSession,
-    repository: AbstractRepository,
-    filter_by: dict | None = None,
-) -> list[ModelType]:
+def list[ModelType](repository: AbstractRepository, filter_by: dict | None = None) -> list[ModelType]:
     """
     List all vehicles.
 
@@ -89,19 +66,17 @@ def list(  # noqa: A001
     -------
     returns: A list of `Vehicle` objects.
     """
-    return repository.list(session, filter_by=_remove_none_values(filter_by))
+    return repository.list(filter_by=_remove_none_values(filter_by or {}))
 
 
 def _remove_none_values(dictionary: dict) -> dict:
     return {k: v for k, v in dictionary.items() if v is not None}
 
 
-def update(
-    session: AbstractSession,
-    repository: AbstractRepository,
-    id: int,
-    update_with: UpdateSchemaType,
-) -> ModelType:
+def update[
+    ModelType,
+    UpdateSchemaType,
+](repository: AbstractRepository, id: int, update_with: UpdateSchemaType) -> ModelType:
     """
     Update a vehicle by ID.
 
@@ -120,12 +95,12 @@ def update(
     ------
     HTTPError: If the vehicle with the specified ID is not found.
     """
-    if not (to_update := repository.get(session=session, id=id)):
+    if not (to_update := repository.get(id=id)):
         raise HTTPError(status_code=404, detail="Vehicle not found.")
-    return repository.update(session=session, to_update=to_update, data=update_with)
+    return repository.update(to_update=to_update, data=update_with)
 
 
-def delete(session: AbstractSession, repository: AbstractRepository, id: int) -> None:
+def delete(repository: AbstractRepository, id: int) -> None:
     """
     Delete a vehicle by ID.
 
@@ -139,6 +114,6 @@ def delete(session: AbstractSession, repository: AbstractRepository, id: int) ->
     ------
     HTTPError: If the vehicle with the specified ID is not found.
     """
-    if repository.delete(session=session, id=id):
+    if repository.delete(id=id):
         return
     raise HTTPError(status_code=404, detail="Vehicle not found.")

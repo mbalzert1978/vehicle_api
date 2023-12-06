@@ -3,19 +3,21 @@ from logging.config import fileConfig  # noqa: INP001
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from src.core.config import settings
+from src.core.config import get_app_settings
 from src.model.sql_alchemy import mapper_registry
 
 config = context.config
 fileConfig(config.config_file_name)  # type: ignore[arg-type]
 target_metadata = mapper_registry.metadata
 
+settings = get_app_settings()
+
 
 def get_url() -> str:
-    if not settings.DATABASE_URI:
+    if not settings.database_url:
         err = "DATABASE_URI is not set, check .env file."
         raise ValueError(err)
-    return settings.DATABASE_URI
+    return str(settings.database_url)
 
 
 def run_migrations_offline() -> None:

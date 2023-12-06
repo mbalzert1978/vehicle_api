@@ -1,67 +1,40 @@
 """Vehicle api main module."""
 import logging
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from sqlalchemy.exc import OperationalError
+from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
+from starlette.middleware.cors import CORSMiddleware
 
-from src.api.v1.endpoints.service_health import service
-from src.api.v1.endpoints.vehicle import router
-from src.core.config import settings
-from src.core.error import HTTPError
+from src.api.errors import http422_error_handler, http_error_handler
+from src.api.routes.api import router as api_router
+from src.core.config import get_app_settings
 
 logger = logging.getLogger(__name__)
 
+settings = get_app_settings()
+settings.configure_logging()
 
-app = FastAPI(title=settings.PROJECT_NAME, openapi_url=f"/api/{settings.API_VERSION}/openapi.json")
+def get_application() -> FastAPI:
+    settings = get_app_settings()
 
+    settings.configure_logging()
 
-@app.exception_handler(OperationalError)
-async def db_error(request: Request, exc: OperationalError) -> JSONResponse:
-    msg = "Operational Error on db"
-    logger.error(msg, exc, request)
-    return JSONResponse(
-        status_code=503,
-        headers={"Content-Type": "application/problem+json"},
-        content={
-            "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.4",
-            "title": "Unable to connect to the database.",
-            "detail": exc.code,
-            "status": 503,
-        },
+    application = FastAPI(**settings.fastapi_kwargs)
+
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.allowed_hosts,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
+    application.add_exception_handler(HTTPException, http_error_handler)
+    application.add_exception_handler(RequestValidationError, http422_error_handler)
 
-@app.exception_handler(HTTPError)
-async def not_found_error(request: Request, exc: HTTPError) -> JSONResponse:
-    msg = "Not found."
-    logger.info(msg, exc, request)
-    return JSONResponse(
-        status_code=exc.status_code,
-        headers={"Content-Type": "application/problem+json"},
-        content={
-            "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.4",
-            "title": "The server did not find a current representation for the target resource.",
-            "detail": exc.detail,
-            "status": exc.status_code,
-        },
-    )
+    application.include_router(api_router, prefix=settings.api_prefix)
+
+    return application
 
 
-@app.exception_handler(Exception)
-async def uncought_error(request: Request, exc: Exception) -> JSONResponse:
-    msg = "Uncought Error"
-    logger.error(msg, exc, request)
-    return JSONResponse(
-        status_code=500,
-        headers={"Content-Type": "application/problem+json"},
-        content={
-            "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
-            "title": "An error occurred while processing the request",
-            "status": 500,
-        },
-    )
-
-
-app.include_router(router)
-app.include_router(service)
+app = get_application()

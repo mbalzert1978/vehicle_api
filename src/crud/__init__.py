@@ -1,16 +1,5 @@
 """crud Module."""
-from src.crud.crud import (
-    REPOSITORY_LOCAL,
-    AbstractRepository,
-    CreateSchemaType,
-    ModelType,
-    UpdateSchemaType,
-)
+from src.crud.crud import AbstractRepository
+from src.crud.sqlalchemy_repo import SQLAlchemyRepository
 
-__all__ = [
-    "AbstractRepository",
-    "REPOSITORY_LOCAL",
-    "ModelType",
-    "CreateSchemaType",
-    "UpdateSchemaType",
-]
+__all__ = ["AbstractRepository", "SQLAlchemyRepository"]
