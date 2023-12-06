@@ -13,7 +13,7 @@ class VehicleBase(BaseModel):
 
     """Base vehicle model."""
 
-    name: str = Field(description="The name of the vehicle.", examples=["Audi"])
+name: str = Field(description="The name of the vehicle.", examples={'default': 'Audi'})
     year_of_manufacture: int = Field(
         description="The year of manufacture for the vehicle.",
         ge=2000,
