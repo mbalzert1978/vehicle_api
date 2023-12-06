@@ -24,7 +24,7 @@ async def db_error(request: Request, exc: OperationalError) -> JSONResponse:
         status_code=503,
         headers={"Content-Type": "application/problem+json"},
         content={
-            "type": "https://datatracker.ietf.org/doc/html/rfc723",
+            "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.4",
             "title": "Unable to connect to the database.",
             "detail": exc.code,
             "status": 503,
@@ -56,7 +56,7 @@ async def uncought_error(request: Request, exc: Exception) -> JSONResponse:
         status_code=500,
         headers={"Content-Type": "application/problem+json"},
         content={
-            "type": "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+            "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
             "title": "An error occurred while processing the request",
             "status": 500,
         },
