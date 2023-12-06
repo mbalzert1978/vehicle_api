@@ -1,6 +1,4 @@
 """FastAPI database status module."""
-# mypy: disable-error-code="arg-type"
-# ruff: noqa: B008
 import logging
 
 from fastapi import APIRouter, Depends
@@ -16,7 +14,7 @@ log = logging.getLogger(__name__)
 
 @router.get("/", response_model=DatabaseStatus)
 def database_status(
-    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository)),
+    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository)), # noqa: B008
 )  -> DatabaseStatus:
     """Check the database status."""
     repository.execute(stmnt="SELECT 1=1;")
