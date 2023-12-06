@@ -17,10 +17,7 @@ def test_create(session: Session):
     Then: The vehicle should be added to the database and the
         vehicle should be returned with a valid id.
     """
-    result = SQLAlchemyRepository(model.Vehicle).create(
-        session,
-        to_create=TEST_VEHICLE,
-    )
+    result = SQLAlchemyRepository(session, model.Vehicle).create(to_create=TEST_VEHICLE)
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=result.id)
 
@@ -40,7 +37,7 @@ def test_get(session: Session):
     When: Retrieving a vehicle by its ID using the Repository
     Then: The corresponding vehicle should be returned.
     """
-    result = SQLAlchemyRepository(model.Vehicle).get(session, id=1)
+    result = SQLAlchemyRepository(session, model.Vehicle).get(id=1)
 
     assert result.id is not None
     assert result.name == I30.name
@@ -56,7 +53,7 @@ def test_list(session: Session):
     When: Retrieving all vehicles using the Repository
     Then: The corresponding vehicles should be returned in a list.
     """
-    result = SQLAlchemyRepository(model.Vehicle).list(session)
+    result = SQLAlchemyRepository(session, model.Vehicle).list()
 
     assert len(result) == 2
     assert isinstance(result, list)
@@ -69,10 +66,9 @@ def test_update(session: Session):
     When: Updating a vehicle by its ID using the Repository
     Then: The corresponding vehicle should be updated.
     """
-    to_update = SQLAlchemyRepository(model.Vehicle).get(session=session, id=1)
+    to_update = SQLAlchemyRepository(session, model.Vehicle).get(id=1)
 
-    SQLAlchemyRepository(model.Vehicle).update(
-        session,
+    SQLAlchemyRepository(session, model.Vehicle).update(
         to_update=to_update,
         data=schemas.VehicleUpdate(**TEST_VEHICLE.model_dump()),
     )
@@ -94,9 +90,9 @@ def test_delete(session: Session):
     When: Deleting a vehicle by its ID using the Repository
     Then: The corresponding vehicle should be deleted.
     """
-    expected = SQLAlchemyRepository(model.Vehicle).get(session=session, id=1)
+    expected = SQLAlchemyRepository(session, model.Vehicle).get(id=1)
 
-    SQLAlchemyRepository(model.Vehicle).delete(session, id=expected.id)
+    SQLAlchemyRepository(session, model.Vehicle).delete(id=expected.id)
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
 

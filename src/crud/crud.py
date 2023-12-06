@@ -1,38 +1,19 @@
 # ruff: noqa: A003, A002
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, TypeVar, overload
+from typing import TYPE_CHECKING, Protocol, overload
 
-from pydantic import BaseModel
-
-from src.crud.sqlalchemy_repo import SQLAlchemyFetcher
-from src.model.vehicle import Base
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from src.core.session import AbstractSession
 
-ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
-
-REPOSITORY_LOCAL: AbstractRepositoryMaker = SQLAlchemyFetcher
-
-
-class AbstractRepositoryMaker(Protocol[ModelType]):
-    model: ModelType | None = None
-
-    def __call__(self, model_type: ModelType | None = None) -> AbstractRepository | type[AbstractRepository]:
-        """Fetch an repository object."""
-
-
-class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]):
+class AbstractRepository[ModelType, CreateSchemaType, UpdateSchemaType](Protocol):
     model: ModelType
     """The abstract repository protocol."""
 
     @staticmethod
-    def execute(session: AbstractSession, *, stmnt: str) -> None:
+    def execute(*, stmnt: str) -> None:
         """
         Execute a statement in the database.
 
@@ -44,7 +25,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the statement to execute.
         """
 
-    def create(self, session: AbstractSession, *, to_create: CreateSchemaType) -> ModelType:
+    def create(self, *, to_create: CreateSchemaType) -> ModelType:
         """
         Create a ModelType object in the database.
 
@@ -62,15 +43,15 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
         """
 
     @overload
-    def get(self, session: AbstractSession, *, id: int) -> ModelType:
+    def get(self, *, id: int) -> ModelType:
         ...
 
     @overload
-    def get[U](self, session: AbstractSession, *, id: int, default: U) -> ModelType | U:
+    def get[U](self, *, id: int, default: U) -> ModelType | U:
         ...
 
     @overload
-    def get[U](self, session: AbstractSession, *, id: int, default: U | None = None) -> ModelType | U:
+    def get[U](self, *, id: int, default: U | None = None) -> ModelType | U:
         """
         Get a ModelType object from the database.
 
@@ -90,7 +71,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the ModelType object or the default value.
         """
 
-    def list(self, session: AbstractSession, *, filter_by: dict | None = None) -> Sequence[ModelType]:
+    def list(self, *, filter_by: dict | None = None) -> Sequence[ModelType]:
         """
         Get a list of ModelType objects from the database.
 
@@ -109,7 +90,6 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
 
     def update(
         self,
-        session: AbstractSession,
         *,
         to_update: ModelType,
         data: UpdateSchemaType,
@@ -132,7 +112,7 @@ class AbstractRepository(Protocol[ModelType, CreateSchemaType, UpdateSchemaType]
             the updated ModelType object.
         """
 
-    def delete(self, session: AbstractSession, *, id: int) -> ModelType | None:
+    def delete(self, *, id: int) -> ModelType | None:
         """
         Delete a ModelType object from the database.
 

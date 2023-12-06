@@ -1,12 +1,11 @@
-from collections.abc import Generator
-from typing import Any
+from collections.abc import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import Engine, StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from src.core.session import SESSION_LOCAL
+from src.api.dependecies.database import get_session
 from src.crud.sqlalchemy_repo import SQLAlchemyRepository
 from src.main import app
 from src.model.sql_alchemy import mapper_registry
@@ -16,12 +15,12 @@ from tests.data import I30, Q7
 
 @pytest.fixture()
 def example_data(session: Session) -> None:
-    SQLAlchemyRepository(Vehicle).create(session, to_create=I30)  # type: ignore[arg-type]
-    SQLAlchemyRepository(Vehicle).create(session, to_create=Q7)  # type: ignore[arg-type]
+    SQLAlchemyRepository(session, Vehicle).create(to_create=I30)
+    SQLAlchemyRepository(session, Vehicle).create(to_create=Q7)
 
 
 @pytest.fixture()
-def db_engine() -> Generator[Engine, Any, None]:
+def db_engine() -> Iterator[Engine]:
     engine = create_engine(
         "sqlite:///:memory:",
         echo=True,
@@ -34,7 +33,7 @@ def db_engine() -> Generator[Engine, Any, None]:
 
 
 @pytest.fixture()
-def session(db_engine) -> Generator[Session, Any, None]:
+def session(db_engine) -> Iterator[Session]:
     Session = sessionmaker(bind=db_engine)  # noqa: N806
     session = Session()
     yield session
@@ -42,7 +41,7 @@ def session(db_engine) -> Generator[Session, Any, None]:
 
 
 @pytest.fixture()
-def client(session) -> Generator[TestClient, Any, None]:
-    app.dependency_overrides[SESSION_LOCAL] = lambda: session
+def client(session) -> Iterator[TestClient]:
+    app.dependency_overrides[get_session] = lambda: session
     with TestClient(app) as c:
         yield c

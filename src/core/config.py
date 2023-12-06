@@ -1,52 +1,21 @@
 """Configuration file for the project."""
-from pydantic import PostgresDsn, ValidationInfo, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings(BaseSettings):
+import functools
 
-    """Project settings."""
+from src.core.settings.app import AppSettings
+from src.core.settings.base import AppEnvTypes, BaseAppSettings
+from src.core.settings.development import DevAppSettings
+from src.core.settings.production import ProdAppSettings
 
-    API_VERSION: str = "v1"
-    PROJECT_NAME: str
-    POSTGRES_SERVER: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DATABASE: str
-    POSTGRES_PORT: int | None = None
-    ECHO: bool = False
-    DATABASE_URI: str | None = None
-
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
-
-    @field_validator("DATABASE_URI", mode="before")
-    @classmethod
-    def assemble_db_connection(cls, v: str, info: ValidationInfo) -> str:
-        """
-        Assemble the database connection URI.
-
-        Args:
-        ----
-        v: The input value of the DATABASE_URI field.
-        values: A dictionary with the remaining configuration field values.
-
-        Returns:
-        -------
-        The assembled database connection URI as a string.
-
-        """
-        if isinstance(v, str):
-            return v
-        return str(
-            PostgresDsn.build(
-                scheme="postgresql",
-                username=info.data.get("POSTGRES_USER"),
-                password=info.data.get("POSTGRES_PASSWORD"),
-                host=info.data.get("POSTGRES_SERVER"),
-                port=info.data.get("POSTGRES_PORT") or 5432,
-                path=info.data.get("POSTGRES_DATABASE", "test"),
-            ),
-        )
+environments: dict[AppEnvTypes, type[AppSettings]] = {
+    AppEnvTypes.dev: DevAppSettings,
+    AppEnvTypes.prod: ProdAppSettings,
+}
 
 
-settings = Settings()  # type: ignore[call-arg]
+@functools.lru_cache
+def get_app_settings() -> AppSettings:
+    app_env = BaseAppSettings().app_env
+    config = environments[app_env]
+    return config()

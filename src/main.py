@@ -7,13 +7,13 @@ from sqlalchemy.exc import OperationalError
 
 from src.api.v1.endpoints.service_health import service
 from src.api.v1.endpoints.vehicle import router
-from src.core.config import settings
+from src.core.config import get_app_settings
 from src.core.error import HTTPError
 
 logger = logging.getLogger(__name__)
 
-
-app = FastAPI(title=settings.PROJECT_NAME, openapi_url=f"/api/{settings.API_VERSION}/openapi.json")
+settings = get_app_settings()
+app = FastAPI(**settings.fastapi_kwargs)
 
 
 @app.exception_handler(OperationalError)

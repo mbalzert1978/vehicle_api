@@ -2,12 +2,11 @@
 # mypy: disable-error-code="arg-type"
 # ruff: noqa: B008
 import logging
-from typing import Literal, cast
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 
-from src.core.session import SESSION_LOCAL, AbstractSession
-from src.crud import REPOSITORY_LOCAL, AbstractRepository
+from src import crud
+from src.api.dependecies.database import get_repository
 
 service = APIRouter(prefix="/service", tags=["service"])
 
@@ -16,11 +15,8 @@ log = logging.getLogger(__name__)
 
 @service.get("/")
 def database_status(
-    *,
-    session: AbstractSession = Depends(SESSION_LOCAL),
-    repository: AbstractRepository = Depends(REPOSITORY_LOCAL()),
-) -> Literal[200]:
+    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository)),
+) -> dict[str, str]:
     """Check the database status."""
-    with session as db:
-        repository.execute(db, stmnt="SELECT 1=1;")
-        return cast(Literal[200], status.HTTP_200_OK)
+    repository.execute(stmnt="SELECT 1=1;")
+    return {"status": "Ok"}
