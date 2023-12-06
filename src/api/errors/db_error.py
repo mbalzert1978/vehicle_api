@@ -3,7 +3,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 
-async def db_error(_: Request, exc: OperationalError) -> JSONResponse:
+async def db_handler(_: Request, exc: OperationalError) -> JSONResponse:
     return JSONResponse(
         status_code=503,
         headers={"Content-Type": "application/problem+json"},

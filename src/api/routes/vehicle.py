@@ -10,6 +10,7 @@ from src import crud
 from src.api.dependecies.database import get_repository
 from src.model.vehicle import Vehicle
 from src.schemas import vehicle as schemas
+from src.schemas.data_response import DataResponse
 from src.service import services
 
 router = APIRouter()
@@ -20,7 +21,7 @@ UNCAUGHT = "Uncaught exception"
 FILTER_ON = "filter by {criterion}, optional."
 
 
-@router.get("/", response_model=list[schemas.Vehicle])
+@router.get("/", response_model=DataResponse[schemas.Vehicle])
 def list_vehicle(
     *,
     repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository, Vehicle)),
@@ -44,7 +45,7 @@ def list_vehicle(
         description=FILTER_ON.format(criterion="ready to drive"),
         examples=[True],
     ),
-) -> list[schemas.Vehicle]:
+) -> DataResponse[Vehicle]:
     """
     List all vehicles.
 
@@ -59,7 +60,7 @@ def list_vehicle(
             "ready_to_drive": ready_to_drive,
         },
     )
-    return [schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles]
+    return DataResponse(data=[schemas.Vehicle.model_validate(vehicle) for vehicle in vehicles])
 
 
 @router.post("/", response_model=schemas.Vehicle)
@@ -114,7 +115,7 @@ def get_vehicle(
     ----
     id: The ID of the vehicle to retrieve.
     """
-    return schemas.Vehicle.model_validate(services.get(repository, id, Vehicle()))
+    return schemas.Vehicle.model_validate(services.get(repository, id))
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

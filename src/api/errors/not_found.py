@@ -4,7 +4,7 @@ from starlette.responses import JSONResponse
 from src.core.error import HTTPError
 
 
-async def not_found_error(_: Request, exc: HTTPError) -> JSONResponse:
+async def not_found_handler(_: Request, exc: HTTPError) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
         headers={"Content-Type": "application/problem+json"},
