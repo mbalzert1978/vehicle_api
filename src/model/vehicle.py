@@ -1,12 +1,7 @@
 """Model."""
 
-import datetime
-
-from .base import Base
-
-
-def _get_current_year() -> int:
-    return datetime.datetime.now(tz=datetime.timezone.utc).date().year
+from src.model.base import Base
+from src.utils.utils import utc_now
 
 
 class Vehicle(Base):
@@ -21,7 +16,7 @@ class Vehicle(Base):
         ready_to_drive: bool = False,
     ) -> None:
         self.name = name
-        self.year_of_manufacture = year_of_manufacture or _get_current_year()
+        self.year_of_manufacture = year_of_manufacture or utc_now().year
         self.body = body or {}
         self.ready_to_drive = ready_to_drive
 

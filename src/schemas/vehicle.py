@@ -1,18 +1,16 @@
 """Pydantic models."""
 
-import datetime
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
+
+from src.utils.utils import utc_now
 
 DESCIPTION_NAME = "The name of the vehicle."
 DESCRIPTION_YOM = "The year of manufacture for the vehicle."
 DESCRIPTION_RTD = "Whether the vehicle is ready to drive."
 DESCRIPTION_BODY = "Additional information about the vehicle in the form of a dictionary."
-
-
-def _get_year_now() -> int:
-    return datetime.datetime.now(tz=datetime.UTC).year
+NOW_YEAR = utc_now().year
 
 
 class VehicleBase(BaseModel):
@@ -22,9 +20,9 @@ class VehicleBase(BaseModel):
     year_of_manufacture: int = Field(
         description=DESCRIPTION_YOM,
         ge=2000,
-        le=_get_year_now(),
+        le=NOW_YEAR,
         examples=[1999],
-        default=_get_year_now(),
+        default=NOW_YEAR,
     )
     ready_to_drive: bool = Field(description=DESCRIPTION_RTD, default=False)
 
@@ -59,7 +57,7 @@ class VehicleUpdate(BaseModel):
     year_of_manufacture: int | None = Field(
         description=DESCRIPTION_YOM,
         ge=1980,
-        le=_get_year_now(),
+        le=NOW_YEAR,
         examples=[1999],
         default=None,
     )
