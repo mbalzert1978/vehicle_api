@@ -16,20 +16,17 @@ psycopg2-binary = "^2.9.9"
 httpx = "^0.25.0"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.0.262"
+ruff = "^0.3.5"
 mypy = "^1.2.0"
 pre-commit = "^3.2.2"
 pytest = "^7.3.2"
 pdoc3 = "^0.10.0"
 coverage = "^7.3.1"
-black = "^23.10.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-line-length = 119
 
 [tool.yapf]
 based_on_style = "pep8"
@@ -41,7 +38,45 @@ SPLIT_BEFORE_DOT = true
 allow_split_before_dict_value = false
 
 [tool.ruff]
+indent-width = 4
 line-length = 119
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+[tool.ruff.format]
+
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
 select = [
     "A",
     "B",
@@ -55,7 +90,6 @@ select = [
     "ANN",
     "ARG",
     "BLE",
-    "COM",
     "DJ",
     "DTZ",
     "EM",
@@ -64,7 +98,6 @@ select = [
     "FBT",
     "ICN",
     "INP",
-    "ISC",
     "NPY",
     "PD",
     "PGH",
@@ -84,4 +117,7 @@ select = [
     "UP",
     "YTT",
 ]
-ignore = ["ANN001", "ANN101", "ANN102", "D211", "D212", "D107", "Q000"]
+ignore = ["A001","A002", "ANN001", "ANN101", "ANN102", "D211", "D212", "D107", "Q000"]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
