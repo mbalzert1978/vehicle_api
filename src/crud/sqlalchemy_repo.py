@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import select, text
 
@@ -82,7 +81,7 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         The created model instance.
 
         """
-        serialized_data = jsonable_encoder(to_create)
+        serialized_data = to_create.model_dump()
         obj = self._model_type(**serialized_data)
         with self._sess as session:
             return self.write_to_database(session, obj)
@@ -120,7 +119,7 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         The updated model instance.
 
         """
-        serialized_data = jsonable_encoder(to_update)
+        serialized_data = to_update.model_dump()
         update_data = self.extract_data(data)
         self.update_fields(to_update, serialized_data, update_data)
         with self._sess as session:

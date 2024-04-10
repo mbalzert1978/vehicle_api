@@ -20,7 +20,7 @@ def test_create_vehicle(session: Session) -> None:
     session.commit()
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)
-    result = schemas.Vehicle.model_validate(session.execute(sql).one())
+    result = schemas.VehicleFromDatabase.model_validate(session.execute(sql).one())
 
     assert result.name == expected.name
     assert result.year_of_manufacture == expected.year_of_manufacture
