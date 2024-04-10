@@ -1,5 +1,7 @@
 """Model."""
 
+from fastapi.encoders import jsonable_encoder
+
 from src.model.base import Base
 from src.utils.utils import utc_now
 
@@ -20,9 +22,9 @@ class Vehicle(Base):
         self.body = body or {}
         self.ready_to_drive = ready_to_drive
 
-    def dump(self) -> dict:
+    def model_dump(self) -> dict:
         """Dump Vehicle Model."""
-        return self.__dict__
+        return jsonable_encoder(self, exclude_unset=True)
 
     def __repr__(self) -> str:
         return (
