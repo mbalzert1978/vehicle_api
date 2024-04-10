@@ -17,9 +17,9 @@ def test_create(session: Session):
     Then: The vehicle should be added to the database and the
         vehicle should be returned with a valid id.
     """
-    result = SQLAlchemyRepository(session, model.Vehicle).create(to_create=TEST_VEHICLE)
+    id = SQLAlchemyRepository(session, model.Vehicle).create(to_create=TEST_VEHICLE)
 
-    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=result.id)
+    sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=id)
 
     result = schemas.VehicleFromDatabase.model_validate(session.execute(sql).one())
 

@@ -68,7 +68,7 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         with self._sess as session:
             return session.execute(stmt).scalars().all()
 
-    def create[CreateSchemaType: BaseModel](self, *, to_create: CreateSchemaType) -> ModelType:
+    def create[CreateSchemaType: BaseModel](self, *, to_create: CreateSchemaType) -> int:
         """
         Create a new model instance.
 
@@ -84,7 +84,8 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         serialized_data = to_create.model_dump()
         obj = self._model_type(**serialized_data)
         with self._sess as session:
-            return self.write_to_database(session, obj)
+            result: ModelType = self.write_to_database(session, obj)
+            return result.id
 
     @staticmethod
     def write_to_database(session: Session, to_create: ModelType) -> ModelType:
@@ -105,7 +106,7 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         session.refresh(to_create)
         return to_create
 
-    def update[UpdateSchemaType: BaseModel](self, *, to_update: ModelType, data: UpdateSchemaType) -> ModelType:
+    def update[UpdateSchemaType: BaseModel](self, *, to_update: ModelType, data: UpdateSchemaType) -> None:
         """
         Update a model instance with new data.
 
@@ -123,7 +124,7 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         update_data = self.extract_data(data)
         self.update_fields(to_update, serialized_data, update_data)
         with self._sess as session:
-            return self.write_to_database(session, to_update)
+            _ = self.write_to_database(session, to_update)
 
     @staticmethod
     def extract_data[UpdateSchemaType: BaseModel](update_with: UpdateSchemaType | dict) -> dict:

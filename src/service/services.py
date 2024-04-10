@@ -6,7 +6,7 @@ from src.crud import AbstractRepository
 UNPROCESSABLE = "unprocessable value, not a"
 
 
-def create[ModelType, CreateSchemaType](repository: AbstractRepository, to_create: CreateSchemaType) -> ModelType:
+def create[CreateSchemaType](repository: AbstractRepository, to_create: CreateSchemaType) -> int:
     """
     Create a new vehicle.
 
@@ -18,7 +18,7 @@ def create[ModelType, CreateSchemaType](repository: AbstractRepository, to_creat
 
     Returns:
     -------
-    A object representing the created vehicle.
+    The id of the new created vehicle.
 
     Raises:
     ------
@@ -74,10 +74,7 @@ def _remove_none_values(dictionary: dict) -> dict:
     return {k: v for k, v in dictionary.items() if v is not None}
 
 
-def update[
-    ModelType,
-    UpdateSchemaType,
-](repository: AbstractRepository, id: int, update_with: UpdateSchemaType) -> ModelType:
+def update[UpdateSchemaType](repository: AbstractRepository, id: int, update_with: UpdateSchemaType) -> None:
     """
     Update a vehicle by ID.
 

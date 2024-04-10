@@ -17,6 +17,7 @@ class Vehicle(Base):
         *,
         ready_to_drive: bool = False,
     ) -> None:
+        self._id: int | None = None
         self.name = name
         self.year_of_manufacture = year_of_manufacture or utc_now().year
         self.body = body or {}
