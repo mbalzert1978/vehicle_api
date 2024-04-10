@@ -1,4 +1,5 @@
 """Vehicle api main module."""
+
 import logging
 
 from fastapi import FastAPI, HTTPException

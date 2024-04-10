@@ -3,7 +3,6 @@ import json
 
 
 class Base(abc.ABC):
-
     """Base Model."""
 
     @abc.abstractmethod

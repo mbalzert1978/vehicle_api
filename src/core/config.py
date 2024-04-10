@@ -1,6 +1,5 @@
 """Configuration file for the project."""
 
-
 import functools
 
 from src.core.settings.app import AppSettings

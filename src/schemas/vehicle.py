@@ -1,4 +1,5 @@
 """Pydantic models."""
+
 import datetime
 import json
 
@@ -15,7 +16,6 @@ def _get_year_now() -> int:
 
 
 class VehicleBase(BaseModel):
-
     """Base vehicle model."""
 
     name: str = Field(description=DESCIPTION_NAME, examples=["Audi"])
@@ -30,7 +30,6 @@ class VehicleBase(BaseModel):
 
 
 class VehicleCreate(VehicleBase):
-
     """Vehicle create model."""
 
     body: dict = Field(description=DESCRIPTION_BODY, default_factory=dict, examples=[dict(color="black")])
@@ -54,7 +53,6 @@ class VehicleCreate(VehicleBase):
 
 
 class VehicleUpdate(BaseModel):
-
     """Vehicle update model."""
 
     name: str | None = Field(description=DESCIPTION_NAME, examples=["Audi"], default=None)
@@ -70,18 +68,15 @@ class VehicleUpdate(BaseModel):
 
 
 class VehicleInDBBase(VehicleCreate):
-
     """Vehicle in DB model."""
 
-    id: int | None = None  # noqa: A003
+    id: int | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
 class Vehicle(VehicleInDBBase):
-
     """Vehicle model."""
 
 
 class VehicleInDB(VehicleInDBBase):
-
     """Vehicle in DB model."""

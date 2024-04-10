@@ -1,4 +1,5 @@
 """Error Modules."""
+
 from .db_error import db_handler
 from .http_error import http_error_handler
 from .not_found import not_found_handler

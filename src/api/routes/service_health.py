@@ -1,5 +1,7 @@
 """FastAPI database status module."""
+
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
@@ -14,7 +16,7 @@ log = logging.getLogger(__name__)
 
 @router.get("/", response_model=DatabaseStatus)
 def database_status(
-    repository: crud.AbstractRepository = Depends(get_repository(crud.SQLAlchemyRepository)),  # noqa: B008
+    repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository))],
 ) -> DatabaseStatus:
     """Check the database status."""
     repository.execute(stmnt="SELECT 1=1;")

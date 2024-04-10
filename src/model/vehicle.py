@@ -10,7 +10,6 @@ def _get_current_year() -> int:
 
 
 class Vehicle(Base):
-
     """Vehicle Model."""
 
     def __init__(

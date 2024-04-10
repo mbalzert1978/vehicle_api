@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Protocol, overload
 
 from pydantic import BaseModel
 
-
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
@@ -40,12 +39,10 @@ class AbstractRepository[ModelType](Protocol):
         """
 
     @overload
-    def get(self, *, id: int) -> ModelType:
-        ...
+    def get(self, *, id: int) -> ModelType: ...
 
     @overload
-    def get[U](self, *, id: int, default: U) -> ModelType | U:
-        ...
+    def get[U](self, *, id: int, default: U) -> ModelType | U: ...
 
     @overload
     def get[U](self, *, id: int, default: U | None = None) -> ModelType | U:

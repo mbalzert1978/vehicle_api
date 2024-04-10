@@ -1,4 +1,5 @@
 """Services module."""
+
 from src.core.error import HTTPError
 from src.crud import AbstractRepository
 

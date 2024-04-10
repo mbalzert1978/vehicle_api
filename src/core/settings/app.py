@@ -23,7 +23,7 @@ class AppSettings(BaseAppSettings):
 
     api_prefix: str = "/api"
 
-    allowed_hosts: list[str] = ["*"]
+    allowed_hosts: typing.ClassVar[list[str]] = ["*"]
 
     logging_level: int = logging.INFO
     loggers: tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")

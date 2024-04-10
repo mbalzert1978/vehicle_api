@@ -1,4 +1,5 @@
 """Repository for CRUD operations on a model."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -6,13 +7,15 @@ from typing import TYPE_CHECKING
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import select, text
-from sqlalchemy.orm import Session
 
 from src.model.base import Base
+
 from .base import BaseRepository
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from sqlalchemy.orm import Session
 
 
 class SQLAlchemyRepository[ModelType: Base](BaseRepository):
