@@ -62,12 +62,12 @@ def list_vehicle(
     return ListResponse(data=[schemas.VehicleFromDatabase.model_validate(vehicle) for vehicle in vehicles])
 
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def create_vehicle(
     *,
     repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository, Vehicle))],
     to_create: schemas.VehicleForCreate,
-) -> Response[schemas.VehicleFromDatabase]:
+) -> Response[int]:
     r"""
     Create a new vehicle.
 
@@ -80,16 +80,16 @@ def create_vehicle(
     ready_to_drive: A boolean flag indicating whether the vehicle is ready to drive.
     Defaults to False.
     """
-    return Response(schemas.VehicleFromDatabase.model_validate(services.create(repository, to_create=to_create)))
+    return Response(services.create(repository, to_create))
 
 
-@router.put("/{id}")
+@router.put("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def update_vehicle(
     *,
     repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository, Vehicle))],
     id: int,
     update_with: schemas.VehicleForUpdate,
-) -> Response[schemas.VehicleFromDatabase]:
+) -> None:
     r"""
     Update a vehicle.
 
@@ -98,7 +98,7 @@ def update_vehicle(
     id: The ID of the vehicle to update.\
     update_with: An instance of `schemas.VehicleUpdate` with updated information.
     """
-    return Response(schemas.VehicleFromDatabase.model_validate(services.update(repository, id, update_with)))
+    services.update(repository, id, update_with)
 
 
 @router.get("/{id}")

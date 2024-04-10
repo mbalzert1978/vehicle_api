@@ -23,7 +23,7 @@ class AbstractRepository[ModelType](Protocol):
             the statement to execute.
         """
 
-    def create[CreateSchemaType: BaseModel](self, *, to_create: CreateSchemaType) -> ModelType:
+    def create[CreateSchemaType: BaseModel](self, *, to_create: CreateSchemaType) -> int:
         """
         Create a ModelType object in the database.
 
@@ -34,8 +34,7 @@ class AbstractRepository[ModelType](Protocol):
 
         Returns
         -------
-        ModelType
-            the ModelType object.
+        the id of the created ModelType object.
         """
 
     @overload
@@ -78,7 +77,7 @@ class AbstractRepository[ModelType](Protocol):
             the list of ModelType objects.
         """
 
-    def update[UpdateSchemaType: BaseModel](self, *, to_update: ModelType, data: UpdateSchemaType) -> ModelType:
+    def update[UpdateSchemaType: BaseModel](self, *, to_update: ModelType, data: UpdateSchemaType) -> None:
         """
         Update a ModelType object in the database.
 
@@ -88,11 +87,6 @@ class AbstractRepository[ModelType](Protocol):
             the ModelType object to update.
         data : UpdateSchemaType
             the data to update the ModelType object.
-
-        Returns
-        -------
-        ModelType
-            the updated ModelType object.
         """
 
     def delete(self, *, id: int) -> ModelType | None:
