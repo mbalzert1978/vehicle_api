@@ -3,7 +3,6 @@
 # mypy: disable-error-code="arg-type"
 # ruff: noqa: B008
 import datetime
-import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
@@ -17,7 +16,6 @@ from src.service import services
 
 router = APIRouter()
 
-log = logging.getLogger(__name__)
 
 UNCAUGHT = "Uncaught exception"
 FILTER_ON = "filter by {criterion}, optional."
@@ -44,13 +42,12 @@ def list_vehicle(
         description=FILTER_ON.format(criterion="ready to drive"),
         examples=[True],
     ),
-) -> ListResponse[list[schemas.VehicleFromDatabase]]:
+) -> ListResponse[schemas.VehicleFromDatabase]:
     """
     List all vehicles.
 
     Filters can be applied to refine results based on name, manufacturing year, and readiness for driving.
     """
-
     vehicles: list[Vehicle] = services.list(
         repository,
         filter_by={
