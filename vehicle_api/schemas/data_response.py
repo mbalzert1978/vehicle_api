@@ -1,11 +1,14 @@
 import dataclasses
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
 
 
 @dataclasses.dataclass
-class ListResponse[T]:
+class ListResponse(Generic[T]):
     data: list[T]
 
 
 @dataclasses.dataclass
-class Response[T]:
+class Response(Generic[T]):
     data: T
