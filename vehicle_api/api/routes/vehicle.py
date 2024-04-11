@@ -1,9 +1,7 @@
 """FastAPI vehicles module."""
 
-# mypy: disable-error-code="arg-type"
-# ruff: noqa: B008
 import datetime
-from typing import Annotated
+from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, Query, status
 
@@ -17,38 +15,43 @@ from vehicle_api.service import services
 router = APIRouter()
 
 
-UNCAUGHT = "Uncaught exception"
-FILTER_ON = "filter by {criterion}, optional."
+FILTER_ON = "filter by %(criterion)s, optional."
 
 
 @router.get("/")
 def list_vehicle(
     *,
     repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository, Vehicle))],
-    name: str | None = Query(
-        default=None,
-        description=FILTER_ON.format(criterion="vehicle name"),
-        examples=["Audi"],
-    ),
-    year_of_manufacture: int | None = Query(
-        default=None,
-        ge=2000,
-        le=datetime.datetime.now(tz=datetime.UTC).date().year,
-        examples=[2020],
-        description=FILTER_ON.format(criterion="year of manufacture"),
-    ),
-    ready_to_drive: bool | None = Query(
-        default=None,
-        description=FILTER_ON.format(criterion="ready to drive"),
-        examples=[True],
-    ),
+    name: Annotated[
+        str | None,
+        Query(
+            description=FILTER_ON % dict(criterion="vehicle name"),
+            examples=["Audi"],
+        ),
+    ] = None,
+    year_of_manufacture: Annotated[
+        int | None,
+        Query(
+            ge=2000,
+            le=datetime.datetime.now(tz=datetime.UTC).date().year,
+            examples=[2020],
+            description=FILTER_ON % dict(criterion="year of manufacture"),
+        ),
+    ] = None,
+    ready_to_drive: Annotated[
+        bool | None,
+        Query(
+            description=FILTER_ON % dict(criterion="ready to drive"),
+            examples=[True],
+        ),
+    ] = None,
 ) -> ListResponse[schemas.VehicleFromDatabase]:
     """
     List all vehicles.
 
     Filters can be applied to refine results based on name, manufacturing year, and readiness for driving.
     """
-    vehicles: list[Vehicle] = services.list(
+    vehicles: Sequence[Vehicle] = services.list(
         repository,
         filter_by={
             "name": name,

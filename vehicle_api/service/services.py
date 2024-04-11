@@ -1,12 +1,15 @@
 """Services module."""
 
+from typing import Sequence
+
 from vehicle_api.core.error import HTTPError
 from vehicle_api.crud import AbstractRepository
+from vehicle_api.crud.vars import CreateSchemaType, ModelType, U, UpdateSchemaType
 
 UNPROCESSABLE = "unprocessable value, not a"
 
 
-def create[CreateSchemaType](repository: AbstractRepository, to_create: CreateSchemaType) -> int:
+def create(repository: AbstractRepository, to_create: CreateSchemaType) -> int:
     """
     Create a new vehicle.
 
@@ -27,7 +30,7 @@ def create[CreateSchemaType](repository: AbstractRepository, to_create: CreateSc
     return repository.create(to_create=to_create)
 
 
-def get[ModelType, U](repository: AbstractRepository, id: int, default: U | None = None) -> ModelType | U:
+def get(repository: AbstractRepository, id: int, default: U | None = None) -> ModelType | U:
     """
     Get a vehicle.
 
@@ -51,7 +54,7 @@ def get[ModelType, U](repository: AbstractRepository, id: int, default: U | None
     raise HTTPError(status_code=404, detail="Vehicle not found.")
 
 
-def list[ModelType](repository: AbstractRepository, filter_by: dict | None = None) -> list[ModelType]:
+def list(repository: AbstractRepository, filter_by: dict | None = None) -> Sequence[ModelType]:
     """
     List all vehicles.
 
@@ -65,7 +68,7 @@ def list[ModelType](repository: AbstractRepository, filter_by: dict | None = Non
 
     Returns:
     -------
-    returns: A list of `Vehicle` objects.
+    returns: A sequence of `Vehicle` objects.
     """
     return repository.list(filter_by=_remove_none_values(filter_by or {}))
 
@@ -74,7 +77,7 @@ def _remove_none_values(dictionary: dict) -> dict:
     return {k: v for k, v in dictionary.items() if v is not None}
 
 
-def update[UpdateSchemaType](repository: AbstractRepository, id: int, update_with: UpdateSchemaType) -> None:
+def update(repository: AbstractRepository, id: int, update_with: UpdateSchemaType) -> None:
     """
     Update a vehicle by ID.
 

@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
-from pydantic import BaseModel
 from sqlalchemy import select, text
-
-from vehicle_api.model.base import Base
 
 from .base import BaseRepository
 
@@ -16,8 +13,10 @@ if TYPE_CHECKING:
 
     from sqlalchemy.orm import Session
 
+    from .vars import CreateSchemaType, ModelType, U, UpdateSchemaType
 
-class SQLAlchemyRepository[ModelType: Base](BaseRepository):
+
+class SQLAlchemyRepository(BaseRepository):
     """Repository for CRUD operations on a model with SQLAlchemy ORM."""
 
     def execute(self, *, stmnt: str) -> None:
@@ -32,7 +31,7 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         with self._sess as session:
             session.execute(text(stmnt))
 
-    def get[U](self, *, id: int, default: U | None = None) -> ModelType | U:
+    def get(self, *, id: int, default: U | None = None) -> ModelType | U | None:
         """
         Retrieve a model instance by its ID.
 
@@ -68,7 +67,7 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         with self._sess as session:
             return session.execute(stmt).scalars().all()
 
-    def create[CreateSchemaType: BaseModel](self, *, to_create: CreateSchemaType) -> int:
+    def create(self, *, to_create: CreateSchemaType) -> int:
         """
         Create a new model instance.
 
@@ -84,11 +83,10 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         serialized_data = to_create.model_dump()
         obj = self._model_type(**serialized_data)
         with self._sess as session:
-            result: ModelType = self.write_to_database(session, obj)
-            return result.id
+            return self.write_to_database(session, obj)
 
     @staticmethod
-    def write_to_database(session: Session, to_create: ModelType) -> ModelType:
+    def write_to_database(session: Session, to_create: ModelType) -> int:
         """
         Write a model instance to the database.
 
@@ -104,9 +102,9 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
         session.add(to_create)
         session.commit()
         session.refresh(to_create)
-        return to_create
+        return cast(int, to_create.id)
 
-    def update[UpdateSchemaType: BaseModel](self, *, to_update: ModelType, data: UpdateSchemaType) -> None:
+    def update(self, *, to_update: ModelType, data: UpdateSchemaType) -> None:
         """
         Update a model instance with new data.
 
@@ -127,7 +125,7 @@ class SQLAlchemyRepository[ModelType: Base](BaseRepository):
             _ = self.write_to_database(session, to_update)
 
     @staticmethod
-    def extract_data[UpdateSchemaType: BaseModel](update_with: UpdateSchemaType | dict) -> dict:
+    def extract_data(update_with: UpdateSchemaType | dict) -> dict:
         """
         Extract the update data from the given object.
 

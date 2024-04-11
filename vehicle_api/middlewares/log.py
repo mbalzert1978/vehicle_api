@@ -1,8 +1,9 @@
-import http
 import typing
 
 from fastapi import Request, Response
 from loguru import logger
+
+from vehicle_api.utils.utils import is_client_error, is_server_error, is_success
 
 
 async def logging_middleware(
@@ -13,12 +14,11 @@ async def logging_middleware(
     logger.info(f"[{client}]::{request.method}::{request.url.path}")
     response = await call_next(request)
 
-    status = http.HTTPStatus(int(response.status_code))
-    if status.is_success:
+    if is_success(response.status_code):
         logger.info(f"[{client}]::{request.method}::{request.url.path}::SUCCESS")
-    elif status.is_client_error:
+    elif is_client_error(response.status_code):
         logger.error(f"[{client}]::{request.method}::{request.url.path}::CLIENT_ERROR")
-    elif status.is_server_error:
+    elif is_server_error(response.status_code):
         logger.critical(f"[{client}]::{request.method}::{request.url.path}::SERVER_ERROR")
 
     return response

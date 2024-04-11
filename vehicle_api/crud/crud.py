@@ -3,13 +3,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, overload
 
-from pydantic import BaseModel
+from .vars import CreateSchemaType, ModelType, U, UpdateSchemaType
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-class AbstractRepository[ModelType](Protocol):
+class AbstractRepository(Protocol[ModelType]):
     _model_type: ModelType
     """The abstract repository protocol."""
 
@@ -23,7 +23,7 @@ class AbstractRepository[ModelType](Protocol):
             the statement to execute.
         """
 
-    def create[CreateSchemaType: BaseModel](self, *, to_create: CreateSchemaType) -> int:
+    def create(self, *, to_create: CreateSchemaType) -> int:
         """
         Create a ModelType object in the database.
 
@@ -41,10 +41,10 @@ class AbstractRepository[ModelType](Protocol):
     def get(self, *, id: int) -> ModelType: ...
 
     @overload
-    def get[U](self, *, id: int, default: U) -> ModelType | U: ...
+    def get(self, *, id: int, default: U) -> ModelType | U: ...
 
     @overload
-    def get[U](self, *, id: int, default: U | None = None) -> ModelType | U:
+    def get(self, *, id: int, default: U | None = None) -> ModelType | U:
         """
         Get a ModelType object from the database.
 
@@ -77,7 +77,7 @@ class AbstractRepository[ModelType](Protocol):
             the list of ModelType objects.
         """
 
-    def update[UpdateSchemaType: BaseModel](self, *, to_update: ModelType, data: UpdateSchemaType) -> None:
+    def update(self, *, to_update: ModelType, data: UpdateSchemaType) -> None:
         """
         Update a ModelType object in the database.
 
