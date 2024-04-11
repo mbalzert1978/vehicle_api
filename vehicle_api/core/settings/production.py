@@ -1,6 +1,6 @@
 from pydantic_settings import SettingsConfigDict
 
-from src.core.settings.app import AppSettings
+from vehicle_api.core.settings.app import AppSettings
 
 
 class ProdAppSettings(AppSettings):

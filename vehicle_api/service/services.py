@@ -1,7 +1,7 @@
 """Services module."""
 
-from src.core.error import HTTPError
-from src.crud import AbstractRepository
+from vehicle_api.core.error import HTTPError
+from vehicle_api.crud import AbstractRepository
 
 UNPROCESSABLE = "unprocessable value, not a"
 

@@ -1,9 +1,9 @@
 import pytest
 
-from src.core.error import HTTPError
-from src.crud import AbstractRepository
-from src.service import services
 from tests.stubs import Stub
+from vehicle_api.core.error import HTTPError
+from vehicle_api.crud import AbstractRepository
+from vehicle_api.service import services
 
 
 def test_service_create():

@@ -4,7 +4,7 @@ import functools
 
 from pydantic import BaseModel, ConfigDict, Field, Json
 
-from src.utils.utils import utc_now
+from vehicle_api.utils.utils import utc_now
 
 DESCRIPTION_NAME = "The name of the vehicle."
 DESCRIPTION_YOM = "The year of manufacture for the vehicle."

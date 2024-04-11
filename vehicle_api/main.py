@@ -11,19 +11,19 @@ from sqlalchemy.exc import OperationalError
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
-from src.api.errors import (
+from vehicle_api.api.errors import (
     db_handler,
     http422_error_handler,
     http_error_handler,
     not_found_handler,
     uncought_handler,
 )
-from src.api.routes.api import router as api_router
-from src.core.config import get_app_settings
-from src.core.error import HTTPError
-from src.core.logging import configure_logging
-from src.middlewares.log import logging_middleware
-from src.middlewares.time import add_process_time_header
+from vehicle_api.api.routes.api import router as api_router
+from vehicle_api.core.config import get_app_settings
+from vehicle_api.core.error import HTTPError
+from vehicle_api.core.logging import configure_logging
+from vehicle_api.middlewares.log import logging_middleware
+from vehicle_api.middlewares.time import add_process_time_header
 
 logger = logging.getLogger(__name__)
 

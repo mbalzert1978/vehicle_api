@@ -2,10 +2,10 @@
 
 import functools
 
-from src.core.settings.app import AppSettings
-from src.core.settings.base import AppEnvTypes, BaseAppSettings
-from src.core.settings.development import DevAppSettings
-from src.core.settings.production import ProdAppSettings
+from vehicle_api.core.settings.app import AppSettings
+from vehicle_api.core.settings.base import AppEnvTypes, BaseAppSettings
+from vehicle_api.core.settings.development import DevAppSettings
+from vehicle_api.core.settings.production import ProdAppSettings
 
 environments: dict[AppEnvTypes, type[AppSettings]] = {
     AppEnvTypes.dev: DevAppSettings,

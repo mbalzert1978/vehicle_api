@@ -2,8 +2,8 @@
 
 from fastapi.encoders import jsonable_encoder
 
-from src.model.base import Base
-from src.utils.utils import utc_now
+from vehicle_api.model.base import Base
+from vehicle_api.utils.utils import utc_now
 
 
 class Vehicle(Base):

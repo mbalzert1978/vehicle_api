@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from pydantic import BaseModel
 from sqlalchemy import select, text
 
-from src.model.base import Base
+from vehicle_api.model.base import Base
 
 from .base import BaseRepository
 

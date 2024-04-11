@@ -4,7 +4,7 @@ import typing
 from pydantic import PostgresDsn
 from pydantic_settings import SettingsConfigDict
 
-from src.core.settings.base import BaseAppSettings
+from vehicle_api.core.settings.base import BaseAppSettings
 
 
 class AppSettings(BaseAppSettings):

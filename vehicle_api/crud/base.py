@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from src.model.base import Base
+from vehicle_api.model.base import Base
 
 
 class BaseRepository[ModelType: Base]:

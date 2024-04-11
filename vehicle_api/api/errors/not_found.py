@@ -1,7 +1,7 @@
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from src.core.error import HTTPError
+from vehicle_api.core.error import HTTPError
 
 
 async def not_found_handler(_: Request, exc: HTTPError) -> JSONResponse:

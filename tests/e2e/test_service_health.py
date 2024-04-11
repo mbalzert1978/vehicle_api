@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from src.schemas.status import DatabaseStatus
+from vehicle_api.schemas.status import DatabaseStatus
 
 
 def test_service_health_happy_path(client: TestClient):

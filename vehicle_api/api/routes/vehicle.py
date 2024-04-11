@@ -7,12 +7,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-from src import crud
-from src.api.dependecies.database import get_repository
-from src.model.vehicle import Vehicle
-from src.schemas import vehicle as schemas
-from src.schemas.data_response import ListResponse, Response
-from src.service import services
+from vehicle_api import crud
+from vehicle_api.api.dependecies.database import get_repository
+from vehicle_api.model.vehicle import Vehicle
+from vehicle_api.schemas import vehicle as schemas
+from vehicle_api.schemas.data_response import ListResponse, Response
+from vehicle_api.service import services
 
 router = APIRouter()
 
