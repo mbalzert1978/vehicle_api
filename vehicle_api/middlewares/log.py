@@ -9,7 +9,7 @@ async def logging_middleware(
     request: Request,
     call_next: typing.Callable[[Request], typing.Awaitable[Response]],
 ) -> Response:
-    client = (request.client.host if request.client else None,)
+    client = request.client or None
     logger.info(f"[{client}]::{request.method}::{request.url.path}")
     response = await call_next(request)
 
@@ -17,8 +17,8 @@ async def logging_middleware(
     if status.is_success:
         logger.info(f"[{client}]::{request.method}::{request.url.path}::SUCCESS")
     elif status.is_client_error:
-        logger.info(f"[{client}]::{request.method}::{request.url.path}::CLIENT_ERROR")
+        logger.error(f"[{client}]::{request.method}::{request.url.path}::CLIENT_ERROR")
     elif status.is_server_error:
-        logger.info(f"[{client}]::{request.method}::{request.url.path}::SERVER_ERROR")
+        logger.critical(f"[{client}]::{request.method}::{request.url.path}::SERVER_ERROR")
 
     return response
