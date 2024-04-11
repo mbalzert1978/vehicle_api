@@ -4,7 +4,6 @@ import typing
 from pydantic import PostgresDsn
 from pydantic_settings import SettingsConfigDict
 
-from src.core.logging import InterceptHandler
 from src.core.settings.base import BaseAppSettings
 
 
@@ -41,9 +40,3 @@ class AppSettings(BaseAppSettings):
             "title": self.title,
             "version": self.version,
         }
-
-    def configure_logging(self) -> None:
-        logging.getLogger().handlers = [InterceptHandler()]
-        for logger_name in self.loggers:
-            logging_logger = logging.getLogger(logger_name)
-            logging_logger.handlers = [InterceptHandler(level=self.logging_level)]
