@@ -3,7 +3,7 @@ import http
 
 
 def utc_now() -> datetime.datetime:
-    """Returns the UTC now datetime object."""
+    """Returns a utc timezone aware datetime object."""
     return datetime.datetime.now(tz=datetime.timezone.utc)
 
 
