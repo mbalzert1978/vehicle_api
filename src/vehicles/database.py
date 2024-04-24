@@ -4,16 +4,13 @@ from sqlalchemy import (
     Column,
     DateTime,
     Integer,
-    MetaData,
     String,
     Table,
     Uuid,
     func,
 )
 
-from src.constants import DB_NAMING_CONVENTION
-
-metadata = MetaData(naming_convention=DB_NAMING_CONVENTION)
+from src.database import metadata
 
 vehicles = Table(
     "vehicles",

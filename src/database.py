@@ -4,6 +4,7 @@ from sqlalchemy import (
     CursorResult,
     Executable,
     Insert,
+    MetaData,
     RowMapping,
     Select,
     Update,
@@ -11,6 +12,7 @@ from sqlalchemy import (
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
 from src.config import get_settings
+from src.constants import DB_NAMING_CONVENTION
 
 DATABASE_URL = str((settings := get_settings()).DATABASE_URL)
 
@@ -21,6 +23,8 @@ engine = create_async_engine(
     pool_pre_ping=True,
     echo_pool=settings.ENVIRONMENT.is_debug,
 )
+
+metadata = MetaData(naming_convention=DB_NAMING_CONVENTION)
 
 
 async def get_connection() -> AsyncGenerator[AsyncConnection, None]:
