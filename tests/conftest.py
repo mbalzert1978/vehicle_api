@@ -7,9 +7,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
-from src.database import get_connection
+from src.database import get_connection, metadata
 from src.main import app
-from src.vehicles.database import metadata
 from src.vehicles.service import insert_vehicle
 from tests.data import I30, Q7
 
