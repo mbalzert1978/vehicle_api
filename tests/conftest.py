@@ -2,6 +2,7 @@ from collections.abc import Iterator
 from typing import AsyncGenerator
 
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
@@ -9,32 +10,34 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_en
 from src.database import get_connection
 from src.main import app
 from src.vehicles.database import metadata
+from src.vehicles.service import insert_vehicle
 from tests.data import I30, Q7
 
 
-@pytest.fixture()
-def example_data(connection: AsyncConnection) -> None:
-    pass
+@pytest_asyncio.fixture()
+async def example_data(connection: AsyncConnection) -> None:
+    await insert_vehicle(connection, Q7)
+    await insert_vehicle(connection, I30)
 
 
 @pytest.fixture()
-def db_engine() -> Iterator[AsyncEngine]:
-    engine = create_async_engine(
-        "sqlite:///:memory:",
+def db_engine() -> AsyncEngine:
+    return create_async_engine(
+        "sqlite+aiosqlite:///:memory:",
         echo=True,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    metadata.create_all(bind=engine)
-    yield engine
-    engine.dispose()
 
 
-@pytest.fixture()
+@pytest_asyncio.fixture()
 async def connection(db_engine: AsyncEngine) -> AsyncGenerator[AsyncConnection, None]:
     async with db_engine.begin() as conn:
+        await conn.run_sync(metadata.drop_all)
+        await conn.run_sync(metadata.create_all)
         yield conn
         await conn.close()
+        await db_engine.dispose()
 
 
 @pytest.fixture()
