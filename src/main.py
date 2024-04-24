@@ -8,12 +8,12 @@ import starlette.middleware.base as sbase
 import starlette.middleware.cors as scors
 import uuid_utils as uuid
 
+from src import vehicles
 from src.config import get_settings
 from src.core.logging import configure_logging
 from src.middlewares.error_handler import error_handling_middleware
 from src.middlewares.log import logging_middleware
 from src.middlewares.time import add_process_time_header
-from src.vehicle.router import router as vehicle_router
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ def get_application() -> fastapi.FastAPI:
         transformer=lambda a: a,
     )
 
-    application.include_router(vehicle_router, tags=vehicle_router.tags)
+    application.include_router(vehicles.router, tags=vehicles.tags)
 
     return application
 
