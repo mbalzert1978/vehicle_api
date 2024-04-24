@@ -4,11 +4,11 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from src.core.config import get_app_settings
-from src.model.sql_alchemy import mapper_registry
+from src.vehicles.database import metadata
 
 config = context.config
 fileConfig(config.config_file_name)  # type: ignore[arg-type]
-target_metadata = mapper_registry.metadata
+target_metadata = metadata
 
 settings = get_app_settings()
 
