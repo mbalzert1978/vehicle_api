@@ -30,7 +30,7 @@ class Config(BaseSettings):
         return {
             "debug": self.ENVIRONMENT.is_debug,
             "docs_url": "/docs",
-            "openapi_prefix": self.API_PREFIX,
+            "root_path": self.API_PREFIX,
             "openapi_url": "/openapi.json" if self.ENVIRONMENT.is_debug else None,
             "redoc_url": "/redoc",
             "title": self.SITE_NAME,
