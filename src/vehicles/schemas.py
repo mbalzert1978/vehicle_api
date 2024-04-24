@@ -4,6 +4,7 @@ import dataclasses
 import functools
 import typing
 
+import uuid_utils as uuid
 from pydantic import ConfigDict, Field, Json
 
 from src.schemas import CustomModel
@@ -23,13 +24,13 @@ class Response(typing.Generic[T]):
 
 
 DESCRIPTION_NAME = "The name of the vehicle."
-DESCRIPTION_YOM = "The year of manufacture for the vehicle."
-DESCRIPTION_RTD = "Whether the vehicle is ready to drive."
+DESCRIPTION_MY = "The manufacturing year of the vehicle."
+DESCRIPTION_DRIVEABLE = "Whether the vehicle is driveable."
 DESCRIPTION_BODY = "Additional information about the vehicle in the form of a dictionary."
 
 field_name = functools.partial(Field, description=DESCRIPTION_NAME, examples=["Audi"])
-field_yom = functools.partial(Field, description=DESCRIPTION_YOM, le=utc_now().year, examples=[1999])
-field_rtd = functools.partial(Field, description=DESCRIPTION_RTD)
+field_year = functools.partial(Field, description=DESCRIPTION_MY, le=utc_now().year, examples=[1999])
+field_driveable = functools.partial(Field, description=DESCRIPTION_DRIVEABLE)
 field_body = functools.partial(Field, description=DESCRIPTION_BODY, examples=[dict(color="black")])
 
 
@@ -37,8 +38,8 @@ class CreateVehicle(CustomModel):
     """Vehicle create model."""
 
     name: str = field_name()
-    year_of_manufacture: int = field_yom(default=utc_now().year)
-    ready_to_drive: bool = field_rtd(default=False)
+    manufacturing_year: int = field_year(default=utc_now().year)
+    is_driveable: bool = field_driveable(default=False)
     body: dict = field_body(default_factory=dict)
 
 
@@ -46,8 +47,8 @@ class UpdateVehicle(CustomModel):
     """Vehicle update model."""
 
     name: str | None = field_name(default=None)
-    year_of_manufacture: int | None = field_yom(default=None)
-    ready_to_drive: bool | None = field_rtd(default=None)
+    manufacturing_year: int | None = field_year(default=None)
+    is_driveable: bool | None = field_driveable(default=None)
     body: dict | None = field_body(default=None)
 
 
@@ -55,5 +56,5 @@ class VehicleFromDatabase(CreateVehicle):
     """Vehicle in DB model."""
 
     model_config = ConfigDict(from_attributes=True, extra="allow")
-    id: int | None = None
+    id: uuid.UUID | None = None
     body: Json | dict

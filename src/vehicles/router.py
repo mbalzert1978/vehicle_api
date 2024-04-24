@@ -10,8 +10,8 @@ from src import crud
 from src.api.dependecies.database import get_repository
 from src.model.vehicle import Vehicle
 from src.service import services
-from src.vehicle import schemas
-from src.vehicle.constants import Tag
+from src.vehicles import schemas
+from src.vehicles.constants import Tag
 
 tags: list[str | Enum] = [Tag.VEHICLES]
 
