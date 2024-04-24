@@ -1,8 +1,8 @@
 """vehicles
 
-Revision ID: f146d98f866d
+Revision ID: a1c1e9fe914c
 Revises:
-Create Date: 2024-04-24 10:28:19.465934
+Create Date: 2024-04-24 10:48:03.140631
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f146d98f866d'
+revision = 'a1c1e9fe914c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,6 +23,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('manufacturing_year', sa.Integer(), nullable=False),
     sa.Column('body', sa.JSON(), nullable=True),
+    sa.Column('is_driveable', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('vehicles_pkey'))
