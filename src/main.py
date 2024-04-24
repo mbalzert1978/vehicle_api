@@ -11,7 +11,6 @@ import uuid_utils as uuid
 from src import vehicles
 from src.config import get_settings
 from src.core.logging import configure_logging
-from src.middlewares.error_handler import error_handling_middleware
 from src.middlewares.log import logging_middleware
 from src.middlewares.time import add_process_time_header
 
@@ -44,7 +43,6 @@ def get_application() -> fastapi.FastAPI:
 
     application.add_middleware(sbase.BaseHTTPMiddleware, dispatch=add_process_time_header)
     application.add_middleware(sbase.BaseHTTPMiddleware, dispatch=logging_middleware)
-    application.add_middleware(sbase.BaseHTTPMiddleware, dispatch=error_handling_middleware)
 
     application.add_middleware(
         cid.CorrelationIdMiddleware,
