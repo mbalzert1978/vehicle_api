@@ -1,5 +1,6 @@
 """FastAPI vehicles module."""
 
+import operator
 import uuid
 from enum import Enum
 from typing import Annotated
@@ -111,7 +112,7 @@ async def get(
     """
     if not (vehicle := await get_vehicles(connection, dict(id=id))):
         raise HTTPException(status_code=404, detail="Vehicle not found.")
-    return schemas.VehicleFromDatabase.model_validate(vehicle)
+    return schemas.VehicleFromDatabase.model_validate(operator.getitem(vehicle, 0))
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
