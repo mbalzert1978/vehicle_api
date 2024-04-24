@@ -55,6 +55,6 @@ class UpdateVehicle(CustomModel):
 class VehicleFromDatabase(CreateVehicle):
     """Vehicle in DB model."""
 
-    model_config = ConfigDict(from_attributes=True, extra="allow")
+    model_config = ConfigDict(from_attributes=True, extra="allow", arbitrary_types_allowed=True)
     id: uuid.UUID | None = None
     body: Json | dict
