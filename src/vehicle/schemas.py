@@ -42,7 +42,7 @@ class CreateVehicle(CustomModel):
     body: dict = field_body(default_factory=dict)
 
 
-class VehicleForUpdate(CustomModel):
+class UpdateVehicle(CustomModel):
     """Vehicle update model."""
 
     name: str | None = field_name(default=None)

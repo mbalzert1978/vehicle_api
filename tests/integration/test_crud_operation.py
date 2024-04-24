@@ -70,7 +70,7 @@ def test_update(session: Session):
 
     SQLAlchemyRepository(session, model.Vehicle).update(
         to_update=to_update,
-        data=schemas.VehicleForUpdate(**TEST_VEHICLE.model_dump()),
+        data=schemas.UpdateVehicle(**TEST_VEHICLE.model_dump()),
     )
 
     sql = text("SELECT * FROM vehicle WHERE id=:id").bindparams(id=1)

@@ -90,7 +90,7 @@ def update_vehicle(
     *,
     repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository, Vehicle))],
     id: int,
-    update_with: schemas.VehicleForUpdate,
+    update_with: schemas.UpdateVehicle,
 ) -> None:
     r"""
     Update a vehicle.
