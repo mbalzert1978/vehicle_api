@@ -3,6 +3,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from src.error import Error
+
 
 class CustomModel(BaseModel):
     model_config = ConfigDict(ser_json_timedelta="iso8601", populate_by_name=True)
@@ -10,8 +12,10 @@ class CustomModel(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def set_null_microseconds(cls, data: dict[str, Any]) -> dict[str, Any]:
-        datetime_fields = {k: v.replace(microsecond=0) for k, v in data.items() if isinstance(v, datetime.datetime)}
+        if not isinstance(data, dict):
+            raise TypeError(Error.GENERIC)
 
+        datetime_fields = {k: v.replace(microsecond=0) for k, v in data.items() if isinstance(v, datetime.datetime)}
         return {**data, **datetime_fields}
 
     def serialize(self, mode: Literal["json", "python"] = "json") -> dict[str, Any]:
