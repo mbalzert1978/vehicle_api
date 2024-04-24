@@ -1,4 +1,4 @@
-from src.vehicle.schemas import CreateVehicle
+from src.vehicles.schemas import CreateVehicle
 
 BODY = {
     "color": "test_color",
@@ -20,8 +20,8 @@ BODY_Q7 = {
 }
 PARAMS = {
     "name": "test_vehicle",
-    "year_of_manufacture": 2020,
-    "ready_to_drive": False,
+    "manufacturing_year": 2020,
+    "is_driveable": False,
     "body": {
         "color": "test_color",
         "kilometer": 10,
@@ -31,8 +31,8 @@ PARAMS = {
 }
 UPDATE = {
     "name": "updated_vehicle",
-    "year_of_manufacture": 2010,
-    "ready_to_drive": True,
+    "manufacturing_year": 2010,
+    "is_driveable": True,
     "body": {
         "price": 100,
         "kilometers": 100,
@@ -41,19 +41,19 @@ UPDATE = {
 }
 TEST_VEHICLE = CreateVehicle(
     name="test_car",
-    year_of_manufacture=2020,
+    manufacturing_year=2020,
     body=BODY,
-    ready_to_drive=False,
+    is_driveable=False,
 )
 I30 = CreateVehicle(
     name="I30",
-    year_of_manufacture=2017,
+    manufacturing_year=2017,
     body=BODY_I30,
-    ready_to_drive=True,
+    is_driveable=True,
 )
 Q7 = CreateVehicle(
     name="Q7",
-    year_of_manufacture=2020,
+    manufacturing_year=2020,
     body=BODY_Q7,
-    ready_to_drive=True,
+    is_driveable=True,
 )
