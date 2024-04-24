@@ -1,49 +1,45 @@
 """FastAPI vehicles module."""
 
-import datetime
+import uuid
 from enum import Enum
-from typing import Annotated, Sequence
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.ext.asyncio import AsyncConnection
 
-from src import crud
-from src.api.dependecies.database import get_repository
-from src.model.vehicle import Vehicle
-from src.service import services
+from src.database import get_connection
+from src.utils.utils import utc_now
 from src.vehicles import schemas
 from src.vehicles.constants import Tag
+from src.vehicles.service import delete_vehicle, get_vehicles, insert_vehicle, update_vehicle
 
 tags: list[str | Enum] = [Tag.VEHICLES]
 
 router = APIRouter(prefix=Tag.VEHICLES, tags=tags)
 
-FILTER_ON = "filter by %(criterion)s, optional."
+FILTER_ON = "filter by %s, optional."
 
 
 @router.get("/")
-def list_vehicle(
+async def get_all(
     *,
-    repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository, Vehicle))],
+    connection: Annotated[AsyncConnection, Depends(get_connection)],
     name: Annotated[
         str | None,
-        Query(
-            description=FILTER_ON % dict(criterion="vehicle name"),
-            examples=["Audi"],
-        ),
+        Query(description=FILTER_ON % "name", examples=["Audi"]),
     ] = None,
-    year_of_manufacture: Annotated[
+    manufacturing_year: Annotated[
         int | None,
         Query(
-            ge=2000,
-            le=datetime.datetime.now(tz=datetime.UTC).date().year,
+            le=utc_now().year,
             examples=[2020],
-            description=FILTER_ON % dict(criterion="year of manufacture"),
+            description=FILTER_ON % "manufacturing year.",
         ),
     ] = None,
-    ready_to_drive: Annotated[
+    is_driveable: Annotated[
         bool | None,
         Query(
-            description=FILTER_ON % dict(criterion="ready to drive"),
+            description=FILTER_ON % "is driveable.",
             examples=[True],
         ),
     ] = None,
@@ -53,23 +49,17 @@ def list_vehicle(
 
     Filters can be applied to refine results based on name, manufacturing year, and readiness for driving.
     """
-    vehicles: Sequence[Vehicle] = services.list(
-        repository,
-        filter_by={
-            "name": name,
-            "year_of_manufacture": year_of_manufacture,
-            "ready_to_drive": ready_to_drive,
-        },
-    )
+    filter_on = schemas.FilterVehicle(name=name, manufacturing_year=manufacturing_year, is_driveable=is_driveable)
+    vehicles = await get_vehicles(connection, filter_on.model_dump(exclude_none=True))
     return schemas.ListResponse(data=[schemas.VehicleFromDatabase.model_validate(vehicle) for vehicle in vehicles])
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_vehicle(
+async def insert(
     *,
-    repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository, Vehicle))],
+    connection: Annotated[AsyncConnection, Depends(get_connection)],
     to_create: schemas.CreateVehicle,
-) -> Response:
+) -> schemas.VehicleFromDatabase:
     r"""
     Create a new vehicle.
 
@@ -82,14 +72,15 @@ def create_vehicle(
     ready_to_drive: A boolean flag indicating whether the vehicle is ready to drive.
     Defaults to False.
     """
-    return Response(services.create(repository, to_create))
+    result = await insert_vehicle(connection, to_create)
+    return schemas.VehicleFromDatabase.model_validate(result)
 
 
 @router.put("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def update_vehicle(
+async def update(
     *,
-    repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository, Vehicle))],
-    id: int,
+    connection: Annotated[AsyncConnection, Depends(get_connection)],
+    id: uuid.UUID,
     update_with: schemas.UpdateVehicle,
 ) -> None:
     r"""
@@ -100,15 +91,17 @@ def update_vehicle(
     id: The ID of the vehicle to update.\
     update_with: An instance of `schemas.VehicleUpdate` with updated information.
     """
-    services.update(repository, id, update_with)
+    if not await get_vehicles(connection, dict(id=id)):
+        raise HTTPException(status_code=404, detail="Vehicle not found.")
+    await update_vehicle(connection, id, update_with)
 
 
 @router.get("/{id}")
-def get_vehicle(
+async def get(
     *,
-    repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository, Vehicle))],
-    id: int,
-) -> Response:
+    connection: Annotated[AsyncConnection, Depends(get_connection)],
+    id: uuid.UUID,
+) -> schemas.VehicleFromDatabase:
     """
     Get a vehicle by ID.
 
@@ -116,14 +109,16 @@ def get_vehicle(
     ----
     id: The ID of the vehicle to retrieve.
     """
-    return Response(schemas.VehicleFromDatabase.model_validate(services.get(repository, id)))
+    if not (vehicle := await get_vehicles(connection, dict(id=id))):
+        raise HTTPException(status_code=404, detail="Vehicle not found.")
+    return schemas.VehicleFromDatabase.model_validate(vehicle)
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_vehicle(
+async def delete(
     *,
-    repository: Annotated[crud.AbstractRepository, Depends(get_repository(crud.SQLAlchemyRepository, Vehicle))],
-    id: int,
+    connection: Annotated[AsyncConnection, Depends(get_connection)],
+    id: uuid.UUID,
 ) -> None:
     """
     Delete an vehicle by ID.
@@ -132,4 +127,6 @@ def delete_vehicle(
     ----
     id: The ID of the vehicle to delete.
     """
-    services.delete(repository, id)
+    if not await get_vehicles(connection, dict(id=id)):
+        raise HTTPException(status_code=404, detail="Vehicle not found.")
+    await delete_vehicle(connection, id)
