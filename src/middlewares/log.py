@@ -3,7 +3,7 @@ import typing
 from fastapi import Request, Response
 from loguru import logger
 
-from vehicle_api.utils.utils import is_client_error, is_server_error, is_success
+from src.utils.utils import is_client_error, is_server_error, is_success
 
 
 async def logging_middleware(

@@ -4,10 +4,10 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-import vehicle_api.model.vehicle as model
-import vehicle_api.schemas.vehicle as schemas
+import src.model.vehicle as model
+import src.schemas.vehicle as schemas
+from src.crud.sqlalchemy_repo import SQLAlchemyRepository
 from tests.data import I30, TEST_VEHICLE
-from vehicle_api.crud.sqlalchemy_repo import SQLAlchemyRepository
 
 
 def test_create(session: Session):

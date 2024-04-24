@@ -1,4 +1,4 @@
-from vehicle_api.schemas.vehicle import VehicleForCreate
+from src.schemas.vehicle import VehicleForCreate
 
 BODY = {
     "color": "test_color",

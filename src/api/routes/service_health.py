@@ -5,9 +5,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from vehicle_api import crud
-from vehicle_api.api.dependecies.database import get_repository
-from vehicle_api.schemas.status import DatabaseStatus
+from src import crud
+from src.api.dependecies.database import get_repository
+from src.schemas.status import DatabaseStatus
 
 router = APIRouter()
 

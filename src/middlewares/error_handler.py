@@ -2,8 +2,8 @@ import typing
 
 from fastapi import HTTPException, Request, Response
 
-from vehicle_api.api.errors.http_error import http_error_handler
-from vehicle_api.utils.utils import is_success
+from src.api.errors.http_error import http_error_handler
+from src.utils.utils import is_success
 
 
 async def error_handling_middleware(
@@ -12,7 +12,7 @@ async def error_handling_middleware(
 ) -> Response:
     try:
         response = await call_next(request)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         return await http_error_handler(request, exc)
     else:
         if is_success(response.status_code):

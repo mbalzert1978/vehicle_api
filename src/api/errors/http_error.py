@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
-from vehicle_api.core.error import HTTPError
+from src.core.error import HTTPError
 
 
 async def http_error_handler(request: Request, exc: Exception) -> Response:

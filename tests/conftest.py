@@ -5,12 +5,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine, StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from src.api.dependecies.database import get_session
+from src.crud.sqlalchemy_repo import SQLAlchemyRepository
+from src.main import app
+from src.model.sql_alchemy import mapper_registry
+from src.model.vehicle import Vehicle
 from tests.data import I30, Q7
-from vehicle_api.api.dependecies.database import get_session
-from vehicle_api.crud.sqlalchemy_repo import SQLAlchemyRepository
-from vehicle_api.main import app
-from vehicle_api.model.sql_alchemy import mapper_registry
-from vehicle_api.model.vehicle import Vehicle
 
 
 @pytest.fixture()

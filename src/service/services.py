@@ -2,9 +2,9 @@
 
 from typing import Sequence
 
-from vehicle_api.core.error import HTTPError
-from vehicle_api.crud import AbstractRepository
-from vehicle_api.crud.vars import CreateSchemaType, ModelType, U, UpdateSchemaType
+from src.core.error import HTTPError
+from src.crud import AbstractRepository
+from src.crud.vars import CreateSchemaType, ModelType, U, UpdateSchemaType
 
 UNPROCESSABLE = "unprocessable value, not a"
 

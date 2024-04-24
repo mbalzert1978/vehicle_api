@@ -8,14 +8,14 @@ from fastapi import Depends  # noqa: TCH002
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from vehicle_api.core.config import get_app_settings
-from vehicle_api.model.base import Base
-from vehicle_api.model.sql_alchemy import map_tables
+from src.core.config import get_app_settings
+from src.model.base import Base
+from src.model.sql_alchemy import map_tables
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
-    from vehicle_api.crud.base import BaseRepository
+    from src.crud.base import BaseRepository
 
 
 settings = get_app_settings()

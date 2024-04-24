@@ -2,7 +2,7 @@ import typing
 
 from pydantic import BaseModel
 
-from vehicle_api.model.base import Base
+from src.model.base import Base
 
 ModelType = typing.TypeVar("ModelType", bound=Base)
 CreateSchemaType = typing.TypeVar("CreateSchemaType", bound=BaseModel)

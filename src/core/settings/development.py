@@ -2,7 +2,7 @@ import logging
 
 from pydantic_settings import SettingsConfigDict
 
-from vehicle_api.core.settings.app import AppSettings
+from src.core.settings.app import AppSettings
 
 
 class DevAppSettings(AppSettings):

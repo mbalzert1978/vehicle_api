@@ -9,10 +9,10 @@ from fastapi import FastAPI
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
-from vehicle_api.api.routes.api import router as api_router
-from vehicle_api.core.config import get_app_settings
-from vehicle_api.core.logging import configure_logging
-from vehicle_api.middlewares.time import add_process_time_header
+from src.api.routes.api import router as api_router
+from src.core.config import get_app_settings
+from src.core.logging import configure_logging
+from src.middlewares.time import add_process_time_header
 
 from .middlewares.error_handler import error_handling_middleware
 from .middlewares.log import logging_middleware
