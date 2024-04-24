@@ -3,7 +3,6 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-import src.model.vehicle as model
 from src.vehicles import schemas
 from tests.data import I30, TEST_VEHICLE
 

@@ -1,47 +1,44 @@
 from collections.abc import Iterator
+from typing import AsyncGenerator
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import Engine, StaticPool, create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy import StaticPool
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
-from src.api.dependecies.database import get_session
-from src.crud.sqlalchemy_repo import SQLAlchemyRepository
+from src.database import get_connection
 from src.main import app
-from src.model.sql_alchemy import mapper_registry
-from src.model.vehicle import Vehicle
+from src.vehicles.database import metadata
 from tests.data import I30, Q7
 
 
 @pytest.fixture()
-def example_data(session: Session) -> None:
-    SQLAlchemyRepository(session, Vehicle).create(to_create=I30)
-    SQLAlchemyRepository(session, Vehicle).create(to_create=Q7)
+def example_data(connection: AsyncConnection) -> None:
+    pass
 
 
 @pytest.fixture()
-def db_engine() -> Iterator[Engine]:
-    engine = create_engine(
+def db_engine() -> Iterator[AsyncEngine]:
+    engine = create_async_engine(
         "sqlite:///:memory:",
         echo=True,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    mapper_registry.metadata.create_all(bind=engine)
+    metadata.create_all(bind=engine)
     yield engine
     engine.dispose()
 
 
 @pytest.fixture()
-def session(db_engine) -> Iterator[Session]:
-    Session = sessionmaker(bind=db_engine)  # noqa: N806
-    session = Session()
-    yield session
-    session.close()
+async def connection(db_engine: AsyncEngine) -> AsyncGenerator[AsyncConnection, None]:
+    async with db_engine.begin() as conn:
+        yield conn
+        await conn.close()
 
 
 @pytest.fixture()
-def client(session) -> Iterator[TestClient]:
-    app.dependency_overrides[get_session] = lambda: session
+def client(connection: AsyncConnection) -> Iterator[TestClient]:
+    app.dependency_overrides[get_connection] = lambda: connection
     with TestClient(app) as c:
         yield c

@@ -1,8 +1,5 @@
 import pytest
 
-from src.core.error import HTTPError
-from src.crud import AbstractRepository
-from src.service import services
 from tests.stubs import Stub
 
 
