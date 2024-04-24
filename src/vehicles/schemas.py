@@ -1,10 +1,12 @@
 """Pydantic models."""
 
 import dataclasses
+import datetime
 import functools
 import typing
+import uuid
 
-import uuid_utils as uuid
+import uuid_utils
 from pydantic import ConfigDict, Field, Json
 
 from src.schemas import CustomModel
@@ -34,9 +36,18 @@ field_driveable = functools.partial(Field, description=DESCRIPTION_DRIVEABLE)
 field_body = functools.partial(Field, description=DESCRIPTION_BODY, examples=[dict(color="black")])
 
 
+class FilterVehicle(CustomModel):
+    """Vehicle filter model."""
+
+    name: str | None = None
+    manufacturing_year: int | None = None
+    is_driveable: bool | None = None
+
+
 class CreateVehicle(CustomModel):
     """Vehicle create model."""
 
+    id: uuid.UUID = Field(default_factory=uuid_utils.uuid7)
     name: str = field_name()
     manufacturing_year: int = field_year(default=utc_now().year)
     is_driveable: bool = field_driveable(default=False)
@@ -55,6 +66,8 @@ class UpdateVehicle(CustomModel):
 class VehicleFromDatabase(CreateVehicle):
     """Vehicle in DB model."""
 
-    model_config = ConfigDict(from_attributes=True, extra="allow", arbitrary_types_allowed=True)
-    id: uuid.UUID | None = None
+    model_config = ConfigDict(from_attributes=True, extra="allow")
+    id: uuid.UUID
     body: Json | dict
+    created_at: datetime.datetime | None = None
+    updated_at: datetime.datetime | None = None
