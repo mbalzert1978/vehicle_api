@@ -1,6 +1,13 @@
-from typing import AsyncGenerator, Sequence
+from typing import Any, AsyncGenerator, Sequence
 
-from sqlalchemy import CursorResult, Delete, Insert, RowMapping, Select, Update
+from sqlalchemy import (
+    CursorResult,
+    Executable,
+    Insert,
+    RowMapping,
+    Select,
+    Update,
+)
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
 from src.config import get_settings
@@ -32,5 +39,5 @@ async def fetch_all(conn: AsyncConnection, select_query: Select | Insert | Updat
     return cursor.mappings().all()
 
 
-async def execute(conn: AsyncConnection, select_query: Insert | Update | Delete) -> None:
-    await conn.execute(select_query)
+async def execute(conn: AsyncConnection, select_query: Executable) -> CursorResult[Any]:
+    return await conn.execute(select_query)
