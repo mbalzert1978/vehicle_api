@@ -1,4 +1,4 @@
-from src.schemas.vehicle import VehicleForCreate
+from src.vehicle.schemas import CreateVehicle
 
 BODY = {
     "color": "test_color",
@@ -39,19 +39,19 @@ UPDATE = {
         "type": "car",
     },
 }
-TEST_VEHICLE = VehicleForCreate(
+TEST_VEHICLE = CreateVehicle(
     name="test_car",
     year_of_manufacture=2020,
     body=BODY,
     ready_to_drive=False,
 )
-I30 = VehicleForCreate(
+I30 = CreateVehicle(
     name="I30",
     year_of_manufacture=2017,
     body=BODY_I30,
     ready_to_drive=True,
 )
-Q7 = VehicleForCreate(
+Q7 = CreateVehicle(
     name="Q7",
     year_of_manufacture=2020,
     body=BODY_Q7,

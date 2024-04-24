@@ -4,7 +4,7 @@ from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 import src.model.vehicle as model
-import src.schemas.vehicle as schemas
+from src.vehicle import schemas
 from tests.data import I30, TEST_VEHICLE
 
 
