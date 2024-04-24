@@ -1,5 +1,5 @@
 import uuid
-from typing import Sequence
+from typing import Any, Sequence
 
 from sqlalchemy import RowMapping, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -19,7 +19,7 @@ async def delete_vehicle(conn: AsyncConnection, id: uuid.UUID) -> None:
     await execute(conn, delete_query)
 
 
-async def get_vehicles(conn: AsyncConnection, filter_on: dict[str, str]) -> Sequence[RowMapping]:
+async def get_vehicles(conn: AsyncConnection, filter_on: dict[str, Any]) -> Sequence[RowMapping]:
     select_query = select(vehicles).filter_by(**filter_on)
     return await fetch_all(conn, select_query)
 
