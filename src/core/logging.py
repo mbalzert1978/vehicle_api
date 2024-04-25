@@ -2,11 +2,11 @@ import logging
 import sys
 
 from asgi_correlation_id import correlation_id
-from loguru import logger
+from loguru import Record, logger
 
 
-def _correlation_id_filter(record: dict) -> bool:
-    record |= {"correlation_id": correlation_id.get()}
+def _correlation_id_filter(record: Record) -> bool:
+    record |= {"correlation_id": correlation_id.get()}  # type: ignore[misc]
     return True
 
 
