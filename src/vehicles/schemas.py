@@ -16,12 +16,12 @@ T = typing.TypeVar("T")
 
 
 @dataclasses.dataclass
-class ListResponse(typing.Generic[T]):
+class DataMany(typing.Generic[T]):
     data: list[T]
 
 
 @dataclasses.dataclass
-class Response(typing.Generic[T]):
+class DataOne(typing.Generic[T]):
     data: T
 
 
