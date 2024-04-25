@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.database import execute
 from src.vehicles.schemas import CreateVehicle, UpdateVehicle, VehicleFromDatabase
-from src.vehicles.service import delete_vehicle, get_vehicles, insert_vehicle, update_vehicle
+from src.vehicles.services import delete_vehicle, get_vehicles, insert_vehicle, update_vehicle
 
 
 @pytest.mark.asyncio()

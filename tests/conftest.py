@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_en
 
 from src.database import get_connection, metadata
 from src.main import app
-from src.vehicles.service import insert_vehicle
+from src.vehicles.services import insert_vehicle
 from tests.data import I30, Q7
 
 

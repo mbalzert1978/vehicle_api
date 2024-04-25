@@ -12,7 +12,7 @@ from src.database import get_connection
 from src.utils.utils import utc_now
 from src.vehicles import schemas
 from src.vehicles.constants import Tag
-from src.vehicles.service import delete_vehicle, get_vehicles, insert_vehicle, update_vehicle
+from src.vehicles.services import delete_vehicle, get_vehicles, insert_vehicle, update_vehicle
 
 tags: list[str | Enum] = [Tag.VEHICLES]
 
