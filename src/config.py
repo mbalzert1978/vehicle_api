@@ -40,4 +40,4 @@ class Config(BaseSettings):
 
 @functools.lru_cache
 def get_settings() -> Config:
-    return Config()
+    return Config()  # type: ignore[call-arg]
