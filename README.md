@@ -70,3 +70,7 @@ Optional, aber nicht zwingend erforderlich:
 - eine Möglichkeit eine Teilmenge von Datensätzen abzurufen (z.B. eine einfache Art Suche oder Filterung)
 
 ### NICHT ERFORDERLICH: HTML, CSS, Authentifizierung/Authorisierug, Deployment, DB-Migrationen, Unittests, Docker-Setup. Für die Datenbank reicht uns das Schema als SQL-Datei.
+
+## TODO:
+- impl cosmic python unit of work
+- better error handling
