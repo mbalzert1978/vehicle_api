@@ -8,13 +8,13 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.database import get_connection
-from src.service.constants import Tag
-from src.service.schemas import DatabaseStatus
-from src.service.services import get_database_status
+from src.health.constants import Tag
+from src.health.schemas import DatabaseStatus
+from src.health.services import get_database_status
 
-tags: list[str | Enum] = [Tag.SERVICE]
+tags: list[str | Enum] = [Tag.HEALTH]
 
-router = APIRouter(prefix=Tag.SERVICE, tags=tags)
+router = APIRouter(prefix=Tag.HEALTH, tags=tags)
 
 
 @router.get("/", response_model=DatabaseStatus)

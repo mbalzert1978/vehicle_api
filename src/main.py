@@ -8,7 +8,7 @@ import starlette.middleware.base as sbase
 import starlette.middleware.cors as scors
 import uuid_utils as uuid
 
-from src import service, vehicles
+from src import health, vehicles
 from src.config import get_settings
 from src.core.logging import configure_logging
 from src.middlewares.log import logging_middleware
@@ -54,7 +54,7 @@ def get_application() -> fastapi.FastAPI:
     )
 
     application.include_router(vehicles.router, tags=vehicles.tags)
-    application.include_router(service.router, tags=service.tags)
+    application.include_router(health.router, tags=health.tags)
 
     return application
 
