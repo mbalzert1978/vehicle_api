@@ -3,12 +3,12 @@ from logging.config import fileConfig  # noqa: INP001
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from vehicle_api.core.config import get_app_settings
-from vehicle_api.model.sql_alchemy import mapper_registry
+from src.core.config import get_app_settings
+from src.vehicles.database import metadata
 
 config = context.config
 fileConfig(config.config_file_name)  # type: ignore[arg-type]
-target_metadata = mapper_registry.metadata
+target_metadata = metadata
 
 settings = get_app_settings()
 

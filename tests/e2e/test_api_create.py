@@ -1,47 +1,86 @@
 import json
 
+import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
 from tests.data import PARAMS, UPDATE
 
 
-def test_CRUD_happy_path(client: TestClient):
-    expected = {**PARAMS, "id": 1}
-    expected_after_update = {**UPDATE, "id": 1}
+def is_expected(vehicle: dict, expected: dict) -> None:
+    match vehicle:
+        case {
+            "name": "test_vehicle",
+            "manufacturing_year": 2020,
+            "is_driveable": False,
+            "id": _,
+            "body": body,
+            "created_at": created_at,
+            "updated_at": updated_at,
+        }:
+            assert body == expected["body"]
+            assert created_at
+            assert updated_at is None
+        case {
+            "name": "updated_vehicle",
+            "manufacturing_year": 2010,
+            "is_driveable": True,
+            "body": body,
+            "created_at": created_at,
+            "updated_at": updated_at,
+        }:
+            assert body == expected["body"]
+            assert created_at
+            assert updated_at
+        case _:
+            pytest.fail(f"Unexpected vehicle: {vehicle}")
 
+
+def test_CRUD_happy_path(client: TestClient):
     # Create a new vehicle
-    create = client.post("/api/vehicles", content=json.dumps(PARAMS))
+    create = client.post("/api/v1/vehicles", content=json.dumps(PARAMS))
+    id_ = create.json()["data"]["id"]
+
     assert create.status_code == status.HTTP_201_CREATED
 
     # Retrieve vehicles
-    updated = client.get("/api/vehicles")
+    all_vehicle = client.get("/api/v1/vehicles")
 
-    assert updated.status_code == status.HTTP_200_OK
-    assert expected == updated.json()["data"].pop()
+    assert all_vehicle.status_code == status.HTTP_200_OK
+
+    [expected] = all_vehicle.json()["data"]
+    is_expected(expected, PARAMS)
 
     # filter vehicles
-    filtered = client.get("/api/vehicles/?name=test_vehicle")
+    filtered = client.get("/api/v1/vehicles/?name=test_vehicle")
 
     assert filtered.status_code == status.HTTP_200_OK
-    assert expected == filtered.json()["data"].pop()
+
+    [expected] = all_vehicle.json()["data"]
+    is_expected(expected, PARAMS)
 
     # Retrieve specific vehicle
-    specific = client.get("/api/vehicles/1")
+    specific = client.get(f"/api/v1/vehicles/{id_}")
 
     assert specific.status_code == status.HTTP_200_OK
-    assert expected == specific.json()["data"]
+
+    expected = specific.json()["data"]
+
+    is_expected(expected, PARAMS)
 
     # Update vehicle
-    result = client.put("/api/vehicles/1", content=json.dumps(UPDATE))
+    result = client.put(f"/api/v1/vehicles/{id_}", content=json.dumps(UPDATE))
 
     assert result.status_code == status.HTTP_204_NO_CONTENT
 
     # Retrieve updated vehicle
-    updated = client.get("/api/vehicles/1")
+    all_vehicle = client.get("/api/v1/vehicles")
 
-    assert expected_after_update == updated.json()["data"]
+    assert all_vehicle.status_code == status.HTTP_200_OK
+
+    [expected] = all_vehicle.json()["data"]
+    is_expected(expected, UPDATE)
 
     # Delete vehicle
-    delete = client.delete("/api/vehicles/1")
+    delete = client.delete(f"/api/v1/vehicles/{id_}")
     assert delete.status_code == status.HTTP_204_NO_CONTENT
