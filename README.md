@@ -3,9 +3,25 @@
 create a .env file like this:
 
 ```.env
-APP_ENV=dev
-DEBUG=True
-DATABASE_URL=postgresql://user:pw@127.0.0.1/table
+DATABASE_URL=postgresql+asyncpg://app:app@app_db:5432/app
+
+SITE_DOMAIN=127.0.0.1
+
+ENVIRONMENT=LOCAL
+
+CORS_HEADERS=["*"]
+CORS_METHODS=["*"]
+CORS_ORIGINS=["http://localhost:3000"]
+
+API_PREFIX="/api/v1"
+
+
+# postgres variables, must be the same as in DATABASE_URL
+POSTGRES_USER=app
+POSTGRES_PASSWORD=app
+POSTGRES_HOST=app_db
+POSTGRES_PORT=5432
+POSTGRES_DB=app
 ```
 
 have a db running like this:
@@ -13,14 +29,17 @@ have a db running like this:
 ### Postgres Schema
 
 ```sql
-CREATE TABLE vehicle (
-	id INTEGER NOT NULL,
+CREATE TABLE vehicles (
+	id CHAR(32) NOT NULL,
 	name VARCHAR NOT NULL,
-	year_of_manufacture INTEGER NOT NULL,
-	body JSON NOT NULL,
-	ready_to_drive BOOLEAN NOT NULL,
-	PRIMARY KEY (id)
+	manufacturing_year INTEGER NOT NULL,
+	is_driveable BOOLEAN,
+	body JSON,
+	created_at DATETIME DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
+	updated_at DATETIME,
+	CONSTRAINT vehicles_pkey PRIMARY KEY (id)
 )
+
 ```
 
 or just create a new database named db or whatever you name it in the .env file.
