@@ -15,12 +15,12 @@ def configure_logging() -> None:
     logging.getLogger("uvicorn.error").disabled = True
     logging.getLogger("uvicorn.access").disabled = True
     fmt = "[{time}] [{correlation_id}] [{level}] - {name}:{function}:{line} :: {message}"
-    logger.add(sys.stdout, format=fmt, level="INFO", filter=_correlation_id_filter)  # type:ignore[arg-type]
+    logger.add(sys.stdout, format=fmt, level="INFO", filter=_correlation_id_filter)
     logger.add(
         "logs/app.log",
         serialize=True,
         level="INFO",
-        filter=_correlation_id_filter,  # type:ignore[arg-type]
+        filter=_correlation_id_filter,
         rotation="30 MB",
         retention="7 days",
     )
