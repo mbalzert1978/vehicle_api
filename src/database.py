@@ -1,5 +1,7 @@
+from http import HTTPStatus
 from typing import Any, AsyncGenerator, Sequence
 
+from fastapi import HTTPException
 from sqlalchemy import (
     CursorResult,
     Executable,
@@ -9,6 +11,7 @@ from sqlalchemy import (
     Select,
     Update,
 )
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
 from src.config import get_settings
@@ -28,9 +31,11 @@ metadata = MetaData(naming_convention=DB_NAMING_CONVENTION)
 
 
 async def get_connection() -> AsyncGenerator[AsyncConnection, None]:
-    async with engine.begin() as conn:
-        yield conn
-        await conn.close()
+    try:
+        async with engine.begin() as conn:
+            yield conn
+    except (SQLAlchemyError, OSError) as exc:
+        raise HTTPException(HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
 
 
 async def fetch_one(conn: AsyncConnection, select_query: Select | Insert | Update) -> RowMapping | None:
