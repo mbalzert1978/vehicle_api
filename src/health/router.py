@@ -22,6 +22,6 @@ async def database_status() -> DatabaseStatus:
         async with engine.connect() as connection:
             await get_database_status(connection)
     except (OSError, NoResultFound):
-        return DatabaseStatus(status="Error")
+        return DatabaseStatus(status="ERROR")
     else:
         return DatabaseStatus(status="OK")
