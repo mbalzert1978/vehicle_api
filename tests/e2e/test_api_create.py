@@ -39,7 +39,7 @@ def is_expected(vehicle: dict, expected: dict) -> None:
 def test_CRUD_happy_path(client: TestClient):
     # Create a new vehicle
     create = client.post("/api/v1/vehicles", content=json.dumps(PARAMS))
-    id_ = create.json()["id"]
+    id_ = create.json()["data"]["id"]
 
     assert create.status_code == status.HTTP_201_CREATED
 
@@ -64,7 +64,9 @@ def test_CRUD_happy_path(client: TestClient):
 
     assert specific.status_code == status.HTTP_200_OK
 
-    is_expected(specific.json(), PARAMS)
+    expected = specific.json()["data"]
+
+    is_expected(expected, PARAMS)
 
     # Update vehicle
     result = client.put(f"/api/v1/vehicles/{id_}", content=json.dumps(UPDATE))

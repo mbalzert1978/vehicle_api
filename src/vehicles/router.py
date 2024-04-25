@@ -44,7 +44,7 @@ async def get_all(
             examples=[True],
         ),
     ] = None,
-) -> schemas.ListResponse[schemas.VehicleFromDatabase]:
+) -> schemas.DataMany[schemas.VehicleFromDatabase]:
     """
     List all vehicles.
 
@@ -52,7 +52,7 @@ async def get_all(
     """
     filter_on = schemas.FilterVehicle(name=name, manufacturing_year=manufacturing_year, is_driveable=is_driveable)
     vehicles = await get_vehicles(connection, filter_on.model_dump(exclude_none=True))
-    return schemas.ListResponse(data=[schemas.VehicleFromDatabase.model_validate(vehicle) for vehicle in vehicles])
+    return schemas.DataMany(data=[schemas.VehicleFromDatabase.model_validate(vehicle) for vehicle in vehicles])
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -60,7 +60,7 @@ async def insert(
     *,
     connection: Annotated[AsyncConnection, Depends(get_connection)],
     to_create: schemas.CreateVehicle,
-) -> schemas.VehicleFromDatabase:
+) -> schemas.DataOne[schemas.VehicleFromDatabase]:
     r"""
     Create a new vehicle.
 
@@ -74,7 +74,7 @@ async def insert(
     Defaults to False.
     """
     result = await insert_vehicle(connection, to_create)
-    return schemas.VehicleFromDatabase.model_validate(result)
+    return schemas.DataOne(schemas.VehicleFromDatabase.model_validate(result))
 
 
 @router.put("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -102,7 +102,7 @@ async def get(
     *,
     connection: Annotated[AsyncConnection, Depends(get_connection)],
     id: uuid.UUID,
-) -> schemas.VehicleFromDatabase:
+) -> schemas.DataOne[schemas.VehicleFromDatabase]:
     """
     Get a vehicle by ID.
 
@@ -112,7 +112,7 @@ async def get(
     """
     if not (vehicle := await get_vehicles(connection, dict(id=id))):
         raise HTTPException(status_code=404, detail="Vehicle not found.")
-    return schemas.VehicleFromDatabase.model_validate(operator.getitem(vehicle, 0))
+    return schemas.DataOne(schemas.VehicleFromDatabase.model_validate(operator.getitem(vehicle, 0)))
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
