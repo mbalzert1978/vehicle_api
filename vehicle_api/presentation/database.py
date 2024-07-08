@@ -14,8 +14,8 @@ from sqlalchemy import (
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
-from vehicle_api.config import get_settings
-from vehicle_api.constants import DB_NAMING_CONVENTION
+from presentation.config import get_settings
+from presentation.constants import DB_NAMING_CONVENTION
 
 DATABASE_URL = str((settings := get_settings()).DATABASE_URL)
 

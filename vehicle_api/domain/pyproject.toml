@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "domain"
+version = "0.1.0"
+description = "Domain layer of vehicle-api"
+authors = ["mbalzert@gmail.com"]
+packages = [
+    { include = "domain" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"

@@ -8,11 +8,11 @@ import starlette.middleware.base as sbase
 import starlette.middleware.cors as scors
 import uuid_utils as uuid
 
-from vehicle_api import health, vehicles
-from vehicle_api.config import get_settings
-from vehicle_api.logging import configure_logging
-from vehicle_api.middlewares.log import logging_middleware
-from vehicle_api.middlewares.time import add_process_time_header
+from presentation import health, vehicles
+from presentation.config import get_settings
+from presentation.logging import configure_logging
+from presentation.middlewares.log import logging_middleware
+from presentation.middlewares.time import add_process_time_header
 
 logger = logging.getLogger(__name__)
 

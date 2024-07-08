@@ -10,7 +10,7 @@ from sqlalchemy import (
     func,
 )
 
-from vehicle_api.database import metadata
+from presentation.database import metadata
 
 vehicles = Table(
     "vehicles",

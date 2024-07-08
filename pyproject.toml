@@ -4,19 +4,15 @@ version = "0.1.0"
 description = ""
 authors = ["Markus Iorio <mbalzert@gmail.com>"]
 readme = "README.md"
+packages = [
+    { include = "application" },
+    { include = "domain" },
+    { include = "infrastructure" },
+    { include = "presentation" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-alembic = "^1.11.1"
-fastapi = "^0.109.1"
-uvicorn = "^0.23.2"
-pydantic-settings = "^2.0.3"
-psycopg2-binary = "^2.9.9"
-httpx = "^0.25.0"
-asgi-correlation-id = "^4.3.1"
-loguru = "^0.7.2"
-uuid-utils = "^0.6.1"
-sqlalchemy = "^2.0.31"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.5"
@@ -29,7 +25,6 @@ coverage = "^7.3.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
 
 [tool.yapf]
 based_on_style = "pep8"
@@ -73,7 +68,6 @@ exclude = [
 ]
 
 [tool.ruff.format]
-
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
@@ -120,7 +114,17 @@ select = [
     "UP",
     "YTT",
 ]
-ignore = ["A001","A002", "ANN001", "ANN101", "ANN102", "D211", "D212", "D107", "Q000"]
+ignore = [
+    "A001",
+    "A002",
+    "ANN001",
+    "ANN101",
+    "ANN102",
+    "D211",
+    "D212",
+    "D107",
+    "Q000",
+]
 fixable = ["ALL"]
 unfixable = []
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"

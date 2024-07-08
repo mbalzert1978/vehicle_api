@@ -9,8 +9,8 @@ import uuid
 import uuid_utils
 from pydantic import ConfigDict, Field, Json
 
-from vehicle_api.schemas import CustomModel
-from vehicle_api.utils.utils import utc_now
+from presentation.schemas import CustomModel
+from presentation.utils.utils import utc_now
 
 T = typing.TypeVar("T")
 

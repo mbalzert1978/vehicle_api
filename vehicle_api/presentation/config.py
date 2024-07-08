@@ -1,10 +1,9 @@
 import functools
 import typing
 
+from presentation.constants import Environment
 from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from vehicle_api.constants import Environment
 
 
 class Config(BaseSettings):

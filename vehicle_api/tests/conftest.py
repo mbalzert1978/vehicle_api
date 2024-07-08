@@ -3,13 +3,12 @@ from typing import AsyncGenerator
 
 import pytest
 from fastapi.testclient import TestClient
+from presentation.database import get_connection, metadata
+from presentation.main import app
+from presentation.vehicles.services import insert_vehicle
 from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
-
 from tests.data import I30, Q7
-from vehicle_api.database import get_connection, metadata
-from vehicle_api.main import app
-from vehicle_api.vehicles.services import insert_vehicle
 
 
 @pytest.fixture()

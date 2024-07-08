@@ -8,11 +8,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from vehicle_api.database import get_connection
-from vehicle_api.utils.utils import utc_now
-from vehicle_api.vehicles import schemas
-from vehicle_api.vehicles.constants import Tag
-from vehicle_api.vehicles.services import (
+from presentation.database import get_connection
+from presentation.utils.utils import utc_now
+from presentation.vehicles import schemas
+from presentation.vehicles.constants import Tag
+from presentation.vehicles.services import (
     delete_vehicle,
     get_vehicles,
     insert_vehicle,
