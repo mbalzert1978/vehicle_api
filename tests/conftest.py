@@ -2,18 +2,17 @@ from collections.abc import Iterator
 from typing import AsyncGenerator
 
 import pytest
-import pytest_asyncio
 from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
-from src.database import get_connection, metadata
-from src.main import app
-from src.vehicles.services import insert_vehicle
 from tests.data import I30, Q7
+from vehicle_api.database import get_connection, metadata
+from vehicle_api.main import app
+from vehicle_api.vehicles.services import insert_vehicle
 
 
-@pytest_asyncio.fixture()
+@pytest.fixture()
 async def example_data(connection: AsyncConnection) -> None:
     await insert_vehicle(connection, Q7)
     await insert_vehicle(connection, I30)
@@ -29,7 +28,7 @@ def db_engine() -> AsyncEngine:
     )
 
 
-@pytest_asyncio.fixture()
+@pytest.fixture()
 async def connection(db_engine: AsyncEngine) -> AsyncGenerator[AsyncConnection, None]:
     async with db_engine.begin() as conn:
         await conn.run_sync(metadata.drop_all)

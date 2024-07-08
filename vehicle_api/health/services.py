@@ -1,7 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from src.database import execute
+from vehicle_api.database import execute
 
 SQL = """SELECT 1=1;"""
 

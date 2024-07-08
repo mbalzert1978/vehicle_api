@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "vehicle_api"
+name = "vehicle-api"
 version = "0.1.0"
 description = ""
 authors = ["Markus Iorio <mbalzert@gmail.com>"]
