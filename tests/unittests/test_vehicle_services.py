@@ -19,7 +19,7 @@ async def test_insert_vehicle_when_called_with_create_vehicle_obj_should_insert_
     Then: The vehicle should be added to the database and the
         vehicle should be returned with a valid id.
     """
-    to_create = CreateVehicle(name="Test Vehicle", manufacturing_year=2020, is_driveable=True, body={"type": "car"})
+    to_create = CreateVehicle(name="Test Vehicle", manufacturing_year=2020, is_drivable=True, body={"type": "car"})
     result = await insert_vehicle(connection, to_create)
 
     query = text("SELECT * FROM vehicles WHERE id = :id").bindparams(id=result["id"])
@@ -84,7 +84,7 @@ async def test_update_vehicle_when_called_with_uuid_should_update_data_in_vehicl
 
     assert updated.name == "updated_name"
     assert updated.manufacturing_year == i30["manufacturing_year"]
-    assert updated.is_driveable == i30["is_driveable"]
+    assert updated.is_drivable == i30["is_drivable"]
     assert json.loads(updated.body) == i30["body"]
     assert updated.created_at == i30["created_at"].isoformat(" ")
     assert updated.updated_at is not None

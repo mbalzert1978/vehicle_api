@@ -12,7 +12,7 @@ def is_expected(vehicle: dict, expected: dict) -> None:
         case {
             "name": "test_vehicle",
             "manufacturing_year": 2020,
-            "is_driveable": False,
+            "is_drivable": False,
             "id": _,
             "body": body,
             "created_at": created_at,
@@ -24,7 +24,7 @@ def is_expected(vehicle: dict, expected: dict) -> None:
         case {
             "name": "updated_vehicle",
             "manufacturing_year": 2010,
-            "is_driveable": True,
+            "is_drivable": True,
             "body": body,
             "created_at": created_at,
             "updated_at": updated_at,

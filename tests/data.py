@@ -10,7 +10,7 @@ BODY_I30 = {
     "color": "black",
     "kilometer": 10000,
     "price": 15000,
-    "vehicle_type": "limusine",
+    "vehicle_type": "limousine",
 }
 BODY_Q7 = {
     "color": "red",
@@ -21,7 +21,7 @@ BODY_Q7 = {
 PARAMS = {
     "name": "test_vehicle",
     "manufacturing_year": 2020,
-    "is_driveable": False,
+    "is_drivable": False,
     "body": {
         "color": "test_color",
         "kilometer": 10,
@@ -32,7 +32,7 @@ PARAMS = {
 UPDATE = {
     "name": "updated_vehicle",
     "manufacturing_year": 2010,
-    "is_driveable": True,
+    "is_drivable": True,
     "body": {
         "price": 100,
         "kilometers": 100,
@@ -43,17 +43,17 @@ TEST_VEHICLE = CreateVehicle(
     name="test_car",
     manufacturing_year=2020,
     body=BODY,
-    is_driveable=False,
+    is_drivable=False,
 )
 I30 = CreateVehicle(
     name="I30",
     manufacturing_year=2017,
     body=BODY_I30,
-    is_driveable=True,
+    is_drivable=True,
 )
 Q7 = CreateVehicle(
     name="Q7",
     manufacturing_year=2020,
     body=BODY_Q7,
-    is_driveable=True,
+    is_drivable=True,
 )

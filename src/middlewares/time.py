@@ -11,6 +11,6 @@ async def add_process_time_header(
     start_time = time.perf_counter_ns()
     response = await call_next(request)
     end_time = time.perf_counter_ns()
-    prcess_time_in_sec = (end_time - start_time) / 1e6
-    response.headers["X-Process-Time-Milliseconds"] = str(prcess_time_in_sec)
+    process_time_in_sec = (end_time - start_time) / 1e6
+    response.headers["X-Process-Time-Milliseconds"] = str(process_time_in_sec)
     return response

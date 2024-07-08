@@ -40,7 +40,7 @@ async def get_all(
     is_driveable: Annotated[
         bool | None,
         Query(
-            description=FILTER_ON % "is driveable.",
+            description=FILTER_ON % "is drivable.",
             examples=[True],
         ),
     ] = None,
@@ -50,7 +50,7 @@ async def get_all(
 
     Filters can be applied to refine results based on name, manufacturing year, and readiness for driving.
     """
-    filter_on = schemas.FilterVehicle(name=name, manufacturing_year=manufacturing_year, is_driveable=is_driveable)
+    filter_on = schemas.FilterVehicle(name=name, manufacturing_year=manufacturing_year, is_drivable=is_driveable)
     vehicles = await get_vehicles(connection, filter_on.model_dump(exclude_none=True))
     return schemas.DataMany(data=[schemas.VehicleFromDatabase.model_validate(vehicle) for vehicle in vehicles])
 

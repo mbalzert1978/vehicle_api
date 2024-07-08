@@ -27,12 +27,12 @@ class DataOne(typing.Generic[T]):
 
 DESCRIPTION_NAME = "The name of the vehicle."
 DESCRIPTION_MY = "The manufacturing year of the vehicle."
-DESCRIPTION_DRIVEABLE = "Whether the vehicle is driveable."
+DESCRIPTION_DRIVABLE = "Whether the vehicle is drivable."
 DESCRIPTION_BODY = "Additional information about the vehicle in the form of a dictionary."
 
 field_name = functools.partial(Field, description=DESCRIPTION_NAME, examples=["Audi"])
 field_year = functools.partial(Field, description=DESCRIPTION_MY, le=utc_now().year, examples=[1999])
-field_driveable = functools.partial(Field, description=DESCRIPTION_DRIVEABLE)
+field_drivable = functools.partial(Field, description=DESCRIPTION_DRIVABLE)
 field_body = functools.partial(Field, description=DESCRIPTION_BODY, examples=[dict(color="black")])
 
 
@@ -41,7 +41,7 @@ class FilterVehicle(CustomModel):
 
     name: str | None = None
     manufacturing_year: int | None = None
-    is_driveable: bool | None = None
+    is_drivable: bool | None = None
 
 
 class CreateVehicle(CustomModel):
@@ -50,7 +50,7 @@ class CreateVehicle(CustomModel):
     id: uuid.UUID = Field(default_factory=uuid_utils.uuid7)
     name: str = field_name()
     manufacturing_year: int = field_year(default=utc_now().year)
-    is_driveable: bool = field_driveable(default=False)
+    is_drivable: bool = field_drivable(default=False)
     body: dict = field_body(default_factory=dict)
 
 
@@ -59,7 +59,7 @@ class UpdateVehicle(CustomModel):
 
     name: str | None = field_name(default=None)
     manufacturing_year: int | None = field_year(default=None)
-    is_driveable: bool | None = field_driveable(default=None)
+    is_drivable: bool | None = field_drivable(default=None)
     body: dict | None = field_body(default=None)
 
 
