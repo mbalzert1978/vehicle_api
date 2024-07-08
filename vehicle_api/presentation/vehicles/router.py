@@ -6,8 +6,6 @@ from enum import Enum
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.ext.asyncio import AsyncConnection
-
 from presentation.database import get_connection
 from presentation.utils.utils import utc_now
 from presentation.vehicles import schemas
@@ -18,6 +16,7 @@ from presentation.vehicles.services import (
     insert_vehicle,
     update_vehicle,
 )
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 tags: list[str | Enum] = [Tag.VEHICLES]
 

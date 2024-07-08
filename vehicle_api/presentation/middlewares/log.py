@@ -2,7 +2,6 @@ import typing
 
 from fastapi import Request, Response
 from loguru import logger
-
 from presentation.utils.utils import is_client_error, is_server_error, is_success
 
 

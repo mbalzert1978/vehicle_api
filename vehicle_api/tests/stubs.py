@@ -49,7 +49,7 @@ class Stub:
         self.attr_stub.__dict__["func_name"] = attr
         return self.attr_stub
 
-    def _raise_on(self, func_name: str):
+    def _raise_on(self, func_name: str) -> None:
         if func_name != self.raise_on or not self.raises:
             return
         raise self.raises

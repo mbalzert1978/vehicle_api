@@ -1,7 +1,6 @@
+from presentation.database import execute
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
-
-from presentation.database import execute
 
 SQL = """SELECT 1=1;"""
 

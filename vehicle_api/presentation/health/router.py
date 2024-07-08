@@ -4,13 +4,12 @@ from enum import Enum
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.asyncio import AsyncConnection
-
 from presentation.database import get_connection
 from presentation.health.constants import Tag
 from presentation.health.schemas import DatabaseStatus
 from presentation.health.services import get_database_status
+from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 tags: list[str | Enum] = [Tag.HEALTH]
 

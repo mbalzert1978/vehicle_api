@@ -1,3 +1,4 @@
+from presentation.database import metadata
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -9,8 +10,6 @@ from sqlalchemy import (
     Uuid,
     func,
 )
-
-from presentation.database import metadata
 
 vehicles = Table(
     "vehicles",

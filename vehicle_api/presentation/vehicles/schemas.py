@@ -7,10 +7,9 @@ import typing
 import uuid
 
 import uuid_utils
-from pydantic import ConfigDict, Field, Json
-
 from presentation.schemas import CustomModel
 from presentation.utils.utils import utc_now
+from pydantic import ConfigDict, Field, Json
 
 T = typing.TypeVar("T")
 

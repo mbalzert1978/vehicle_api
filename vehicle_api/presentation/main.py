@@ -7,7 +7,6 @@ import fastapi
 import starlette.middleware.base as sbase
 import starlette.middleware.cors as scors
 import uuid_utils as uuid
-
 from presentation import health, vehicles
 from presentation.config import get_settings
 from presentation.logging import configure_logging

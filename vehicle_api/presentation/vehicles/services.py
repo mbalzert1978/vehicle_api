@@ -1,12 +1,11 @@
 import uuid
 from typing import Any, Sequence
 
-from sqlalchemy import RowMapping, delete, insert, select, update
-from sqlalchemy.ext.asyncio import AsyncConnection
-
 from presentation.database import execute, fetch_all, fetch_one
 from presentation.vehicles.database import vehicles
 from presentation.vehicles.schemas import CreateVehicle, UpdateVehicle
+from sqlalchemy import RowMapping, delete, insert, select, update
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 async def insert_vehicle(conn: AsyncConnection, to_create: CreateVehicle) -> RowMapping | None:
