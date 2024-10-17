@@ -3,21 +3,21 @@ from logging.config import fileConfig  # noqa: INP001
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from src.core.config import get_app_settings
-from src.vehicles.database import metadata
+from vehicle_api.config import get_settings
+from vehicle_api.vehicles.database import metadata
 
 config = context.config
 fileConfig(config.config_file_name)  # type: ignore[arg-type]
 target_metadata = metadata
 
-settings = get_app_settings()
+settings = get_settings()
 
 
 def get_url() -> str:
-    if not settings.database_url:
+    if not settings.DATABASE_URL:
         err = "DATABASE_URI is not set, check .env file."
         raise ValueError(err)
-    return str(settings.database_url)
+    return str(settings.DATABASE_URL)
 
 
 def run_migrations_offline() -> None:

@@ -4,12 +4,17 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from src.database import execute
-from src.vehicles.schemas import CreateVehicle, UpdateVehicle, VehicleFromDatabase
-from src.vehicles.services import delete_vehicle, get_vehicles, insert_vehicle, update_vehicle
+from vehicle_api.database import execute
+from vehicle_api.vehicles.schemas import CreateVehicle, UpdateVehicle, VehicleFromDatabase
+from vehicle_api.vehicles.services import (
+    delete_vehicle,
+    get_vehicles,
+    insert_vehicle,
+    update_vehicle,
+)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_insert_vehicle_when_called_with_create_vehicle_obj_should_insert_data_into_vehicles_table(
     connection: AsyncConnection,
 ) -> None:
@@ -28,7 +33,7 @@ async def test_insert_vehicle_when_called_with_create_vehicle_obj_should_insert_
     assert VehicleFromDatabase.model_validate(result) == VehicleFromDatabase.model_validate(raw_sql.mappings().one())
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.usefixtures("example_data")
 async def test_get_vehicles_when_called_should_return_all_vehicles(connection: AsyncConnection) -> None:
     """
@@ -42,7 +47,7 @@ async def test_get_vehicles_when_called_should_return_all_vehicles(connection: A
     assert result[-1].name == "I30"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.usefixtures("example_data")
 async def test_delete_vehicle_when_called_with_uuid_should_delete_data_in_vehicles_table(
     connection: AsyncConnection,
@@ -62,7 +67,7 @@ async def test_delete_vehicle_when_called_with_uuid_should_delete_data_in_vehicl
     assert raw_sql.mappings().one_or_none() is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.usefixtures("example_data")
 async def test_update_vehicle_when_called_with_uuid_should_update_data_in_vehicles_table(
     connection: AsyncConnection,

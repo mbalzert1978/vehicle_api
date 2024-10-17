@@ -36,7 +36,7 @@ def is_expected(vehicle: dict, expected: dict) -> None:
             pytest.fail(f"Unexpected vehicle: {vehicle}")
 
 
-def test_CRUD_happy_path(client: TestClient):
+def test_crud_happy_path(client: TestClient) -> None:
     # Create a new vehicle
     create = client.post("/api/v1/vehicles", content=json.dumps(PARAMS))
     id_ = create.json()["data"]["id"]

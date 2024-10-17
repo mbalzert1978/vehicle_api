@@ -4,9 +4,9 @@ from typing import Any, Sequence
 from sqlalchemy import RowMapping, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from src.database import execute, fetch_all, fetch_one
-from src.vehicles.database import vehicles
-from src.vehicles.schemas import CreateVehicle, UpdateVehicle
+from vehicle_api.database import execute, fetch_all, fetch_one
+from vehicle_api.vehicles.database import vehicles
+from vehicle_api.vehicles.schemas import CreateVehicle, UpdateVehicle
 
 
 async def insert_vehicle(conn: AsyncConnection, to_create: CreateVehicle) -> RowMapping | None:

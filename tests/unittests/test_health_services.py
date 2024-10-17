@@ -3,10 +3,10 @@ from unittest.mock import MagicMock
 import pytest
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from src.health import services
+from vehicle_api.health import services
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_health_execute() -> None:
     async_conn = MagicMock(spec=AsyncConnection)
 
