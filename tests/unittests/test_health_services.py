@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from vehicle_api.health import services
+from app.health import services
 
 
 @pytest.mark.asyncio

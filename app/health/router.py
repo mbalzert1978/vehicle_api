@@ -7,10 +7,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from vehicle_api.database import get_connection
-from vehicle_api.health.constants import Tag
-from vehicle_api.health.schemas import DatabaseStatus
-from vehicle_api.health.services import get_database_status
+from app.database import get_connection
+from app.health.constants import Tag
+from app.health.schemas import DatabaseStatus
+from app.health.services import get_database_status
 
 tags: list[str | Enum] = [Tag.HEALTH]
 

@@ -4,9 +4,9 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from vehicle_api.database import execute
-from vehicle_api.vehicles.schemas import CreateVehicle, UpdateVehicle, VehicleFromDatabase
-from vehicle_api.vehicles.services import (
+from app.database import execute
+from app.vehicles.schemas import CreateVehicle, UpdateVehicle, VehicleFromDatabase
+from app.vehicles.services import (
     delete_vehicle,
     get_vehicles,
     insert_vehicle,
@@ -24,18 +24,27 @@ async def test_insert_vehicle_when_called_with_create_vehicle_obj_should_insert_
     Then: The vehicle should be added to the database and the
         vehicle should be returned with a valid id.
     """
-    to_create = CreateVehicle(name="Test Vehicle", manufacturing_year=2020, is_drivable=True, body={"type": "car"})
+    to_create = CreateVehicle(
+        name="Test Vehicle",
+        manufacturing_year=2020,
+        is_drivable=True,
+        body={"type": "car"},
+    )
     result = await insert_vehicle(connection, to_create)
 
     query = text("SELECT * FROM vehicles WHERE id = :id").bindparams(id=result["id"])
     raw_sql = await execute(connection, query)
 
-    assert VehicleFromDatabase.model_validate(result) == VehicleFromDatabase.model_validate(raw_sql.mappings().one())
+    assert VehicleFromDatabase.model_validate(
+        result
+    ) == VehicleFromDatabase.model_validate(raw_sql.mappings().one())
 
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("example_data")
-async def test_get_vehicles_when_called_should_return_all_vehicles(connection: AsyncConnection) -> None:
+async def test_get_vehicles_when_called_should_return_all_vehicles(
+    connection: AsyncConnection,
+) -> None:
     """
     Given: A database with vehicles
     When: Getting all vehicles using the service get_vehicles

@@ -8,11 +8,11 @@ import starlette.middleware.base as sbase
 import starlette.middleware.cors as scors
 import uuid_utils as uuid
 
-from vehicle_api import health, vehicles
-from vehicle_api.config import get_settings
-from vehicle_api.logging import configure_logging
-from vehicle_api.middlewares.log import logging_middleware
-from vehicle_api.middlewares.time import add_process_time_header
+from app import health, vehicles
+from app.config import get_settings
+from app.logging import configure_logging
+from app.middlewares.log import logging_middleware
+from app.middlewares.time import add_process_time_header
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,9 @@ def get_application() -> fastapi.FastAPI:
         allow_headers=settings.CORS_HEADERS,
     )
 
-    application.add_middleware(sbase.BaseHTTPMiddleware, dispatch=add_process_time_header)
+    application.add_middleware(
+        sbase.BaseHTTPMiddleware, dispatch=add_process_time_header
+    )
     application.add_middleware(sbase.BaseHTTPMiddleware, dispatch=logging_middleware)
 
     application.add_middleware(

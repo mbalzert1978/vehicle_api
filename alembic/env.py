@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from vehicle_api.vehicles.database import vehicles
+from app.vehicles.database import vehicles
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -14,8 +14,8 @@ from sqlalchemy import (
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
-from vehicle_api.config import get_settings
-from vehicle_api.constants import DB_NAMING_CONVENTION
+from app.config import get_settings
+from app.constants import DB_NAMING_CONVENTION
 
 DATABASE_URL = str((settings := get_settings()).DATABASE_URL)
 
@@ -38,12 +38,16 @@ async def get_connection() -> AsyncGenerator[AsyncConnection, None]:
         raise HTTPException(HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
 
 
-async def fetch_one(conn: AsyncConnection, select_query: Select | Insert | Update) -> RowMapping | None:
+async def fetch_one(
+    conn: AsyncConnection, select_query: Select | Insert | Update
+) -> RowMapping | None:
     cursor: CursorResult = await conn.execute(select_query)
     return cursor.mappings().one_or_none()
 
 
-async def fetch_all(conn: AsyncConnection, select_query: Select | Insert | Update) -> Sequence[RowMapping]:
+async def fetch_all(
+    conn: AsyncConnection, select_query: Select | Insert | Update
+) -> Sequence[RowMapping]:
     cursor: CursorResult = await conn.execute(select_query)
     return cursor.mappings().all()
 

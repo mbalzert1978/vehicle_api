@@ -1,6 +1,6 @@
 import datetime
 
-from vehicle_api.utils import utils
+from app.utils import utils
 
 
 def test_utc_now_when_called_should_return_utc_time_aware_datetime_object() -> None:
