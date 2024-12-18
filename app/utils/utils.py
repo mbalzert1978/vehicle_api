@@ -12,7 +12,11 @@ def is_success(status_code: int) -> bool:
 
 
 def is_client_error(status_code: int) -> bool:
-    return http.HTTPStatus.BAD_REQUEST <= status_code < http.HTTPStatus.INTERNAL_SERVER_ERROR
+    return (
+        http.HTTPStatus.BAD_REQUEST
+        <= status_code
+        < http.HTTPStatus.INTERNAL_SERVER_ERROR
+    )
 
 
 def is_server_error(status_code: int) -> bool:

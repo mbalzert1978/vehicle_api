@@ -3,7 +3,7 @@ import typing
 from fastapi import Request, Response
 from loguru import logger
 
-from vehicle_api.utils.utils import is_client_error, is_server_error, is_success
+from app.utils.utils import is_client_error, is_server_error, is_success
 
 
 async def logging_middleware(
@@ -19,6 +19,8 @@ async def logging_middleware(
     elif is_client_error(response.status_code):
         logger.error(f"[{client}]::{request.method}::{request.url.path}::CLIENT_ERROR")
     elif is_server_error(response.status_code):
-        logger.critical(f"[{client}]::{request.method}::{request.url.path}::SERVER_ERROR")
+        logger.critical(
+            f"[{client}]::{request.method}::{request.url.path}::SERVER_ERROR"
+        )
 
     return response

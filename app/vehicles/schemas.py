@@ -9,8 +9,8 @@ import uuid
 import uuid_utils
 from pydantic import ConfigDict, Field, Json
 
-from vehicle_api.schemas import CustomModel
-from vehicle_api.utils.utils import utc_now
+from app.schemas import CustomModel
+from app.utils.utils import utc_now
 
 T = typing.TypeVar("T")
 
@@ -28,12 +28,18 @@ class DataOne(typing.Generic[T]):
 DESCRIPTION_NAME = "The name of the vehicle."
 DESCRIPTION_MY = "The manufacturing year of the vehicle."
 DESCRIPTION_DRIVABLE = "Whether the vehicle is drivable."
-DESCRIPTION_BODY = "Additional information about the vehicle in the form of a dictionary."
+DESCRIPTION_BODY = (
+    "Additional information about the vehicle in the form of a dictionary."
+)
 
 field_name = functools.partial(Field, description=DESCRIPTION_NAME, examples=["Audi"])
-field_year = functools.partial(Field, description=DESCRIPTION_MY, le=utc_now().year, examples=[1999])
+field_year = functools.partial(
+    Field, description=DESCRIPTION_MY, le=utc_now().year, examples=[1999]
+)
 field_drivable = functools.partial(Field, description=DESCRIPTION_DRIVABLE)
-field_body = functools.partial(Field, description=DESCRIPTION_BODY, examples=[dict(color="black")])
+field_body = functools.partial(
+    Field, description=DESCRIPTION_BODY, examples=[dict(color="black")]
+)
 
 
 class FilterVehicle(CustomModel):

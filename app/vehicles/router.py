@@ -8,11 +8,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from vehicle_api.database import get_connection
-from vehicle_api.utils.utils import utc_now
-from vehicle_api.vehicles import schemas
-from vehicle_api.vehicles.constants import Tag
-from vehicle_api.vehicles.services import (
+from app.database import get_connection
+from app.utils.utils import utc_now
+from app.vehicles import schemas
+from app.vehicles.constants import Tag
+from app.vehicles.services import (
     delete_vehicle,
     get_vehicles,
     insert_vehicle,
@@ -55,9 +55,15 @@ async def get_all(
 
     Filters can be applied to refine results based on name, manufacturing year, and readiness for driving.
     """
-    filter_on = schemas.FilterVehicle(name=name, manufacturing_year=manufacturing_year, is_drivable=is_driveable)
+    filter_on = schemas.FilterVehicle(
+        name=name, manufacturing_year=manufacturing_year, is_drivable=is_driveable
+    )
     vehicles = await get_vehicles(connection, filter_on.model_dump(exclude_none=True))
-    return schemas.DataMany(data=[schemas.VehicleFromDatabase.model_validate(vehicle) for vehicle in vehicles])
+    return schemas.DataMany(
+        data=[
+            schemas.VehicleFromDatabase.model_validate(vehicle) for vehicle in vehicles
+        ]
+    )
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -117,7 +123,9 @@ async def get(
     """
     if not (vehicle := await get_vehicles(connection, dict(id=id))):
         raise HTTPException(status_code=404, detail="Vehicle not found.")
-    return schemas.DataOne(schemas.VehicleFromDatabase.model_validate(operator.getitem(vehicle, 0)))
+    return schemas.DataOne(
+        schemas.VehicleFromDatabase.model_validate(operator.getitem(vehicle, 0))
+    )
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -14,7 +14,9 @@ def configure_logging() -> None:
     logger.remove()
     logging.getLogger("uvicorn.error").disabled = True
     logging.getLogger("uvicorn.access").disabled = True
-    fmt = "[{time}] [{correlation_id}] [{level}] - {name}:{function}:{line} :: {message}"
+    fmt = (
+        "[{time}] [{correlation_id}] [{level}] - {name}:{function}:{line} :: {message}"
+    )
     logger.add(sys.stdout, format=fmt, level="INFO", filter=_correlation_id_filter)
     logger.add(
         "logs/app.log",
