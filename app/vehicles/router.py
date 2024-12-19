@@ -38,7 +38,7 @@ def get_all(
             description=FILTER_ON % "manufacturing year.",
         ),
     ] = None,
-    is_driveable: Annotated[
+    is_drivable: Annotated[
         bool | None,
         Query(
             description=FILTER_ON % "is drivable.",
@@ -52,7 +52,7 @@ def get_all(
     Filters can be applied to refine results based on name, manufacturing year, and readiness for driving.
     """
     filter_on = schemas.FilterVehicle(
-        name=name, manufacturing_year=manufacturing_year, is_drivable=is_driveable
+        name=name, manufacturing_year=manufacturing_year, is_drivable=is_drivable
     )
     vehicles = get_vehicles(connection, filter_on.model_dump(exclude_none=True))
     return schemas.DataMany(
