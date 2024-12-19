@@ -20,7 +20,7 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:admin123@db:5432/db
+      - DATABASE_URL=postgresql://postgres:admin123@db:5432/db
 
 volumes:
   postgres_data:
