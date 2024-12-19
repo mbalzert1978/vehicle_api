@@ -1,8 +1,7 @@
 import json
 
 import pytest
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy import Connection, text
 
 from app.database import execute
 from app.vehicles.schemas import CreateVehicle, UpdateVehicle, VehicleFromDatabase
@@ -14,9 +13,9 @@ from app.vehicles.services import (
 )
 
 
-@pytest.mark.asyncio
-async def test_insert_vehicle_when_called_with_create_vehicle_obj_should_insert_data_into_vehicles_table(
-    connection: AsyncConnection,
+@pytest.mark.filterwarnings("ignore:Pydantic")
+def test_insert_vehicle_when_called_with_create_vehicle_obj_should_insert_data_into_vehicles_table(
+    connection: Connection,
 ) -> None:
     """
     Given: A empty database session
@@ -30,70 +29,70 @@ async def test_insert_vehicle_when_called_with_create_vehicle_obj_should_insert_
         is_drivable=True,
         body={"type": "car"},
     )
-    result = await insert_vehicle(connection, to_create)
+    result = insert_vehicle(connection, to_create)
 
     query = text("SELECT * FROM vehicles WHERE id = :id").bindparams(id=result["id"])
-    raw_sql = await execute(connection, query)
+    raw_sql = execute(connection, query)
 
     assert VehicleFromDatabase.model_validate(
         result
     ) == VehicleFromDatabase.model_validate(raw_sql.mappings().one())
 
 
-@pytest.mark.asyncio
 @pytest.mark.usefixtures("example_data")
-async def test_get_vehicles_when_called_should_return_all_vehicles(
-    connection: AsyncConnection,
+@pytest.mark.filterwarnings("ignore:Pydantic")
+def test_get_vehicles_when_called_should_return_all_vehicles(
+    connection: Connection,
 ) -> None:
     """
     Given: A database with vehicles
     When: Getting all vehicles using the service get_vehicles
     Then: All vehicles should be returned.
     """
-    result = await get_vehicles(connection, {})
+    result = get_vehicles(connection, {})
 
     assert result[0].name == "Q7"
     assert result[-1].name == "I30"
 
 
-@pytest.mark.asyncio
 @pytest.mark.usefixtures("example_data")
-async def test_delete_vehicle_when_called_with_uuid_should_delete_data_in_vehicles_table(
-    connection: AsyncConnection,
+@pytest.mark.filterwarnings("ignore:Pydantic")
+def test_delete_vehicle_when_called_with_uuid_should_delete_data_in_vehicles_table(
+    connection: Connection,
 ) -> None:
     """
     Given: A database with a vehicle
     When: Delete vehicle service is called with the uuid of the vehicle
     Then: The vehicle should be deleted from the database.
     """
-    [q7] = await get_vehicles(connection, dict(name="Q7"))
+    [q7] = get_vehicles(connection, dict(name="Q7"))
 
-    await delete_vehicle(connection, id := q7["id"])
+    delete_vehicle(connection, id := q7["id"])
 
     query = text("SELECT * FROM vehicles WHERE id = :id").bindparams(id=id)
-    raw_sql = await execute(connection, query)
+    raw_sql = execute(connection, query)
 
     assert raw_sql.mappings().one_or_none() is None
 
 
-@pytest.mark.asyncio
 @pytest.mark.usefixtures("example_data")
-async def test_update_vehicle_when_called_with_uuid_should_update_data_in_vehicles_table(
-    connection: AsyncConnection,
+@pytest.mark.filterwarnings("ignore:Pydantic")
+def test_update_vehicle_when_called_with_uuid_should_update_data_in_vehicles_table(
+    connection: Connection,
 ) -> None:
     """
     Given: A database with a vehicle
     When: update vehicle service is called with the uuid of the vehicle
     Then: The vehicle should be updated in the database.
     """
-    [i30] = await get_vehicles(connection, dict(name="I30"))
+    [i30] = get_vehicles(connection, dict(name="I30"))
 
     update_with = UpdateVehicle(name="updated_name")
 
-    await update_vehicle(connection, id := i30["id"], update_with)
+    update_vehicle(connection, id := i30["id"], update_with)
 
     query = text("SELECT * FROM vehicles WHERE id = :id").bindparams(id=id)
-    raw_sql = await execute(connection, query)
+    raw_sql = execute(connection, query)
     updated = raw_sql.mappings().one()
 
     assert updated.name == "updated_name"
