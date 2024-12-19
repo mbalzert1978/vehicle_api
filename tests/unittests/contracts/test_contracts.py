@@ -7,10 +7,15 @@ from app.contracts import (
     ArgumentNullOrWhiteSpace,
     ArgumentTypeMismatch,
 )
+from app.contracts._contracts import (
+    NULL_MSG,
+    NULL_OR_EMPTY_MSG,
+    NULL_OR_WHITESPACE_MSG,
+)
 
 
 def test_requires_not_null_when_given_none_should_raise_argument_null():
-    with pytest.raises(ArgumentNull, match="Argument cannot be None."):
+    with pytest.raises(ArgumentNull, match=NULL_MSG):
         contracts.requires_not_null(None)
 
 
@@ -23,11 +28,11 @@ def test_requires_not_null_when_given_non_none_value_should_not_raise_exception(
 @pytest.mark.parametrize(
     "value, exception, message",
     [
-        (None, ArgumentNull, "Argument cannot be None."),
-        ("", ArgumentNullOrEmpty, "Argument cannot be empty."),
-        ("   ", ArgumentNullOrWhiteSpace, "Argument cannot be null or whitespace."),
-        ([], ArgumentNullOrEmpty, "Argument cannot be empty."),
-        ({}, ArgumentNullOrEmpty, "Argument cannot be empty."),
+        (None, ArgumentNull, NULL_MSG),
+        ("", ArgumentNullOrEmpty, NULL_OR_EMPTY_MSG),
+        ("   ", ArgumentNullOrWhiteSpace, NULL_OR_WHITESPACE_MSG),
+        ([], ArgumentNullOrEmpty, NULL_OR_EMPTY_MSG),
+        ({}, ArgumentNullOrEmpty, NULL_OR_EMPTY_MSG),
     ],
     ids=[
         "test_requires_not_null_not_empty_when_given_none_should_raise_argument_null",
