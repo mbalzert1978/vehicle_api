@@ -1,16 +1,13 @@
 from unittest.mock import MagicMock
 
-import pytest
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy import Connection
 
 from app.health import services
 
 
-@pytest.mark.asyncio
-async def test_health_execute() -> None:
-    async_conn = MagicMock(spec=AsyncConnection)
+def test_health_execute() -> None:
+    connection = MagicMock(spec=Connection)
 
-    await services.get_database_status(async_conn)
+    services.get_database_status(connection)
 
-    assert async_conn.execute.called
-    assert async_conn.execute.return_value.one.called
+    assert connection.execute.called
