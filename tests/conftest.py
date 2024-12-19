@@ -1,11 +1,8 @@
-from collections.abc import Iterator
-from typing import AsyncGenerator
+from collections.abc import Generator, Iterator
 
 import pytest
-import pytest_asyncio
 from fastapi.testclient import TestClient
-from sqlalchemy import StaticPool
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
+from sqlalchemy import Connection, Engine, StaticPool, create_engine
 
 from app.database import get_connection, metadata
 from app.main import app
@@ -13,34 +10,34 @@ from app.vehicles.services import insert_vehicle
 from tests.data import I30, Q7
 
 
-@pytest_asyncio.fixture()
-async def example_data(connection: AsyncConnection) -> None:
-    await insert_vehicle(connection, Q7)
-    await insert_vehicle(connection, I30)
+@pytest.fixture()
+def example_data(connection: Connection) -> None:
+    insert_vehicle(connection, Q7)
+    insert_vehicle(connection, I30)
 
 
 @pytest.fixture()
-def db_engine() -> AsyncEngine:
-    return create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
+def db_engine() -> Engine:
+    return create_engine(
+        "sqlite:///:memory:",
         echo=True,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
 
 
-@pytest_asyncio.fixture()
-async def connection(db_engine: AsyncEngine) -> AsyncGenerator[AsyncConnection, None]:
-    async with db_engine.begin() as conn:
-        await conn.run_sync(metadata.drop_all)
-        await conn.run_sync(metadata.create_all)
+@pytest.fixture()
+def connection(db_engine: Engine) -> Generator[Connection, None]:
+    with db_engine.begin() as conn:
+        metadata.drop_all(bind=conn)
+        metadata.create_all(bind=conn)
         yield conn
-        await conn.close()
-        await db_engine.dispose()
+        conn.close()
+        db_engine.dispose()
 
 
 @pytest.fixture()
-def client(connection: AsyncConnection) -> Iterator[TestClient]:
+def client(connection: Connection) -> Iterator[TestClient]:
     app.dependency_overrides[get_connection] = lambda: connection
     with TestClient(app) as c:
         yield c

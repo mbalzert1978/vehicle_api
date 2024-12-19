@@ -3,7 +3,7 @@
 create a .env file like this:
 
 ```.env
-DATABASE_URL=postgresql+asyncpg://app:app@app_db:5432/app
+DATABASE_URL=postgresql://app:app@app_db:5432/app
 
 SITE_DOMAIN=127.0.0.1
 
