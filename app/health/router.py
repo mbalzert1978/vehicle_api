@@ -1,6 +1,5 @@
 """FastAPI service module."""
 
-from enum import Enum
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -8,13 +7,10 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from app.database import get_connection
-from app.health.constants import Tag
 from app.health.schemas import DatabaseStatus
 from app.health.services import get_database_status
 
-tags: list[str | Enum] = [Tag.HEALTH]
-
-router = APIRouter(prefix=Tag.HEALTH, tags=tags)
+router = APIRouter(prefix="/health", tags=["Health"])
 
 
 @router.get("/", response_model=DatabaseStatus)
