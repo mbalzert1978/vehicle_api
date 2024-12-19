@@ -55,8 +55,8 @@ def get_application() -> fastapi.FastAPI:
         transformer=lambda a: a,
     )
 
-    application.include_router(vehicles.router, tags=vehicles.tags)
-    application.include_router(health.router, tags=health.tags)
+    application.include_router(vehicles.router)
+    application.include_router(health.router)
 
     return application
 

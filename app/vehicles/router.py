@@ -2,7 +2,6 @@
 
 import operator
 import uuid
-from enum import Enum
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -11,7 +10,6 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 from app.database import get_connection
 from app.utils.utils import utc_now
 from app.vehicles import schemas
-from app.vehicles.constants import Tag
 from app.vehicles.services import (
     delete_vehicle,
     get_vehicles,
@@ -19,9 +17,7 @@ from app.vehicles.services import (
     update_vehicle,
 )
 
-tags: list[str | Enum] = [Tag.VEHICLES]
-
-router = APIRouter(prefix=Tag.VEHICLES, tags=tags)
+router = APIRouter(prefix="/vehicles", tags=["Vehicles"])
 
 FILTER_ON = "filter by %s, optional."
 

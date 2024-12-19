@@ -1,5 +1,5 @@
 """Service Module."""
 
-from app.health.router import router, tags
+from app.health.router import router
 
-__all__ = ["router", "tags"]
+__all__ = ["router"]
