@@ -4,6 +4,8 @@ from functools import partial
 
 from fastapi import Request, Response
 
+from app import contracts
+
 NANOSECONDS_TO_MILLISECONDS_DIVIDER = 1e6
 HEADER_NAME = "X-Process-Time-Milliseconds"
 
@@ -12,6 +14,8 @@ async def add_process_time_header(
     request: Request,
     call_next: Callable[[Request], Awaitable[Response]],
 ) -> Response:
+    contracts.requires_not_null(request)
+    contracts.requires_not_null(call_next)
     response, process_time = await measure_process_time(partial(call_next, request))
     return add_header_to_response(response, process_time)
 

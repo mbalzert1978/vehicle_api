@@ -25,7 +25,11 @@ def log_response(request: Request, response: Response) -> None:
 
 
 def create_log_message(request: Request) -> str:
-    return f"[{request.client or "NoClient"}]::[{request.method}]::[{request.url.path}]"
+    return (
+        f"[{request.client or "NoAddress"}]::[{request.method}]::[{request.url.path}]"
+        if isinstance(request, Request)
+        else ""
+    )
 
 
 def get_log_strategy(status_code: int) -> tuple[Callable, str]:
