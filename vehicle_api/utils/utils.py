@@ -1,6 +1,8 @@
 import datetime
 import http
 
+import uuid_utils as uuid
+
 
 def utc_now() -> datetime.datetime:
     """Returns a utc timezone aware datetime object."""
@@ -17,3 +19,13 @@ def is_client_error(status_code: int) -> bool:
 
 def is_server_error(status_code: int) -> bool:
     return status_code >= http.HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def _is_valid_uuid7(uuid_: str) -> bool:
+    """
+    Check whether a string is a valid v4 uuid.
+    """
+    try:
+        return bool(uuid.UUID(uuid_, version=7))
+    except ValueError:
+        return False

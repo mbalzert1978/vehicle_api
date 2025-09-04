@@ -6,25 +6,15 @@ import asgi_correlation_id as cid
 import fastapi
 import starlette.middleware.base as sbase
 import starlette.middleware.cors as scors
-import uuid_utils as uuid
 
 from vehicle_api import health, vehicles
 from vehicle_api.config import get_settings
 from vehicle_api.logging import configure_logging
-from vehicle_api.middlewares.log import logging_middleware
-from vehicle_api.middlewares.time import add_process_time_header
+from vehicle_api.presentation.middlewares.log import logging_middleware
+from vehicle_api.presentation.middlewares.time import add_process_time_header
+from vehicle_api.utils.utils import _is_valid_uuid7, uuid
 
 logger = logging.getLogger(__name__)
-
-
-def _is_valid_uuid7(uuid_: str) -> bool:
-    """
-    Check whether a string is a valid v4 uuid.
-    """
-    try:
-        return bool(uuid.UUID(uuid_, version=7))
-    except ValueError:
-        return False
 
 
 def get_application() -> fastapi.FastAPI:
