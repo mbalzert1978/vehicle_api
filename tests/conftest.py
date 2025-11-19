@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import Connection, Engine, StaticPool, create_engine
 
-from app.database import get_connection, metadata
+from app.database import get_connection, get_database_engine
 from app.main import app
 from app.vehicles.services import insert_vehicle
 from tests.data import I30, Q7
@@ -28,6 +28,7 @@ def db_engine() -> Engine:
 
 @pytest.fixture()
 def connection(db_engine: Engine) -> Generator[Connection, None]:
+    metadata = get_database_engine().metadata
     with db_engine.begin() as conn:
         metadata.drop_all(bind=conn)
         metadata.create_all(bind=conn)

@@ -10,11 +10,13 @@ from sqlalchemy import (
     func,
 )
 
-from app.database import metadata
+from app.database import get_database_engine
+
+_engine = get_database_engine()
 
 vehicles = Table(
     "vehicles",
-    metadata,
+    _engine.metadata,
     Column("id", Uuid, primary_key=True),
     Column("name", String, nullable=False),
     Column("manufacturing_year", Integer, nullable=False),

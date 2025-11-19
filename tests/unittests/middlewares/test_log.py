@@ -2,18 +2,19 @@ from unittest.mock import MagicMock
 
 import pytest
 from fastapi import Request
+from fastapi.datastructures import Address
 from loguru import logger
 
-from app.middlewares.log import create_log_message, get_log_strategy
+from app.middlewares.log import create_log_message
+from app.middlewares.LogStrategy import LogStrategyFactory
 
 
 def get_request_object(
-    client: str = "TestClient",
     method: str = "GET",
     url: str = "/api/v1/vehicles",
 ) -> MagicMock:
     request = MagicMock(spec=Request)
-    request.client = client
+    request.client = MagicMock(spec=Address)
     request.method = method
     request.url.path = url
     return request
@@ -29,19 +30,20 @@ def test_create_log_message_when_given_valid_request_should_return_formatted_log
     """
     assert (
         create_log_message(get_request_object())
-        == "[TestClient]::[GET]::[/api/v1/vehicles]"
+        == "[NoAddress]::[GET]::[/api/v1/vehicles]"
     )
 
 
-def test_create_log_message_when_given_non_request_object_should_return_empty_string() -> (
+def test_create_log_message_when_given_none_request_object_should_raise_assertion_error() -> (
     None
 ):
     """
-    Given: A non-Request object
-    When: create_log_message is called with the non-Request object
-    Then: The log message should be an empty string
+    Given: A None value instead of a Request object
+    When: create_log_message is called with None
+    Then: An AssertionError should be raised
     """
-    assert create_log_message(None) == ""
+    with pytest.raises(AssertionError, match="Request must be an instance of Request"):
+        create_log_message(None)
 
 
 @pytest.mark.parametrize(
@@ -55,23 +57,23 @@ def test_create_log_message_when_given_non_request_object_should_return_empty_st
         (600, logger.warning, "UNKNOWN STATUS CODE: 600"),
     ],
     ids=[
-        "test_get_log_strategy_when_given_informational_code_should_return_info_logger_and_informational_message",
-        "test_get_log_strategy_when_given_success_code_should_return_info_logger_and_success_message",
-        "test_get_log_strategy_when_given_redirection_code_should_return_info_logger_and_redirection_message",
-        "test_get_log_strategy_when_given_client_error_code_should_return_error_logger_and_client_error_message",
-        "test_get_log_strategy_when_given_server_error_code_should_return_critical_logger_and_server_error_message",
-        "test_get_log_strategy_when_given_unknown_code_should_return_warning_logger_and_unknown_status_message",
+        "test_log_strategy_factory_new_when_given_informational_code_should_return_info_logger_and_informational_message",
+        "test_log_strategy_factory_new_when_given_success_code_should_return_info_logger_and_success_message",
+        "test_log_strategy_factory_new_when_given_redirection_code_should_return_info_logger_and_redirection_message",
+        "test_log_strategy_factory_new_when_given_client_error_code_should_return_error_logger_and_client_error_message",
+        "test_log_strategy_factory_new_when_given_server_error_code_should_return_critical_logger_and_server_error_message",
+        "test_log_strategy_factory_new_when_given_unknown_code_should_return_warning_logger_and_unknown_status_message",
     ],
 )
-def test_get_log_strategy_when_given_status_code_should_return_correct_logger_and_message(
+def test_log_strategy_factory_new_when_given_status_code_should_return_correct_logger_and_message(
     code, logger_fn, expected_message
 ):
     """
     Given: A status code
-    When: get_log_strategy is called with the status code
+    When: LogStrategyFactory.new is called with the status code
     Then: It should return the expected logger function and status message
     """
-    log_function, status_message = get_log_strategy(code)
+    log_function, status_message = LogStrategyFactory.new(code)
 
     assert log_function == logger_fn
     assert status_message == expected_message
